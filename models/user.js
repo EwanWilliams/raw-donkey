@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true},
     password: { type: String, required: true},
     profile_img: { data: Buffer, contentType: String },
-    unit_pref: String
+    unit_pref: { type: String, default: "metric" }
 });
 
 
@@ -23,5 +23,8 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
+userSchema.plugin(passportLocalMongoose);
 
-module.exports = mongoose.model('User', userSchema);
+
+const User = mongoose.model('User', userSchema);
+export default User;
