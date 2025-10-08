@@ -5,9 +5,9 @@ import mongoose from 'mongoose';
 import morgan from 'morgan';
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
-import User from "./models/user.js";
-import authRoutes from './routes/auth.js';
-import recipeRoutes from './routes/recipe.js';
+import User from "./models/user.mjs";
+import authRoutes from './routes/auth.mjs';
+import recipeRoutes from './routes/recipe.mjs';
 
 const app = express();
 const PORT = 3000;
