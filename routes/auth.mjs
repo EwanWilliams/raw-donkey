@@ -1,6 +1,7 @@
 import express from "express";
-import passport from "passport";
 import User from "../models/user.mjs";
+
+
 const router = express.Router();
 
 
@@ -22,6 +23,12 @@ router.post('/register', async (req, res) => {
         console.error("Registration error: ", err);
         res.status(500).json({error: err});
     }
+});
+
+
+
+// login route
+router.post('/login', (req, res, next) => {
 });
 
 export default router;

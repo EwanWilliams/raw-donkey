@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import passportLocalMongoose from "passport-local-mongoose";
 
 
 // number of salts generated in rounds of encryption
@@ -23,8 +22,6 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
-userSchema.plugin(passportLocalMongoose);
 
-
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model('Users', userSchema, 'Users');
 export default User;

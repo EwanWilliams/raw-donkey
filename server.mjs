@@ -3,8 +3,6 @@ import session from 'express-session';
 import ViteExpress from 'vite-express';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
-import passport from 'passport';
-import LocalStrategy from 'passport-local';
 import User from "./models/user.mjs";
 import authRoutes from './routes/auth.mjs';
 import recipeRoutes from './routes/recipe.mjs';
@@ -27,13 +25,6 @@ app.use(session({
     }
 }));
 
-// passport setup
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
 
 // database connection
 mongoose.connect('mongodb+srv://node-server-user:rW3QfvSYsEeDzYfb@raw-donkey.me2whry.mongodb.net/?retryWrites=true&w=majority&appName=raw-donkey').then(() => console.log("Connected to DB.")).catch(error => console.log(error));
@@ -46,10 +37,7 @@ app.use('/recipe', recipeRoutes);
 
 // testing auth
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Hello World - Authentication Server',
-    authenticated: req.isAuthenticated ? req.isAuthenticated() : false
-  });
+    
 });
 
 
