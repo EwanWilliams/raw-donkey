@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
-
 // number of salts generated in rounds of encryption
 const saltRounds = 10;
 
@@ -13,7 +12,6 @@ const userSchema = new mongoose.Schema({
     unit_pref: { type: String, default: "metric" }
 });
 
-
 // before save is carried out, hash the password string
 userSchema.pre('save', async function(next) {
     if (this.isModified('password')) {
@@ -21,7 +19,6 @@ userSchema.pre('save', async function(next) {
     }
     next();
 });
-
 
 const User = mongoose.model('Users', userSchema, 'Users');
 export default User;

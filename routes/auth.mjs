@@ -3,7 +3,6 @@ import User from "../models/user.mjs";
 import { generateTokenAndSetCookie } from "../utils/generateToken.mjs";
 import bcrypt from 'bcrypt';
 
-
 const router = express.Router();
 
 
@@ -26,7 +25,7 @@ router.post('/register', async (req, res) => {
         }
     } catch(err) {
         console.error("Registration error: ", err);
-        res.status(500).json({error: err});
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
@@ -40,7 +39,7 @@ router.post('/login', async (req, res) => {
 
             if (passwordCorrect) {
                 generateTokenAndSetCookie(userFound._id, res);
-                res.status(200).json({ message: "Logged in!" });
+                res.status(200).json({ message: "logged in" });
             } else {
                 res.status(400).json({ error: "Invalid username or password." });
             }
@@ -50,7 +49,19 @@ router.post('/login', async (req, res) => {
         }
     } catch(err) {
         console.error("Login error: ", err);
-        res.status(500).json({error: err});
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+// USER LOGOUT ROUTE
+router.post('/logout', async (req, res) => {
+    try {
+        res.cookie("jwt", "", { maxAge: 0 });
+        res.status(200).json({ message: "logged out" });
+    } catch(err) {
+        console.log("Logout error: ", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
