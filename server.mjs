@@ -1,32 +1,22 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
-import session from 'express-session';
 import ViteExpress from 'vite-express';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
-import User from "./models/user.mjs";
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.mjs';
 import recipeRoutes from './routes/recipe.mjs';
-import dotenv from 'dotenv';
 
-dotenv.config()
+
 const app = express();
 const PORT = process.env._PORT;
 const DB_URL = process.env.database_url;
 
 // middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan('dev'));
-
-// session config
-app.use(session({
-    secret: process.env.session_secret,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: false,
-        maxAge: 24 * 60 * 60 * 1000 // 24 hrs
-    }
-}));
 
 
 // database connection

@@ -1,5 +1,6 @@
 import express from "express";
 import User from "../models/user.mjs";
+import { generateTokenAndSetCookie } from "../utils/generateToken.mjs";
 
 
 const router = express.Router();
@@ -16,6 +17,8 @@ router.post('/register', async (req, res) => {
                 username: req.body.username,
                 password: req.body.password
             });
+            // set login cookie
+            generateTokenAndSetCookie(user._id, res);
             res.status(201).json({message: "user created successfully"});
         }
     }
