@@ -6,9 +6,12 @@ import morgan from 'morgan';
 import User from "./models/user.mjs";
 import authRoutes from './routes/auth.mjs';
 import recipeRoutes from './routes/recipe.mjs';
+import dotenv from 'dotenv';
 
+dotenv.config()
 const app = express();
-const PORT = 3000;
+const PORT = process.env._PORT;
+const DB_URL = process.env.database_url;
 
 // middleware
 app.use(express.json());
@@ -16,7 +19,7 @@ app.use(morgan('dev'));
 
 // session config
 app.use(session({
-    secret: 'secret-key-update-before-prod',
+    secret: process.env.session_secret,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -27,7 +30,7 @@ app.use(session({
 
 
 // database connection
-mongoose.connect('mongodb+srv://node-server-user:rW3QfvSYsEeDzYfb@raw-donkey.me2whry.mongodb.net/raw-donkey?retryWrites=true&w=majority&appName=raw-donkey').then(() => console.log("Connected to DB.")).catch(error => console.log(error));
+mongoose.connect(DB_URL).then(() => console.log("Connected to DB.")).catch(error => console.log(error));
 
 
 // use routes in routes folder
