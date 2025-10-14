@@ -17,12 +17,14 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
-// database connection
+
 mongoose.connect(DB_URL).then(() => console.log("Connected to DB.")).catch(error => console.log(error));
 
 // use routes in routes folder
-app.use('/auth', authRoutes);
-app.use('/recipe', recipeRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/recipe', recipeRoutes);
+
+ViteExpress.config({ mode: "development" });
 
 ViteExpress.listen(app, PORT, () => {
     console.log(`Server running on port ${PORT}`);

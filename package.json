@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "bootstrap": "^5.3.8",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
@@ -9,7 +10,14 @@
     "mongoose": "^8.19.1",
     "morgan": "^1.10.1",
     "react": "^19.1.1",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.4",
     "vite": "^7.1.7",
     "vite-express": "^0.21.1"
+  },
+  "scripts": {
+    "dev": "node server.mjs",
+    "build": "vite build",
+    "preview": "vite preview"
   }
 }

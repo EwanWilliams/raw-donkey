@@ -1,0 +1,123 @@
+/* -------------------------------
+   Tailwind Base + Utilities
+--------------------------------*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------------------------------
+   Global Design Tokens
+--------------------------------*/
+:root {
+  /* Colors */
+  --color-brand: #2563eb;
+  --color-brand-dark: #1e40af;
+  --color-bg: #f9fafb;
+  --color-surface: #ffffff;
+  --color-text: #374151;
+  --color-text-light: #6b7280;
+
+  /* Shadows */
+  --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.08);
+
+  /* Radius */
+  --radius-card: 1rem;
+  --radius-button: 9999px;
+
+  /* Transition */
+  --transition-default: all 0.2s ease-in-out;
+}
+
+/* -------------------------------
+   Global Typography & Layout
+--------------------------------*/
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+p {
+  color: var(--color-text-light);
+}
+
+/* -------------------------------
+   Reusable Utility Classes
+--------------------------------*/
+
+/* Container with default width and padding */
+@layer components {
+  .container-default {
+    @apply max-w-6xl mx-auto px-6;
+  }
+
+  /* Card styling */
+  .card {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-default);
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  /* Brand-colored button */
+  .btn-brand {
+    background-color: var(--color-brand);
+    color: white;
+    border-radius: var(--radius-button);
+    padding: 0.5rem 1.25rem;
+    transition: var(--transition-default);
+  }
+
+  .btn-brand:hover {
+    background-color: var(--color-brand-dark);
+  }
+
+  /* Subtle link styling */
+  .link {
+    color: var(--color-brand);
+    transition: var(--transition-default);
+  }
+
+  .link:hover {
+    color: var(--color-brand-dark);
+    text-decoration: underline;
+  }
+}
+
+/* -------------------------------
+   Scrollbar (Optional)
+--------------------------------*/
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-dark);
+}
+
+/* -------------------------------
+   Dark Mode (Optional Extension)
+--------------------------------*/
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #111827;
+    --color-surface: #1f2937;
+    --color-text: #e5e7eb;
+    --color-text-light: #9ca3af;
+  }
+}
