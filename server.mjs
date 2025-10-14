@@ -9,7 +9,7 @@ import authRoutes from './routes/auth.mjs';
 import recipeRoutes from './routes/recipe.mjs';
 
 const app = express();
-const PORT = process.env.PORT || 5173
+const PORT = process.env._PORT;
 const DB_URL = process.env.database_url;
 
 // middleware
@@ -17,8 +17,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
-// database connection
-//mongoose.connect(DB_URL).then(() => console.log("Connected to DB.")).catch(error => console.log(error));
+
+mongoose.connect(DB_URL).then(() => console.log("Connected to DB.")).catch(error => console.log(error));
 
 // use routes in routes folder
 app.use('/api/auth', authRoutes);
