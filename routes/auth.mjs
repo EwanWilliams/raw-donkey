@@ -1,5 +1,5 @@
 import express from "express";
-import User from "../models/user.mjs";
+import User from "../models/User.mjs";
 import { generateTokenAndSetCookie } from "../utils/generateToken.mjs";
 import bcrypt from 'bcrypt';
 

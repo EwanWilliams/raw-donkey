@@ -1,5 +1,5 @@
 import express from "express";
-
+import Recipe from "../models/Recipe.mjs"
 
 const router = express.Router();
 
@@ -18,9 +18,19 @@ router.get('/list/:range', (req, res) => {
 
 
 // add new recipe to database
-router.post('/new', (req, res) => {
-    // add new recipe
-    res.json({message: "Add recipe endpoint."});
+router.post('/new', async (req, res) => {
+    try {
+        const newRecipe = await Recipe.create({
+            title: req.body.title,
+            recipe_img: req.body.recipe_img,
+            ingredients: req.body.ingredients,
+            instructions: req.body.instructions
+        })
+        res.status(201).json({message: "recipe added successfully"})
+    } catch(err) {
+        console.error("Recipe add error: ", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 });
 
 export default router;
