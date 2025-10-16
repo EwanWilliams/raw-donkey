@@ -1,9 +1,4 @@
-/* -------------------------------
-   Tailwind Base + Utilities
---------------------------------*/
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* -------------------------------
    Global Design Tokens
@@ -52,14 +47,11 @@ p {
 /* -------------------------------
    Reusable Utility Classes
 --------------------------------*/
-
-/* Container with default width and padding */
 @layer components {
   .container-default {
     @apply max-w-6xl mx-auto px-6;
   }
 
-  /* Card styling */
   .card {
     background-color: var(--color-surface);
     border-radius: var(--radius-card);
@@ -71,7 +63,6 @@ p {
     box-shadow: var(--shadow-hover);
   }
 
-  /* Brand-colored button */
   .btn-brand {
     background-color: var(--color-brand);
     color: white;
@@ -84,7 +75,6 @@ p {
     background-color: var(--color-brand-dark);
   }
 
-  /* Subtle link styling */
   .link {
     color: var(--color-brand);
     transition: var(--transition-default);
@@ -97,7 +87,7 @@ p {
 }
 
 /* -------------------------------
-   Scrollbar (Optional)
+   Scrollbar
 --------------------------------*/
 ::-webkit-scrollbar {
   width: 8px;
@@ -111,7 +101,7 @@ p {
 }
 
 /* -------------------------------
-   Dark Mode (Optional Extension)
+   Dark Mode
 --------------------------------*/
 @media (prefers-color-scheme: dark) {
   :root {

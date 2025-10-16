@@ -9,7 +9,7 @@ import authRoutes from './routes/auth.mjs';
 import recipeRoutes from './routes/recipe.mjs';
 
 const app = express();
-const PORT = process.env._PORT;
+const PORT = process.env.PORT || 5173;
 const DB_URL = process.env.database_url;
 
 // middleware
