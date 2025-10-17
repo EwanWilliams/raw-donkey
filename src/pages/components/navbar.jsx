@@ -1,7 +1,14 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar({ isLoggedIn, onLogout }) {
+  const navigate = useNavigate();
+
+  const handleLogoutClick = () => {
+    onLogout();       // remove login state
+    navigate("/browse"); // redirect to browse
+  };
+
   return (
     <nav className="navbar navbar-expand-lg bg-white shadow-sm px-5 py-3 border-b">
       <div className="container-fluid">
@@ -10,14 +17,12 @@ export default function Navbar({ isLoggedIn, onLogout }) {
         </Link>
 
         <ul className="navbar-nav ms-auto flex space-x-4 items-center">
-          {/* Always visible */}
           <li>
             <Link to="/browse" className="nav-link text-gray-700 hover:text-blue-600">
               Browse
             </Link>
           </li>
 
-          {/* Logged in */}
           {isLoggedIn ? (
             <>
               <li>
@@ -27,7 +32,7 @@ export default function Navbar({ isLoggedIn, onLogout }) {
               </li>
               <li>
                 <button
-                  onClick={onLogout}
+                  onClick={handleLogoutClick}
                   className="btn btn-outline-danger rounded-pill px-3"
                 >
                   Logout
@@ -35,7 +40,6 @@ export default function Navbar({ isLoggedIn, onLogout }) {
               </li>
             </>
           ) : (
-            // Logged out
             <li>
               <Link to="/login" className="btn btn-outline-primary rounded-pill px-3">
                 Login
