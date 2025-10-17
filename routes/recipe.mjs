@@ -4,9 +4,18 @@ import Recipe from "../models/Recipe.mjs"
 const router = express.Router();
 
 // request for recipe details from the database
-router.get('/:id', (req, res) => {
-    // return json with details of recipe
-    res.json({message: "Recipe ID endpoint."});
+router.get('/:id', async (req, res) => {
+    try {
+        const recipeDetails = await Recipe.find({_id: req.params.id});
+        if (recipeDetails.length == 0) {
+            res.status(400).json({message: "Recipe not found."});
+        } else {
+            res.status(200).json(recipeDetails);
+        }
+    } catch(err) {
+        console.error("Recipe detail error: ", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 });
 
 
