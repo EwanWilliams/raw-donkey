@@ -11,9 +11,16 @@ router.get('/:id', (req, res) => {
 
 
 // request for list of recipes for homepage
-router.get('/list/:range', (req, res) => {
-    // return recipe overviews for homepage
-    res.json({message: "Recipe list endpoint."});
+router.get('/list/:page/:range', async (req, res) => {
+    try {
+        // page must be 1 or more, range must be between 1 & 20
+        if(req.params.page >= 1 && 20 >= req.params.range >= 1) {
+            recipesFound = await Recipe.find()
+        }
+    } catch(err) {
+        console.error("Recipe list error: ", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 });
 
 
