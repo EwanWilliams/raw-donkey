@@ -14,7 +14,7 @@ router.get('/:id', (req, res) => {
 router.get('/list/:page/:range', async (req, res) => {
     try {
         const skipAmount = (req.params.page-1)*req.params.range;
-        const recipesFound = await Recipe.find({}, null, {skip: skipAmount, limit: req.params.range});
+        const recipesFound = await Recipe.find({}, {_id: 1, title: 1, recipe_img: 1}, {skip: skipAmount, limit: req.params.range});
         res.status(200).json(recipesFound);
     } catch(err) {
         console.error("Recipe list error: ", err);
