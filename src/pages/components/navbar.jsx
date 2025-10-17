@@ -1,12 +1,12 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function Navbar({ isLoggedIn, onLogout }) {
+export default function Navbar({ isLoggedIn, username, onLogout }) {
   const navigate = useNavigate();
 
   const handleLogoutClick = () => {
-    onLogout();       // remove login state
-    navigate("/browse"); // redirect to browse
+    onLogout();
+    navigate("/browse");
   };
 
   return (
@@ -30,6 +30,12 @@ export default function Navbar({ isLoggedIn, onLogout }) {
                   Create
                 </Link>
               </li>
+
+              {/* 👇 Username nameplate */}
+              <li className="text-gray-700 font-medium">
+                Hi, <span className="text-blue-600 font-semibold">{username}</span> 👋
+              </li>
+
               <li>
                 <button
                   onClick={handleLogoutClick}
