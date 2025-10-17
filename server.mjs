@@ -24,8 +24,6 @@ mongoose.connect(DB_URL).then(() => console.log("Connected to DB.")).catch(error
 app.use('/api/auth', authRoutes);
 app.use('/api/recipe', recipeRoutes);
 
-ViteExpress.config({ mode: "development" });
-
 ViteExpress.listen(app, PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
