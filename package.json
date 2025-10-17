@@ -12,8 +12,9 @@
     "react": "^19.1.1",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.4",
-    "vite": "^7.1.7",
-    "vite-express": "^0.21.1"
+    "vite": "^7.1.10",
+    "vite-express": "^0.21.1",
+    "@vitejs/plugin-react": "^4.3.4"
   },
   "scripts": {
     "dev": "node server.mjs",

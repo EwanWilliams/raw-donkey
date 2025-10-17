@@ -11,9 +11,15 @@ router.get('/:id', (req, res) => {
 
 
 // request for list of recipes for homepage
-router.get('/list/:range', (req, res) => {
-    // return recipe overviews for homepage
-    res.json({message: "Recipe list endpoint."});
+router.get('/list/:page/:range', async (req, res) => {
+    try {
+        const skipAmount = (req.params.page-1)*req.params.range;
+        const recipesFound = await Recipe.find({}, {_id: 1, title: 1, recipe_img: 1}, {skip: skipAmount, limit: req.params.range});
+        res.status(200).json(recipesFound);
+    } catch(err) {
+        console.error("Recipe list error: ", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 });
 
 
