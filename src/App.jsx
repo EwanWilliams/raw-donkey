@@ -1,27 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./pages/components/Navbar";
-import Browse from "./pages/Browse";
-import Create from "./pages/Create";
-import Login from "./pages/Login";
+import Navbar from "./pages/components/navbar";
+import Browse from "./pages/browse";
+import Create from "./pages/create";
+import Login from "./pages/login";
 
 export default function App() {
-  return (
-      <Router>
-        <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
-          {/* Navbar stays on top of every page */}
-          <Navbar/>
+  // Track login state here
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-          {/* Main Page Content */}
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Browse/>}/>
-              <Route path="/browse" element={<Browse/>}/>
-              <Route path="/create" element={<Create/>}/>
-              <Route path="/login" element={<Login/>}/>
-            </Routes>
-          </main>
-        </div>
-      </Router>
+  // Functions to change login status
+  const handleLogin = () => setIsLoggedIn(true);
+  const handleLogout = () => setIsLoggedIn(false);
+
+  return (
+    <Router>
+      <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
+        {/* Navbar always visible */}
+        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+
+        {/* Page Content */}
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Browse />} />
+            <Route path="/browse" element={<Browse />} />
+            <Route path="/create" element={<Create />} />
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
 }
+

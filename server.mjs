@@ -17,7 +17,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
-
 mongoose.connect(DB_URL).then(() => console.log("Connected to DB.")).catch(error => console.log(error));
 
 // use routes in routes folder

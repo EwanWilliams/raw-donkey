@@ -1,49 +1,32 @@
-export default function Login() {
+export default function Login({ onLogin }) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onLogin(); // Simulate logging in
+  };
+
   return (
-    <div className="bg-[var(--color-bg)] h-screen flex items-center justify-center">
-      <div className="card p-10 w-[400px]">
-        <h2 className="text-3xl font-bold text-center text-[var(--color-brand)] mb-8">
+    <div className="bg-gray-100 h-screen flex items-center justify-center">
+      <div className="bg-white shadow-lg rounded-2xl p-10 w-[400px]">
+        <h2 className="text-3xl font-bold text-center text-blue-700 mb-8">
           Login
         </h2>
 
-        <form className="space-y-6">
-          {/* Email */}
-          <div>
-            <input
-              type="email"
-              placeholder="Email address"
-              className="form-control w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)] outline-none transition"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <input
+            type="email"
+            className="form-control"
+            placeholder="Email address"
+          />
+          <input
+            type="password"
+            className="form-control"
+            placeholder="Password"
+          />
 
-          {/* Password */}
-          <div>
-            <input
-              type="password"
-              placeholder="Password"
-              className="form-control w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)] outline-none transition"
-            />
-          </div>
-
-          {/* Login Button */}
-          <button
-            type="submit"
-            className="btn-brand w-full py-3 text-lg font-semibold hover:scale-[1.02]"
-          >
+          <button className="btn btn-primary w-full py-2 rounded-pill">
             Login
           </button>
         </form>
-
-        {/* Footer Text */}
-        <p className="text-sm text-center text-[var(--color-text-light)] mt-6">
-          Don’t have an account?{" "}
-          <a
-            href="#"
-            className="link font-medium"
-          >
-            Sign up
-          </a>
-        </p>
       </div>
     </div>
   );
