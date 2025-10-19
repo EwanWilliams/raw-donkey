@@ -11,7 +11,7 @@ export default function Navbar(){
                 <ul className="navbar-nav ms-auto flex space-x-4">
                     <li><Link to="/browse" className="nav-link text-gray-700 hover:text-blue-600">Browse</Link></li>
                     <li><Link to="/create" className="nav-link text-gray-700 hover:text-blue-600">Create</Link></li>
-                    <li><Link to="/login" className="btn btn-outline-primary rounded-pill px-3">Login</Link></li>
+                    <li><Link to="/loginpage" className="btn btn-outline-primary rounded-pill px-3">Login</Link></li>
                 </ul>
             </div>
         </nav>
