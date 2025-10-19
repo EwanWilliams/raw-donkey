@@ -1,21 +1,29 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { Link } from "react-router-dom";
 
 export default function Browse() {
   const recipes = [
-      { id: 1, title: "Mango Smoothie", image: "data:image/jpeg;base64,..."},
-      { id: 2, title: "Veggie Tacos", image: "data:image/jpeg;base64,..."},
-      { id: 3, title: "Chocolate Cake", image: "data:image/jpeg;base64,..."},
-      { id: 4, title: "Spaghetti Carbonara", image: "data:image/jpeg;base64,..."},
-      { id: 5, title: "Steak and Chips", image: "data:image/jpeg;base64,..."},
-      { id: 6, title: "Vodka Pasta", image: "data:image/jpeg;base64,..."},
-      { id: 7, title: "Lemon Cake", image: "data:image/jpeg;base64,..."},
-      { id: 8, title: "Pesto Pasta", image: "data:image/jpeg;base64,..."},
-      { id: 9, title: "Pork Chop", image: "data:image/jpeg;base64,..."},
+      { id: 1, title: "Mango Smoothie", image: ""},
+      { id: 2, title: "Veggie Tacos", image: ""},
+      { id: 3, title: "Chocolate Cake", image: ""},
+      { id: 4, title: "Spaghetti Carbonara", image: ""},
+      { id: 5, title: "Steak and Chips", image: ""},
+      { id: 6, title: "Vodka Pasta", image: ""},
+      { id: 7, title: "Lemon Cake", image: ""},
+      { id: 8, title: "Pesto Pasta", image: ""},
+      { id: 9, title: "Pork Chop", image: ""},
   ];
 
-  const [pageSize, setPageSize] = useState(3);
+  const [pageSize, setPageSize] = useState(() => {
+    // Load saved selection or default to 6
+    return Number(localStorage.getItem("pageSize")) || 6;
+  });
   const [currentPage, setCurrentPage] = useState(1);
+
+  // --- persist selection ---
+  useEffect(() => {
+    localStorage.setItem("pageSize", pageSize);
+  }, [pageSize]);
 
   const totalPages = Math.ceil(recipes.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
