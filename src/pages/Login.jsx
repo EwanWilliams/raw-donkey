@@ -1,11 +1,7 @@
-import { Alert } from "bootstrap";
 import React, { useState } from "react";
 
 export default function Login() {
 
-  const [password, setPassword] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('');
-  const [username, setUsername] = useState(false)
   const [formData, setFormData] = useState({ username: "", password: "" });
 
   function handleChange(event) {
@@ -15,8 +11,9 @@ export default function Login() {
 
   function handleSubmit(event) {
     event.preventDefault();
+    console.log(formData)
 
-    fetch('/login', {
+    fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
@@ -27,7 +24,6 @@ export default function Login() {
       })
       .then(userData => {
         onLogin(userData);
-        setSuccessMessage('Login successful');
       })
       .catch(() => {
         
@@ -46,10 +42,11 @@ export default function Login() {
           {/* Email */}
           <div>
             <input
-              type="email"
-              placeholder="Email address"
+              name="username"
+              type="username"
+              placeholder="Username"
               className="form-control w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)] outline-none transition"
-              value={formData.username}
+              value={formData.username.value}
               onChange={handleChange}
             />
           </div>
@@ -57,10 +54,11 @@ export default function Login() {
           {/* Password */}
           <div>
             <input
+              name="password"
               type="password"
               placeholder="Password"
               className="form-control w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)] outline-none transition"
-              value={formData.password}
+              value={formData.password.value}
               onChange={handleChange}
             />
           </div>
