@@ -1,91 +1,38 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function Login() {
+export default function Login({ onLogin }) {
+  const [name, setName] = useState("");
+  const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ username: "", password: "" });
-
-  function handleChange(event) {
-    const { name, value } = event.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    console.log(formData)
-
-    fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    })
-      .then(response => {
-        if (!response.ok) throw new Error('Login failed');
-        return response.json();
-      })
-      .then(userData => {
-        onLogin(userData);
-      })
-      .catch(() => {
-        
-      })
-  }
-
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) return alert("Please enter a username");
+    onLogin(name);
+    navigate("/browse");
+  };
 
   return (
-    <div className="bg-[var(--color-bg)] h-screen flex items-center justify-center">
-      <div className="card p-10 w-[400px]">
-        <h2 className="text-3xl font-bold text-center text-[var(--color-brand)] mb-8">
-          Login
-        </h2>
+    <div className="bg-gray-100 h-screen flex items-center justify-center">
+      <div className="bg-white shadow-lg rounded-2xl p-10 w-[400px]">
+        <h2 className="text-3xl font-bold text-center text-blue-700 mb-8">Login</h2>
 
-        <form className="space-y-6">
-          {/* Email */}
-          <div>
-            <input
-              name="username"
-              type="username"
-              placeholder="Username"
-              className="form-control w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)] outline-none transition"
-              value={formData.username.value}
-              onChange={handleChange}
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Username"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <input type="email" className="form-control" placeholder="Email address" required />
+          <input type="password" className="form-control" placeholder="Password" required />
 
-          {/* Password */}
-          <div>
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              className="form-control w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)] outline-none transition"
-              value={formData.password.value}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Login Button */}
-          <button
-            type="submit"
-            className="btn-brand w-full py-3 text-lg font-semibold hover:scale-[1.02]"
-            onClick={handleSubmit}
-          >
-            Login
-          </button>
+          <button className="btn btn-primary w-full py-2 rounded-pill">Login</button>
         </form>
-
-        {/* Footer Text */}
-        <p className="text-sm text-center text-[var(--color-text-light)] mt-6">
-          Don’t have an account?{" "}
-          <a
-            href="#"
-            className="link font-medium"
-          >
-            Sign up
-          </a>
-        </p>
       </div>
     </div>
   );
 }
-
 
