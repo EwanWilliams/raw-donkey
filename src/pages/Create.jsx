@@ -6,6 +6,7 @@ export default function CreateRecipe() {
   const [imagePreview, setImagePreview] = useState(null);
   const [ingredients, setIngredients] = useState([{ item: "", amount: "", unit: "g" }]);
   const [steps, setSteps] = useState([""]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleAddIngredient = () => {
     setIngredients([...ingredients, { item: "", amount: "", unit: "g" }]);
@@ -41,10 +42,80 @@ export default function CreateRecipe() {
     }
   };
 
-  const handleUpload = (e) => {
+  const handleUpload = async (e) => {
     e.preventDefault();
-    console.log({ recipeTitle, selectedImage, ingredients, steps });
-    alert("Recipe uploaded (test mode)");
+    
+    if (!recipeTitle.trim()) {
+      alert("Please enter a recipe title");
+      return;
+    }
+
+    if (ingredients.some(ing => !ing.item.trim() || !ing.amount)) {
+      alert("Please fill in all ingredient fields");
+      return;
+    }
+
+    if (steps.some(step => !step.trim())) {
+      alert("Please fill in all instruction steps");
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      // Convert image to base64 if selected
+      let imageData = null;
+      if (selectedImage) {
+        const reader = new FileReader();
+        imageData = await new Promise((resolve) => {
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(selectedImage);
+        });
+      }
+
+      // Format ingredients to match schema (quantity instead of amount)
+      const formattedIngredients = ingredients.map(ing => ({
+        item: ing.item,
+        quantity: parseFloat(ing.amount),
+        unit: ing.unit
+      }));
+
+      // Prepare recipe data
+      const recipeData = {
+        title: recipeTitle,
+        recipe_img: imageData,
+        ingredients: formattedIngredients,
+        instructions: steps.filter(step => step.trim())
+      };
+
+      // Send to backend
+      const response = await fetch('/api/recipe/new', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(recipeData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert("Recipe uploaded successfully!");
+        // Reset form
+        setRecipeTitle("");
+        setSelectedImage(null);
+        setImagePreview(null);
+        setIngredients([{ item: "", amount: "", unit: "g" }]);
+        setSteps([""]);
+      } else {
+        const error = await response.json();
+        alert(`Failed to upload recipe: ${error.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Failed to upload recipe. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -60,11 +131,20 @@ export default function CreateRecipe() {
         <h2>Create Recipe</h2>
 
         <form onSubmit={handleUpload}>
-          <label>Recipe Title:</label><br />
+          <label>Recipe Title: *</label><br />
           <input
             type="text"
             value={recipeTitle}
             onChange={(e) => setRecipeTitle(e.target.value)}
+            required
+            placeholder="Enter recipe title..."
+            style={{
+              width: "300px",
+              padding: "8px",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              fontSize: "14px"
+            }}
           />
           <br /><br />
           
@@ -95,7 +175,7 @@ export default function CreateRecipe() {
           <h3>Ingredients:</h3>
           {ingredients.map((ingredient, i) => (
             <div key={i} style={{ marginBottom: "10px", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }}>
-              <label>Item:</label>
+              <label>Item: *</label>
               <input
                 type="text"
                 value={ingredient.item}
@@ -104,17 +184,25 @@ export default function CreateRecipe() {
                   newIngredients[i].item = e.target.value;
                   setIngredients(newIngredients);
                 }}
+                required
+                placeholder="e.g. Flour, Sugar..."
+                style={{ marginRight: "10px", padding: "5px" }}
               />
 
-              <label>Amount:</label>
+              <label>Amount: *</label>
               <input
                 type="number"
+                min="0"
+                step="0.01"
                 value={ingredient.amount}
                 onChange={(e) => {
                   const newIngredients = [...ingredients];
                   newIngredients[i].amount = e.target.value;
                   setIngredients(newIngredients);
                 }}
+                required
+                placeholder="0"
+                style={{ marginRight: "10px", padding: "5px", width: "80px" }}
               />
 
               <label>Unit:</label>
@@ -154,19 +242,29 @@ export default function CreateRecipe() {
           ))}
           <button type="button" onClick={handleAddIngredient}>Add Ingredient</button>
 
-          <h3>Instructions:</h3>
+          <h3>Instructions: *</h3>
           {steps.map((step, i) => (
             <div key={i} style={{ marginBottom: "10px", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }}>
-              <label>{i + 1}.</label><br />
+              <label>Step {i + 1}: *</label><br />
               <textarea
-                placeholder="Please type here..."
+                placeholder="Describe this cooking step..."
                 value={step}
                 onChange={(e) => {
                   const newSteps = [...steps];
                   newSteps[i] = e.target.value;
                   setSteps(newSteps);
                 }}
-                style={{ width: "100%", minHeight: "60px", marginBottom: "5px" }}
+                required
+                style={{ 
+                  width: "100%", 
+                  minHeight: "80px", 
+                  marginBottom: "5px",
+                  padding: "8px",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                  fontSize: "14px",
+                  resize: "vertical"
+                }}
               />
               {steps.length > 1 && (
                 <button 
@@ -189,7 +287,21 @@ export default function CreateRecipe() {
           <button type="button" onClick={handleAddStep}>Add Step</button>
 
           <br />
-          <button type="submit">Upload</button>
+          <button 
+            type="submit" 
+            disabled={isUploading}
+            style={{
+              backgroundColor: isUploading ? "#ccc" : "#4CAF50",
+              color: "white",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "4px",
+              cursor: isUploading ? "not-allowed" : "pointer",
+              fontSize: "16px"
+            }}
+          >
+            {isUploading ? "Uploading..." : "Upload Recipe"}
+          </button>
         </form>
       </main>
     </div>

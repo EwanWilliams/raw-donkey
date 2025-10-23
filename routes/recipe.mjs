@@ -20,16 +20,37 @@ router.get('/list/:range', (req, res) => {
 // add new recipe to database
 router.post('/new', async (req, res) => {
     try {
+        let recipeImageData = null;
+        
+        // Handle base64 image data
+        if (req.body.recipe_img) {
+            const matches = req.body.recipe_img.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+            if (matches && matches.length === 3) {
+                recipeImageData = {
+                    data: Buffer.from(matches[2], 'base64'),
+                    contentType: matches[1]
+                };
+            }
+        }
+
         const newRecipe = await Recipe.create({
             title: req.body.title,
-            recipe_img: req.body.recipe_img,
+            recipe_img: recipeImageData,
             ingredients: req.body.ingredients,
             instructions: req.body.instructions
         })
-        res.status(201).json({message: "recipe added successfully"})
+        
+        res.status(201).json({
+            message: "Recipe added successfully",
+            recipeId: newRecipe._id
+        })
     } catch(err) {
         console.error("Recipe add error: ", err);
-        res.status(500).json({ error: "Internal Server Error" });
+        if (err.name === 'ValidationError') {
+            res.status(400).json({ error: "Validation Error: " + err.message });
+        } else {
+            res.status(500).json({ error: "Internal Server Error" });
+        }
     }
 });
 
