@@ -130,10 +130,11 @@ export default function CreateRecipe() {
       <main>
         <h2>Create Recipe</h2>
 
-        <form onSubmit={handleUpload}>
+        <form onSubmit={handleUpload} data-test="add-recipe-form">
           <label>Recipe Title: *</label><br />
           <input
             type="text"
+            data-test="recipe-title-input"
             value={recipeTitle}
             onChange={(e) => setRecipeTitle(e.target.value)}
             required
@@ -151,6 +152,7 @@ export default function CreateRecipe() {
           <label>Recipe Image:</label><br />
           <input
             type="file"
+            data-test="recipe-image-input"
             accept="image/*"
             onChange={handleImageUpload}
             style={{ marginBottom: "10px" }}
@@ -160,6 +162,7 @@ export default function CreateRecipe() {
               <img 
                 src={imagePreview} 
                 alt="Recipe preview" 
+                data-test="recipe-image-preview"
                 style={{ 
                   maxWidth: "200px", 
                   maxHeight: "200px", 
@@ -178,6 +181,7 @@ export default function CreateRecipe() {
               <label>Item: *</label>
               <input
                 type="text"
+                data-test="ingredient-item-input"
                 value={ingredient.item}
                 onChange={(e) => {
                   const newIngredients = [...ingredients];
@@ -192,6 +196,7 @@ export default function CreateRecipe() {
               <label>Amount: *</label>
               <input
                 type="number"
+                data-test="ingredient-amount-input"
                 min="0"
                 step="0.01"
                 value={ingredient.amount}
@@ -208,6 +213,7 @@ export default function CreateRecipe() {
               <label>Unit:</label>
               <select
                 value={ingredient.unit}
+                data-test="ingredient-unit-select"
                 onChange={(e) => {
                   const newIngredients = [...ingredients];
                   newIngredients[i].unit = e.target.value;
@@ -224,6 +230,7 @@ export default function CreateRecipe() {
               {ingredients.length > 1 && (
                 <button 
                   type="button" 
+                  data-test="ingredient-remove-button"
                   onClick={() => handleRemoveIngredient(i)}
                   style={{ 
                     marginLeft: "10px", 
@@ -240,7 +247,7 @@ export default function CreateRecipe() {
               )}
             </div>
           ))}
-          <button type="button" onClick={handleAddIngredient}>Add Ingredient</button>
+          <button type="button" onClick={handleAddIngredient} data-test="ingredient-add-button">Add Ingredient</button>
 
           <h3>Instructions: *</h3>
           {steps.map((step, i) => (
@@ -248,6 +255,7 @@ export default function CreateRecipe() {
               <label>Step {i + 1}: *</label><br />
               <textarea
                 placeholder="Describe this cooking step..."
+                data-test="instruction-text-input"
                 value={step}
                 onChange={(e) => {
                   const newSteps = [...steps];
@@ -268,7 +276,8 @@ export default function CreateRecipe() {
               />
               {steps.length > 1 && (
                 <button 
-                  type="button" 
+                  type="button"
+                  data-test="instruction-remove-button"
                   onClick={() => handleRemoveStep(i)}
                   style={{ 
                     backgroundColor: "#ff6b6b", 
@@ -284,11 +293,12 @@ export default function CreateRecipe() {
               )}
             </div>
           ))}
-          <button type="button" onClick={handleAddStep}>Add Step</button>
+          <button type="button" onClick={handleAddStep} data-test="instruction-add-button">Add Step</button>
 
           <br />
           <button 
-            type="submit" 
+            type="submit"
+            data-test="recipe-submit-button"
             disabled={isUploading}
             style={{
               backgroundColor: isUploading ? "#ccc" : "#4CAF50",
