@@ -8,8 +8,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # Install npm dependencies, cache them correctly
-      # and run all Cypress tests
+      - name: Create .env file
+        run: |
+          touch .env
+          echo _PORT=${{ secrets._PORT }} >> .env
+          echo token_secret=${{ secrets.TOKEN_SECRET }} >> .env
+          echo db_user=${{ secrets.DB_USER }} >> .env
+          echo db_password=${{ secrets.DB_PASSWORD }} >> .env
+          echo db_cluster=${{ secrets.DB_CLUSTER }} >> .env
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
