@@ -10,13 +10,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Create .env file
         run: |
-          echo "_PORT=${{ secrets._PORT }}" >> .env
-          echo "token_secret=${{ secrets.TOKEN_SECRET }}" >> .env
-          echo "db_user=${{ secrets.DB_USER }}" >> .env
-          echo "db_password=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "db_cluster=${{ secrets.DB_CLUSTER }}" >> .env
+          echo _PORT=${{ secrets._PORT }} >> .env
+          echo token_secret=${{ secrets.TOKEN_SECRET }} >> .env
+          echo db_user=${{ secrets.DB_USER }} >> .env
+          echo db_password=${{ secrets.DB_PASSWORD }} >> .env
+          echo db_cluster=${{ secrets.DB_CLUSTER }} >> .env
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          # build: npm run build
-          start: npm run dev
+          build: npm run build
+          start: npm run preview
