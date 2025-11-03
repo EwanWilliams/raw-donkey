@@ -3,40 +3,15 @@ name: Cypress Tests
 on: push
 
 jobs:
-  install:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Cypress install
-        uses: cypress-io/github-action@v6
-        with:
-          runTests: false
-          build: npm run build
-
-      - name: Save build folder
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          if-no-files-found: error
-          path: build
-
   cypress-run:
-    runs-on: ubuntu-24.04
-    needs: install
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Download the build folder
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build
-
+      # Install npm dependencies, cache them correctly
+      # and run all Cypress tests
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
+          build: npm run build
           start: npm run preview
-          browser: chrome
