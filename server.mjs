@@ -10,14 +10,17 @@ import recipeRoutes from './routes/recipe.mjs';
 
 const app = express();
 const PORT = process.env._PORT;
-const DB_URL = process.env.database_url;
+const db_username = encodeURIComponent(process.env.db_user);
+const db_password = encodeURIComponent(process.env.db_password);
+const db_cluster = process.env.db_cluster;
+const DB_URI = `mongodb+srv://${db_username}:${db_password}@${db_cluster}`;
 
 // middleware
 app.use(express.json());
 // app.use(cookieParser());
 app.use(morgan('dev'));
 
-mongoose.connect(DB_URL).then(() => console.log("Connected to DB.")).catch(error => console.log(error));
+mongoose.connect(DB_URI).then(() => console.log("Connected to DB.")).catch(error => console.log(error));
 
 // use routes in routes folder
 app.use('/api/auth', authRoutes);

@@ -45,6 +45,7 @@ export default function Browse() {
                           setCurrentPage(1);
                       }}
                       className="border border-gray-300 rounded-md px-2 py-1 text-gray-700"
+                      data-test="page-size-selector"
                   >
                       <option value={3}>3</option>
                       <option value={6}>6</option>
