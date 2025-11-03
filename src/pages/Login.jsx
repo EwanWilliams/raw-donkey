@@ -35,29 +35,6 @@ export default function Login({ onLogin }) {
 
   };
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-
-    fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    })
-      .then(response => {
-        //if (!response.ok) throw new Error('Login failed');
-        //return response.json();
-        if(!response.ok) throw new Error('Registration failed');
-          return response.json();
-      })
-      .then(userData => {
-          onLogin(userData.username);
-          navigate("/browse");
-      })
-      .catch(() => {
-        return alert("Error")
-      })
-
-  };
 
   return (
     <div className="bg-gray-100 h-screen flex items-center justify-center">
