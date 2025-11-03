@@ -22,14 +22,35 @@ export default function Login({ onLogin }) {
       .then(response => {
         //if (!response.ok) throw new Error('Login failed');
         //return response.json();
-        if(!response.ok){
-          if (!formData.username.trim()) return alert("Please enter a username");
-          else if (!formData.password.trim()) return alert("Please enter a password");
-          else return alert("Incorrect Username or Password")
-        }
+        if(!response.ok) throw new Error('Login failed');
+          return response.json();
       })
       .then(userData => {
-          onLogin(userData);
+          onLogin(userData.username);
+          navigate("/browse");
+      })
+      .catch(() => {
+        return alert("Error")
+      })
+
+  };
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+
+    fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    })
+      .then(response => {
+        //if (!response.ok) throw new Error('Login failed');
+        //return response.json();
+        if(!response.ok) throw new Error('Registration failed');
+          return response.json();
+      })
+      .then(userData => {
+          onLogin(userData.username);
           navigate("/browse");
       })
       .catch(() => {
@@ -58,7 +79,7 @@ export default function Login({ onLogin }) {
             type="password"
             className="form-control" 
             placeholder="Password" 
-            value={formData.username.value}
+            value={formData.password.value}
             onChange={handleChange}
             required 
           />
@@ -69,6 +90,11 @@ export default function Login({ onLogin }) {
           >
               Login
           </button>
+          <div
+            name='response'
+          >
+
+          </div>
         </form>
       </div>
     </div>
