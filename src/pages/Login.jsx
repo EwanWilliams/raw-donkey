@@ -30,7 +30,7 @@ export default function Login({ onLogin }) {
           navigate("/browse");
       })
       .catch(() => {
-        return alert("Error")
+        return alert("Login failed")
       })
 
   };
@@ -90,11 +90,6 @@ export default function Login({ onLogin }) {
           >
               Login
           </button>
-          <div
-            name='response'
-          >
-
-          </div>
         </form>
       </div>
     </div>
