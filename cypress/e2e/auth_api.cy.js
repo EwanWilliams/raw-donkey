@@ -77,4 +77,31 @@ describe('AUTH API Tests', () => {
             expect(res.headers).to.not.have.property('set-cookie');
         });
     });
+
+
+    it ('logout', () => {
+
+        cy.request({
+            method: 'POST',
+            url: '/api/auth/login',
+            body: { username: "test_user", password: "password1" }
+        }).then((res) => {
+            expect(res.status).to.eq(200);
+            expect(res.body).to.have.property('message', 'logged in');
+            expect(res.headers).to.have.property('set-cookie');
+        });
+
+        cy.getCookies().should('have.length', 1);
+
+        cy.request({
+            method: 'POST',
+            url: 'api/auth/logout'
+        }).then((res) => {
+            expect(res.status).to.eq(200);
+            expect(res.body).to.have.property('message', 'logged out');
+        });
+
+        cy.getCookies().should('have.length', 0);
+        
+    });
 });
