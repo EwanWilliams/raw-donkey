@@ -13,6 +13,9 @@ router.post('/register', async (req, res) => {
         const existingUser = await User.findOne({ username: req.body.username });
         if (existingUser) {
             res.status(400).json({error: "username already in use"});
+        } else if (req.body.password == "") {
+            // check password has been entered
+            res.status(400).json({error: "password can't be empty"})
         } else {
             // create new user
             const user = await User.create({
