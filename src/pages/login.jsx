@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function Login({ onLogin }) {
 
   const [formData, setFormData] = useState({ username: "", password: "" });
+  const [message, setMessage] = useState("")
   const navigate = useNavigate();
 
   function handleChange(event) {
@@ -30,10 +31,108 @@ export default function Login({ onLogin }) {
           navigate("/browse");
       })
       .catch(() => {
-        return alert("Login failed")
+        if (formData.username == "" || formData.password == "") {
+          setMessage('Enter a Username and Password')
+        }
+        else {
+          setMessage('Incorrect Username or Password')
+        }
       })
 
   };
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+
+    fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    })
+      .then(response => {
+        //if (!response.ok) throw new Error('Login failed');
+        //return response.json();
+        if(!response.ok) throw new Error('Registration failed');
+          return response.json();
+      })
+      .then(userData => {
+          onLogin(userData.username);
+          navigate("/browse");
+      })
+      .catch(() => {
+        if (formData.username == "" || formData.password == "") {
+          setMessage('Enter a Username and Password')
+        }
+        else {
+          setMessage('Username already exists')
+        }
+      })
+
+  };
+
+  const [newButton, setNewButton] = useState(
+    <button 
+      className="btn btn-primary w-full py-2 rounded-pill"
+      onClick={handleSubmit}
+    >
+      Login
+    </button>
+  )
+
+  function buttonChangeRegister() {
+    changeMessageLogin()
+    setNewButton(
+      <button 
+            className="btn btn-primary w-full py-2 rounded-pill"
+            onClick={handleRegister}
+          >
+              Register
+          </button>
+    )
+  }
+
+  function buttonChangeLogin() {
+    changeMessageRegister()
+    setNewButton(
+      <button 
+            className="btn btn-primary w-full py-2 rounded-pill"
+            onClick={handleSubmit}
+          >
+              Login
+          </button>
+    )
+  }
+
+  const [changeMessage, setChangeMessage] = useState(
+    <p
+      className="changeMessage"
+      onClick={buttonChangeRegister}
+    >
+      Don't have an account? Register here.
+    </p>
+  )
+
+  function changeMessageLogin() {
+    setChangeMessage(
+      <p
+        className="changeMessage"
+        onClick={buttonChangeLogin}
+      >
+        Already have an account? Login here.
+      </p>
+    )
+  }
+
+  function changeMessageRegister() {
+    setChangeMessage(
+      <p
+        className="changeMessage"
+        onClick={buttonChangeRegister}
+      >
+        Don't have an account? Register here.
+      </p>
+    )
+  }
 
   return (
     <div className="bg-gray-100 h-screen flex items-center justify-center">
@@ -60,12 +159,18 @@ export default function Login({ onLogin }) {
             required 
           />
 
-          <button 
-            className="btn btn-primary w-full py-2 rounded-pill"
-            onClick={handleSubmit}
-          >
-              Login
-          </button>
+          <div>
+            {newButton}
+          </div>
+          <div
+           id="errorMessage"
+           className="errorMessage"
+           >
+            {message}
+          </div>
+          <div>
+            {changeMessage}
+          </div>
         </form>
       </div>
     </div>
