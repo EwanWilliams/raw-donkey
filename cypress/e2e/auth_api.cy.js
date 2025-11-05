@@ -5,7 +5,7 @@ describe('AUTH API Tests', () => {
     });
 
     beforeEach(() => {
-        cy.visit("http://localhost:4173");
+        cy.visit("http://localhost:3000");
         cy.clearCookies();
     });
 

@@ -1,6 +1,7 @@
 describe('login tests', () => {
   beforeEach(() => {
-    cy.visit("http://localhost:4173/login");
+    cy.visit("http://localhost:3000");
+    cy.clearCookies();
   })
   it('correct login', () => {
     // @ Callum started for you, check it's worked
