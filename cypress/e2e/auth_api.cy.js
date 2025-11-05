@@ -79,6 +79,28 @@ describe('AUTH API Tests', () => {
     });
 
 
+    // TODO successful registration test, requires a custom "delete test user" api call
+    it('register: correct', () => {
+        // actual register test
+        cy.request({
+            method:'POST',
+            url: 'api/auth/register',
+            body: { username: "cypress_test_user", password: "cypress_test_password" }
+        }).then((res) => {
+            expect(res.status).to.eq(201);
+            expect(res.body).to.have.property('message', 'user created successfully');
+            expect(res.headers).to.have.property('set-cookie');
+        });
+        // delete test user after test
+        cy.request({
+            method: 'DELETE',
+            url: 'api/auth/deltestuser'
+        }).then((res) => {
+            expect(res.status).to.eq(204);
+        });
+    });
+
+
     it ('logout', () => {
 
         cy.request({
@@ -102,6 +124,6 @@ describe('AUTH API Tests', () => {
         });
 
         cy.getCookies().should('have.length', 0);
-        
+
     });
 });

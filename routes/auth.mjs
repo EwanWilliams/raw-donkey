@@ -68,4 +68,22 @@ router.post('/logout', async (req, res) => {
     }
 });
 
+
+// DELETE TEST USER FOR TESING PURPOSES ROUTE, DO NOT CALL FROM APP
+router.delete('/deltestuser', async (req, res) => {
+    try {
+        const userFound = await User.findOne({ username: "cypress_test_user" });
+        if (userFound) {
+            const result = await User.findByIdAndDelete(userFound._id);
+            if (result) { res.status(204).json({ message: "Deleted test user." }) }
+        } else {
+            res.status(404).json({ error: "test user not found" });
+        }
+    } catch(err) {
+        console.log("Delete test user error: ", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
 export default router;
