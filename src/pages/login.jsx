@@ -142,6 +142,7 @@ export default function Login({ onLogin }) {
         <form onSubmit={handleSubmit} className="space-y-5">
           <input
             name="username"
+            data-test="username-input"
             type="text"
             className="form-control"
             placeholder="Username"
@@ -151,6 +152,7 @@ export default function Login({ onLogin }) {
           />
           <input
             name="password"
+            data-test="password-input"
             type="password"
             className="form-control" 
             placeholder="Password" 

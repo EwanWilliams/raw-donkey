@@ -13,6 +13,9 @@ router.post('/register', async (req, res) => {
         const existingUser = await User.findOne({ username: req.body.username });
         if (existingUser) {
             res.status(400).json({error: "username already in use"});
+        } else if (req.body.password == "") {
+            // check password has been entered
+            res.status(400).json({error: "password can't be empty"})
         } else {
             // create new user
             const user = await User.create({
@@ -64,5 +67,23 @@ router.post('/logout', async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+
+// DELETE TEST USER FOR TESING PURPOSES ROUTE, DO NOT CALL FROM APP
+router.delete('/deltestuser', async (req, res) => {
+    try {
+        const userFound = await User.findOne({ username: "cypress_test_user" });
+        if (userFound) {
+            const result = await User.findByIdAndDelete(userFound._id);
+            if (result) { res.status(204).json({ message: "Deleted test user." }) }
+        } else {
+            res.status(404).json({ error: "test user not found" });
+        }
+    } catch(err) {
+        console.log("Delete test user error: ", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 
 export default router;
