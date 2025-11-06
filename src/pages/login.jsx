@@ -7,13 +7,10 @@ export default function Login({ onLogin }) {
   const [message, setMessage] = useState("")
   const navigate = useNavigate();
 
-  function handleChange(event) {
-    const { name, value } = event.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  }
-
   const handleSubmit = (e) => {
     e.preventDefault();
+    formData.username = document.getElementById("username").value;
+    formData.password = document.getElementById("password").value;
 
     fetch('/api/auth/login', {
       method: 'POST',
@@ -33,6 +30,7 @@ export default function Login({ onLogin }) {
       .catch(() => {
         if (formData.username == "" || formData.password == "") {
           setMessage('Enter a Username and Password')
+          console.log(formData)
         }
         else {
           setMessage('Incorrect Username or Password')
@@ -43,6 +41,8 @@ export default function Login({ onLogin }) {
 
   const handleRegister = (e) => {
     e.preventDefault();
+    formData.username = document.getElementById("username").value;
+    formData.password = document.getElementById("password").value;
 
     fetch('/api/auth/register', {
       method: 'POST',
@@ -139,25 +139,25 @@ export default function Login({ onLogin }) {
       <div className="bg-white shadow-lg rounded-2xl p-10 w-[400px]">
         <h2 className="text-3xl font-bold text-center text-blue-700 mb-8">Login</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={console.log(formData)} className="space-y-5">
           <input
             name="username"
+            id="username"
             data-test="username-input"
             type="text"
             className="form-control"
             placeholder="Username"
             value={formData.username.value}
-            onChange={handleChange}
             required
           />
           <input
             name="password"
+            id="password"
             data-test="password-input"
             type="password"
             className="form-control" 
             placeholder="Password" 
             value={formData.password.value}
-            onChange={handleChange}
             required 
           />
 
@@ -167,7 +167,7 @@ export default function Login({ onLogin }) {
           <div
            id="errorMessage"
            className="errorMessage"
-           >
+          >
             {message}
           </div>
           <div>
