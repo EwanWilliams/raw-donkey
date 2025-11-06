@@ -1,3 +1,4 @@
+import { response } from "express";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -10,64 +11,65 @@ export default function Login({ onLogin }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     formData.username = document.getElementById("username").value;
+    formData.username = formData.username.trim();
     formData.password = document.getElementById("password").value;
+    formData.password = formData.password.trim();
 
-    fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    })
-      .then(response => {
-        //if (!response.ok) throw new Error('Login failed');
-        //return response.json();
-        if(!response.ok) throw new Error('Login failed');
-          return response.json();
-      })
-      .then(userData => {
-          onLogin(userData.username);
-          navigate("/browse");
-      })
-      .catch(() => {
-        if (formData.username == "" || formData.password == "") {
+    if (formData.username == "" || formData.password == "") {
           setMessage('Enter a Username and Password')
-          console.log(formData)
-        }
-        else {
-          setMessage('Incorrect Username or Password')
-        }
+    }
+    else {
+      fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       })
-
+        .then(response => {
+          //if (!response.ok) throw new Error('Login failed');
+          //return response.json();
+          if(!response.ok) throw new Error('Login failed');
+            return response.json();
+        })
+        .then(userData => {
+            onLogin(userData.username);
+            navigate("/browse");
+        })
+        .catch(() => {
+            setMessage(response.error)
+        })
+    }
   };
 
   const handleRegister = (e) => {
     e.preventDefault();
     formData.username = document.getElementById("username").value;
+    formData.username = formData.username.trim();
     formData.password = document.getElementById("password").value;
+    formData.password = formData.password.trim();
 
-    fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    })
-      .then(response => {
-        //if (!response.ok) throw new Error('Login failed');
-        //return response.json();
-        if(!response.ok) throw new Error('Registration failed');
-          return response.json();
-      })
-      .then(userData => {
-          onLogin(userData.username);
-          navigate("/browse");
-      })
-      .catch(() => {
-        if (formData.username == "" || formData.password == "") {
+    if (formData.username == "" || formData.password == "") {
           setMessage('Enter a Username and Password')
-        }
-        else {
-          setMessage('Username already exists')
-        }
+    }
+    else {
+      fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       })
-
+        .then(response => {
+          //if (!response.ok) throw new Error('Login failed');
+          //return response.json();
+          if(!response.ok) throw new Error('Registration failed');
+            return response.json();
+        })
+        .then(userData => {
+            onLogin(userData.username);
+            navigate("/browse");
+        })
+        .catch(() => {
+          setMessage(response.error)
+        })
+    }
   };
 
   const [newButton, setNewButton] = useState(
