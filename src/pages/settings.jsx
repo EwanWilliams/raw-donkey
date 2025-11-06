@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 
-export default function USettings({ onAvatarChange }) {
+export default function Settings({ onAvatarChange }) {
   // Avatar state
   const [avatarUrl, setAvatarUrl] = useState(
     () => localStorage.getItem("avatarUrl") || ""
@@ -25,7 +25,7 @@ export default function USettings({ onAvatarChange }) {
     const under5MB = file.size <= 5 * 1024 * 1024;
 
     if (!isImage) {
-      alert("Please choose an image file (PNG, JPG, GIF, WEBP).");
+      alert("Please choose an image file (PNG, JPG, GIF).");
       e.target.value = "";
       return;
     }

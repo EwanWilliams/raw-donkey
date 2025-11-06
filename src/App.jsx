@@ -29,7 +29,7 @@ export default function App() {
   };
 
   return (
-    <Router>
+    <Router>c
       <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
         <Navbar
           isLoggedIn={isLoggedIn}
