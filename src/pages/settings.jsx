@@ -1,19 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
-export default function USettings() {
-  const [avatar, setAvatar] = useState({
-    file: null,
-    preview: "",
-  });
+export default function USettings({ onAvatarChange }) {
+  // Avatar state
+  const [avatarUrl, setAvatarUrl] = useState(
+    () => localStorage.getItem("avatarUrl") || ""
+  );
+
+  // Measurement system: "metric" or "us"
+  const [measurementSystem, setMeasurementSystem] = useState(
+    () => localStorage.getItem("measurementSystem") || "metric"
+  );
 
   const fileInputRef = useRef(null);
-
-  // Clean up object URLs when component unmounts or preview changes
-  useEffect(() => {
-    return () => {
-      if (avatar.preview) URL.revokeObjectURL(avatar.preview);
-    };
-  }, [avatar.preview]);
 
   const openFilePicker = () => {
     fileInputRef.current?.click();
@@ -27,110 +25,141 @@ export default function USettings() {
     const under5MB = file.size <= 5 * 1024 * 1024;
 
     if (!isImage) {
-      alert("Please choose an image file (PNG, JPG, GIF, or WEBP).");
+      alert("Please choose an image file (PNG, JPG, GIF, WEBP).");
       e.target.value = "";
       return;
     }
+
     if (!under5MB) {
       alert("Image too large. Please use a file under 5MB.");
       e.target.value = "";
       return;
     }
 
-    // Revoke previous preview
-    if (avatar.preview) URL.revokeObjectURL(avatar.preview);
-
-    const preview = URL.createObjectURL(file);
-    setAvatar({ file, preview });
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result;
+      setAvatarUrl(dataUrl);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const removeAvatar = () => {
-    if (avatar.preview) URL.revokeObjectURL(avatar.preview);
-    setAvatar({ file: null, preview: "" });
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!avatar.file) {
-      alert("Please choose a profile picture first.");
-      return;
+  const handleSave = () => {
+    // Save avatar
+    if (avatarUrl) {
+      localStorage.setItem("avatarUrl", avatarUrl);
+      if (onAvatarChange) onAvatarChange(avatarUrl);
+    } else {
+      localStorage.removeItem("avatarUrl");
+      if (onAvatarChange) onAvatarChange("");
     }
 
-    // Build payload for demo
-    const payload = new FormData();
-    payload.append("avatar", avatar.file);
+    // Save measurement preference
+    localStorage.setItem("measurementSystem", measurementSystem);
 
-    console.log("Uploading avatar (demo):", {
-      name: avatar.file.name,
-      size: avatar.file.size,
-      type: avatar.file.type,
-    });
+    alert("Settings saved.");
+  };
 
-    alert("Profile picture saved (demo). Check console for details.");
+  const handleRemove = () => {
+    setAvatarUrl("");
+    localStorage.removeItem("avatarUrl");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (onAvatarChange) onAvatarChange("");
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen flex justify-center items-center p-4">
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-[500px] text-center">
-        <h1 className="text-3xl font-bold text-blue-700 mb-6">
-          Profile Picture
-        </h1>
+    <div className="settings-page">
+      <div className="settings-card">
+        <h1 className="settings-title">User Settings</h1>
 
-        <div className="flex flex-col items-center gap-5 mb-8">
-          <div className="w-32 h-32 rounded-full bg-gray-100 border border-gray-300 overflow-hidden flex items-center justify-center">
-            {avatar.preview ? (
+        {/* Avatar section */}
+        <div className="settings-avatar-section">
+          <div className="settings-avatar-wrapper">
+            {avatarUrl ? (
               <img
-                src={avatar.preview}
+                src={avatarUrl}
                 alt="Profile preview"
-                className="w-full h-full object-cover"
+                className="settings-avatar-img"
               />
             ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-14 h-14 text-gray-400"
-                aria-hidden="true"
-              >
-                <path d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z" />
-              </svg>
+              <div className="settings-avatar-placeholder">No picture</div>
             )}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3">
+          <p className="settings-help-text">
+            Upload a profile picture (PNG, JPG, GIF, or WEBP — up to 5MB).
+          </p>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="settings-file-input"
+            onChange={handleFileChange}
+          />
+
+          <div className="settings-button-row">
             <button
               type="button"
               onClick={openFilePicker}
-              className="px-4 py-2 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+              className="rd-btn rd-btn-outline"
             >
               Change Picture
             </button>
             <button
               type="button"
-              onClick={removeAvatar}
-              disabled={!avatar.file}
-              className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleRemove}
+              disabled={!avatarUrl}
+              className="rd-btn rd-btn-outline"
             >
               Remove
             </button>
           </div>
-
-          {/* Hidden file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
         </div>
 
+        {/* Measurement preference section */}
+        <div className="settings-measure-section">
+          <h2 className="settings-measure-title">Measurement Preference</h2>
+          <p className="settings-measure-help">
+            Choose how you want ingredients to be shown in recipes.
+          </p>
+
+          <div className="settings-measure-options">
+            <label className="settings-radio-label">
+              <input
+                type="radio"
+                name="measurementSystem"
+                value="metric"
+                checked={measurementSystem === "metric"}
+                onChange={(e) => setMeasurementSystem(e.target.value)}
+              />
+              <span className="settings-radio-text">
+                Metric (grams, millilitres, kilograms)
+              </span>
+            </label>
+
+            <label className="settings-radio-label">
+              <input
+                type="radio"
+                name="measurementSystem"
+                value="us"
+                checked={measurementSystem === "us"}
+                onChange={(e) => setMeasurementSystem(e.target.value)}
+              />
+              <span className="settings-radio-text">
+                US Standard (cups, tablespoons, pounds, ounces)
+              </span>
+            </label>
+          </div>
+        </div>
+
+        {/* Save button */}
         <button
-          onClick={handleSubmit}
-          className="w-full py-2 rounded-full font-semibold bg-blue-600 text-white hover:bg-blue-700 transition"
+          type="button"
+          onClick={handleSave}
+          className="rd-btn rd-btn-primary rd-btn-full"
         >
-          Save Picture
+          Save Settings
         </button>
       </div>
     </div>

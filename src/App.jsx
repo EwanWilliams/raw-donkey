@@ -30,7 +30,6 @@ export default function App() {
 
   return (
     <Router>
-      {/* ⬇️ back to your original layout wrapper */}
       <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
         <Navbar
           isLoggedIn={isLoggedIn}
