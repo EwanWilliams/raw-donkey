@@ -2,52 +2,48 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login({ onLogin }) {
-
   const [formData, setFormData] = useState({ username: "", password: "" });
   const navigate = useNavigate();
 
   function handleChange(event) {
     const { name, value } = event.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
+    fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
     })
-      .then(response => {
-        //if (!response.ok) throw new Error('Login failed');
-        //return response.json();
-        if(!response.ok) throw new Error('Login failed');
-          return response.json();
+      .then((response) => {
+        if (!response.ok) throw new Error("Login failed");
+        return response.json();
       })
-      .then(userData => {
-          onLogin(userData.username);
-          navigate("/browse");
+      .then((userData) => {
+        onLogin(userData.username);
+        navigate("/browse");
       })
       .catch(() => {
-        return alert("Login failed")
-      })
-
+        alert("Login failed");
+      });
   };
 
   return (
-    <div className="bg-gray-100 h-screen flex items-center justify-center">
-      <div className="bg-white shadow-lg rounded-2xl p-10 w-[400px]">
-        <h2 className="text-3xl font-bold text-center text-blue-700 mb-8">Login</h2>
+    <div className="login-page">
+      <div className="login-card">
+        <h2 className="login-title">Login</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="login-form">
           <input
             name="username"
             data-test="username-input"
             type="text"
-            className="form-control"
+            className="form-control login-input"
             placeholder="Username"
-            value={formData.username.value}
+            value={formData.username}       
             onChange={handleChange}
             required
           />
@@ -55,19 +51,19 @@ export default function Login({ onLogin }) {
             name="password"
             data-test="password-input"
             type="password"
-            className="form-control" 
-            placeholder="Password" 
-            value={formData.password.value}
+            className="form-control login-input"
+            placeholder="Password"
+            value={formData.password}       
             onChange={handleChange}
-            required 
+            required
           />
 
-          <button 
-            className="btn btn-primary w-full py-2 rounded-pill"
+          <button
+            type="submit"
+            className="btn btn-primary login-button"
             data-test="login-button"
-            onClick={handleSubmit}
           >
-              Login
+            Login
           </button>
         </form>
       </div>
