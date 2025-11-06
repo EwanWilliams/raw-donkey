@@ -18,7 +18,10 @@ export default function Navbar({ isLoggedIn, username, onLogout }) {
 
         <ul className="navbar-nav ms-auto flex space-x-4 items-center">
           <li>
-            <Link to="/browse" className="nav-link text-gray-700 hover:text-blue-600">
+            <Link
+              to="/browse"
+              className="nav-link text-gray-700 hover:text-blue-600"
+            >
               Browse
             </Link>
           </li>
@@ -26,14 +29,29 @@ export default function Navbar({ isLoggedIn, username, onLogout }) {
           {isLoggedIn ? (
             <>
               <li>
-                <Link to="/create" className="nav-link text-gray-700 hover:text-blue-600">
+                <Link
+                  to="/create"
+                  className="nav-link text-gray-700 hover:text-blue-600"
+                >
                   Create
+                </Link>
+              </li>
+
+              {/* ✅ User Settings link (only shows when logged in) */}
+              <li>
+                <Link
+                  to="/settings"
+                  className="nav-link text-gray-700 hover:text-blue-600"
+                >
+                  User Settings
                 </Link>
               </li>
 
               {/* 👇 Username nameplate */}
               <li className="text-gray-700 font-medium">
-                Hi, <span className="text-blue-600 font-semibold">{username}</span> 👋
+                Hi,{" "}
+                <span className="text-blue-600 font-semibold">{username}</span>{" "}
+                👋
               </li>
 
               <li>
@@ -47,7 +65,10 @@ export default function Navbar({ isLoggedIn, username, onLogout }) {
             </>
           ) : (
             <li>
-              <Link to="/login" className="btn btn-outline-primary rounded-pill px-3">
+              <Link
+                to="/login"
+                className="btn btn-outline-primary rounded-pill px-3"
+              >
                 Login
               </Link>
             </li>
@@ -57,3 +78,4 @@ export default function Navbar({ isLoggedIn, username, onLogout }) {
     </nav>
   );
 }
+
