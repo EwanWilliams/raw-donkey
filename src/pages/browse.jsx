@@ -1,114 +1,108 @@
-import React, {useEffect, useState} from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 
 export default function Browse() {
-  const recipes = [
-      { id: 1, title: "Mango Smoothie", image: ""},
-      { id: 2, title: "Veggie Tacos", image: ""},
-      { id: 3, title: "Chocolate Cake", image: ""},
-      { id: 4, title: "Spaghetti Carbonara", image: ""},
-      { id: 5, title: "Steak and Chips", image: ""},
-      { id: 6, title: "Vodka Pasta", image: ""},
-      { id: 7, title: "Lemon Cake", image: ""},
-      { id: 8, title: "Pesto Pasta", image: ""},
-      { id: 9, title: "Pork Chop", image: ""},
-  ];
-
-  const [pageSize, setPageSize] = useState(() => {
-    // Load saved selection or default to 6
-    return Number(localStorage.getItem("pageSize")) || 6;
-  });
+  const [pageSize, setPageSize] = useState(6);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // --- persist selection ---
-  useEffect(() => {
-    localStorage.setItem("pageSize", pageSize);
-  }, [pageSize]);
+  // Mock data
+  const recipes = [
+    { id: 1, title: "Mango Smoothie" },
+    { id: 2, title: "Veggie Tacos" },
+    { id: 3, title: "Chocolate Cake" },
+    { id: 4, title: "Spaghetti Carbonara" },
+    { id: 5, title: "Avocado Toast" },
+    { id: 6, title: "Chicken Curry" },
+    { id: 7, title: "Salmon Bowl" },
+    { id: 8, title: "Caesar Salad" },
+    { id: 9, title: "Pancakes" },
+    { id: 10, title: "Burrito Bowl" },
+    { id: 11, title: "Beef Stir Fry" },
+    { id: 12, title: "Greek Yogurt Parfait" },
+  ];
 
+  // Pagination logic
   const totalPages = Math.ceil(recipes.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
-  const currentRecipes = recipes.slice(startIndex, startIndex + pageSize);
+  const paginatedRecipes = recipes.slice(startIndex, startIndex + pageSize);
+
+  const nextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
 
   return (
-      <div className="p-6">
-          <div className="relative flex items-center justify-center mb-8">
-              {/* Page selector — pinned to far left */}
-              <div className="absolute left-0 flex items-center gap-2 ml-6">
-                  <label htmlFor="pageSize" className="text-gray-700 font-medium">
-                      Recipes per page:
-                  </label>
-                  <select
-                      id="pageSize"
-                      value={pageSize}
-                      onChange={(e) => {
-                          setPageSize(Number(e.target.value));
-                          setCurrentPage(1);
-                      }}
-                      className="border border-gray-300 rounded-md px-2 py-1 text-gray-700"
-                      data-test="page-size-selector"
-                  >
-                      <option value={3}>3</option>
-                      <option value={6}>6</option>
-                      <option value={9}>9</option>
-                  </select>
-              </div>
+    <div className="container py-5">
 
-              {/* Title — perfectly centered */}
-              <h1 className="text-4xl font-bold text-gray-800 text-center">
-                  Browse Recipes
-              </h1>
-          </div>
+      {/* ---------------- Header Section ---------------- */}
+      <div className="position-relative text-center mb-5">
+        {/* Centered title */}
+        <h1 className="text-4xl fw-bold text-gray-800 mb-0">
+          Browse Recipes
+        </h1>
 
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentRecipes.map((recipe) => (
-                  <div
-                      key={recipe.id}
-                      className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition"
-                  >
-                      <img
-                          src={recipe.image}
-                          alt={recipe.title}
-                          className="w-full h-48 object-cover"
-                      />
-                      <div className="p-4 text-center">
-                          {/* Title now centered and styled */}
-                           <Link
-                                to={`/recipe/${recipe.id}`}
-                                    className="inline-block text-xl font-bold
-                                                !text-gray-900 visited:!text-gray-900
-                                                no-underline hover:underline hover:!text-blue-600
-                                               underline-offset-2 transition-colors duration-200">
-                                {recipe.title}
-                            </Link>
-                          <p className="text-gray-600 text-sm">{recipe.desc}</p>
-                      </div>
-                  </div>
-              ))}
-          </div>
-
-
-          {totalPages > 1 && (
-              <div className="flex justify-center mt-8 gap-3">
-                  <button
-                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                      disabled={currentPage === 1}
-                      className="px-3 py-1 border rounded disabled:opacity-50"
-                  >
-                      Previous
-                  </button>
-                  <span className="text-gray-700 font-medium">
-            Page {currentPage} of {totalPages}
-          </span>
-                  <button
-                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                      disabled={currentPage === totalPages}
-                      className="px-3 py-1 border rounded disabled:opacity-50"
-                  >
-                      Next
-                  </button>
-              </div>
-          )}
+        {/* Selector pinned neatly to the left */}
+        <div className="position-absolute top-50 start-0 translate-middle-y ms-4 d-flex align-items-center gap-2">
+          <label htmlFor="pageSize" className="text-gray-700 fw-medium mb-0">
+            Recipes per page:
+          </label>
+          <select
+            id="pageSize"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="form-select form-select-sm w-auto"
+          >
+            <option value={3}>3</option>
+            <option value={6}>6</option>
+            <option value={9}>9</option>
+          </select>
+        </div>
       </div>
+
+      {/* ---------------- Recipe Grid ---------------- */}
+      <div className="row g-4">
+        {paginatedRecipes.map((recipe) => (
+          <div key={recipe.id} className="col-12 col-md-6 col-lg-4">
+            <div className="card h-100 text-center shadow-sm border-0 p-3">
+              <div
+                className="bg-light rounded-3 d-flex justify-content-center align-items-center"
+                style={{ height: "180px" }}
+              >
+                <span className="text-muted">No image</span>
+              </div>
+              <h5 className="mt-3 text-blue-600">{recipe.title}</h5>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ---------------- Pagination Controls ---------------- */}
+      <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
+        <button
+          onClick={prevPage}
+          disabled={currentPage === 1}
+          className="btn btn-outline-primary rounded-pill px-4"
+        >
+          ← Previous
+        </button>
+
+        <span className="fw-semibold text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          onClick={nextPage}
+          disabled={currentPage === totalPages}
+          className="btn btn-outline-primary rounded-pill px-4"
+        >
+          Next →
+        </button>
+      </div>
+    </div>
   );
 }

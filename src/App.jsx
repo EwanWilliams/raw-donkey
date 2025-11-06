@@ -4,14 +4,15 @@ import Navbar from "./pages/components/navbar";
 import Browse from "./pages/browse";
 import Create from "./pages/create";
 import Login from "./pages/login";
-import USettings from "./pages/settings";
-
+import Settings from "./pages/settings";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem("isLoggedIn") === "true"
   );
-  const [username, setUsername] = useState(localStorage.getItem("username") || "");
+  const [username, setUsername] = useState(
+    localStorage.getItem("username") || ""
+  );
 
   const handleLogin = (name) => {
     setIsLoggedIn(true);
@@ -29,15 +30,20 @@ export default function App() {
 
   return (
     <Router>
+      {/* ⬇️ back to your original layout wrapper */}
       <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
-        <Navbar isLoggedIn={isLoggedIn} username={username} onLogout={handleLogout} />
+        <Navbar
+          isLoggedIn={isLoggedIn}
+          username={username}
+          onLogout={handleLogout}
+        />
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Browse />} />
             <Route path="/browse" element={<Browse />} />
             <Route path="/create" element={<Create />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="/settings" element={<USettings />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
       </div>

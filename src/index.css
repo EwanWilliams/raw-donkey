@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* -------------------------------
    Global Design Tokens
@@ -25,6 +27,16 @@
 }
 
 /* -------------------------------
+   Dark Mode (class on <html>)
+--------------------------------*/
+.dark {
+  --color-bg: #111827;
+  --color-surface: #1f2937;
+  --color-text: #e5e7eb;
+  --color-text-light: #9ca3af;
+}
+
+/* -------------------------------
    Global Typography & Layout
 --------------------------------*/
 body {
@@ -33,6 +45,8 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -47,43 +61,45 @@ p {
 /* -------------------------------
    Reusable Utility Classes
 --------------------------------*/
-@layer components {
-  .container-default {
-    @apply max-w-6xl mx-auto px-6;
-  }
+.container-default {
+  max-width: 72rem;           /* max-w-6xl */
+  margin-left: auto;          /* mx-auto */
+  margin-right: auto;
+  padding-left: 1.5rem;       /* px-6 */
+  padding-right: 1.5rem;
+}
 
-  .card {
-    background-color: var(--color-surface);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    transition: var(--transition-default);
-  }
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: var(--transition-default);
+}
 
-  .card:hover {
-    box-shadow: var(--shadow-hover);
-  }
+.card:hover {
+  box-shadow: var(--shadow-hover);
+}
 
-  .btn-brand {
-    background-color: var(--color-brand);
-    color: white;
-    border-radius: var(--radius-button);
-    padding: 0.5rem 1.25rem;
-    transition: var(--transition-default);
-  }
+.btn-brand {
+  background-color: var(--color-brand);
+  color: white;
+  border-radius: var(--radius-button);
+  padding: 0.5rem 1.25rem;
+  transition: var(--transition-default);
+}
 
-  .btn-brand:hover {
-    background-color: var(--color-brand-dark);
-  }
+.btn-brand:hover {
+  background-color: var(--color-brand-dark);
+}
 
-  .link {
-    color: var(--color-brand);
-    transition: var(--transition-default);
-  }
+.link {
+  color: var(--color-brand);
+  transition: var(--transition-default);
+}
 
-  .link:hover {
-    color: var(--color-brand-dark);
-    text-decoration: underline;
-  }
+.link:hover {
+  color: var(--color-brand-dark);
+  text-decoration: underline;
 }
 
 /* -------------------------------
@@ -98,16 +114,4 @@ p {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-brand-dark);
-}
-
-/* -------------------------------
-   Dark Mode
---------------------------------*/
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #111827;
-    --color-surface: #1f2937;
-    --color-text: #e5e7eb;
-    --color-text-light: #9ca3af;
-  }
 }
