@@ -96,22 +96,38 @@ export default function Browse() {
               </div>
           ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {currentRecipes.map((recipe) => (
-                      <div
-                          key={recipe._id}
-                          className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition"
-                      >
-                          {recipe.recipe_img && recipe.recipe_img.data ? (
-                              <img
-                                  src={`data:${recipe.recipe_img.contentType};base64,${recipe.recipe_img.data}`}
-                                  alt={recipe.title}
-                                  className="w-full h-48 object-cover"
-                              />
-                          ) : (
-                              <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                                  <span className="text-gray-500">No Image</span>
-                              </div>
-                          )}
+                  {currentRecipes.map((recipe) => {
+                      // Convert Buffer to base64 string if needed
+                      let imageSrc = null;
+                      if (recipe.recipe_img?.data) {
+                          if (recipe.recipe_img.data.type === 'Buffer' && recipe.recipe_img.data.data) {
+                              // Buffer was serialized as {type: 'Buffer', data: [array of bytes]}
+                              const base64String = btoa(
+                                  String.fromCharCode(...new Uint8Array(recipe.recipe_img.data.data))
+                              );
+                              imageSrc = `data:${recipe.recipe_img.contentType};base64,${base64String}`;
+                          } else if (typeof recipe.recipe_img.data === 'string') {
+                              // Already a base64 string
+                              imageSrc = `data:${recipe.recipe_img.contentType};base64,${recipe.recipe_img.data}`;
+                          }
+                      }
+                      
+                      return (
+                          <div
+                              key={recipe._id}
+                              className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition"
+                          >
+                              {imageSrc ? (
+                                  <img
+                                      src={imageSrc}
+                                      alt={recipe.title}
+                                      className="w-full h-48 object-cover"
+                                  />
+                              ) : (
+                                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                      <span className="text-gray-500">No Image</span>
+                                  </div>
+                              )}
                           <div className="p-4 text-center">
                               {/* Title now centered and styled */}
                                <Link
@@ -125,7 +141,8 @@ export default function Browse() {
                               <p className="text-gray-600 text-sm">{recipe.desc}</p>
                           </div>
                       </div>
-                  ))}
+                      );
+                  })}
               </div>
           )}
 
