@@ -201,3 +201,179 @@
   font-weight: 500;
   margin-top: 0.5rem;
 }
+
+/* -------------------------------
+   USER SETTINGS PAGE
+--------------------------------*/
+
+.settings-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6; /* light gray around card */
+  padding: 2.5rem 1rem;
+}
+
+.settings-card {
+  background-color: #ffffff;
+  border-radius: 1.75rem;
+  box-shadow: 0 32px 60px rgba(15, 23, 42, 0.08);
+  padding: 2.5rem 2.25rem 2.75rem;
+  max-width: 640px;
+  width: 100%;
+  text-align: center;
+}
+
+.settings-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #111827; /* near-black title */
+  margin-bottom: 2rem;
+}
+
+/* -------------------------------
+   Avatar section
+--------------------------------*/
+
+.settings-avatar-section {
+  margin-bottom: 2.25rem;
+}
+
+.settings-avatar-wrapper {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.settings-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.settings-avatar-placeholder {
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.settings-help-text {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+/* hide actual file input */
+.settings-file-input {
+  display: none;
+}
+
+.settings-button-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+/* -------------------------------
+   Measurement section
+--------------------------------*/
+
+.settings-measure-section {
+  text-align: left;
+  margin-bottom: 2.25rem;
+}
+
+.settings-measure-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.35rem;
+}
+
+.settings-measure-help {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 0.9rem;
+}
+
+.settings-measure-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.settings-radio-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.settings-radio-label input[type="radio"] {
+  margin-top: 2px;
+  accent-color: #2563eb;
+}
+
+.settings-radio-text {
+  line-height: 1.4;
+}
+
+/* -------------------------------
+   Generic buttons for settings
+--------------------------------*/
+
+.rd-btn {
+  border-radius: 9999px;
+  padding: 0.5rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 2px solid #111827;    /* strong border like screenshot */
+  background-color: #f3f4f6;
+  color: #111827;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.rd-btn:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.rd-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* "outline" variant (Change/Remove) */
+.rd-btn-outline {
+  /* uses base rd-btn styles above; if you want lighter border, uncomment:
+   border-color: #4b5563;
+   */
+}
+
+/* Save button – big bar across bottom */
+.rd-btn-primary.rd-btn-full {
+  width: 100%;
+  margin-top: 1.75rem;
+  padding: 0.85rem 1.5rem;
+  font-size: 1.05rem;
+  border-radius: 9999px;
+  background-color: #f3f4f6;
+  border-color: #111827;
+  color: #111827;
+}
+
+.rd-btn-primary.rd-btn-full:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}

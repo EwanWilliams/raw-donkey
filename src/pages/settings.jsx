@@ -1,21 +1,18 @@
 import React, { useRef, useState } from "react";
 
 export default function Settings({ onAvatarChange }) {
-  // Avatar state
   const [avatarUrl, setAvatarUrl] = useState(
     () => localStorage.getItem("avatarUrl") || ""
   );
 
-  // Measurement system: "metric" or "us"
+  // Now use "metric" or "imperial"
   const [measurementSystem, setMeasurementSystem] = useState(
     () => localStorage.getItem("measurementSystem") || "metric"
   );
 
   const fileInputRef = useRef(null);
 
-  const openFilePicker = () => {
-    fileInputRef.current?.click();
-  };
+  const openFilePicker = () => fileInputRef.current?.click();
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -37,27 +34,8 @@ export default function Settings({ onAvatarChange }) {
     }
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      const dataUrl = reader.result;
-      setAvatarUrl(dataUrl);
-    };
+    reader.onloadend = () => setAvatarUrl(reader.result);
     reader.readAsDataURL(file);
-  };
-
-  const handleSave = () => {
-    // Save avatar
-    if (avatarUrl) {
-      localStorage.setItem("avatarUrl", avatarUrl);
-      if (onAvatarChange) onAvatarChange(avatarUrl);
-    } else {
-      localStorage.removeItem("avatarUrl");
-      if (onAvatarChange) onAvatarChange("");
-    }
-
-    // Save measurement preference
-    localStorage.setItem("measurementSystem", measurementSystem);
-
-    alert("Settings saved.");
   };
 
   const handleRemove = () => {
@@ -67,12 +45,66 @@ export default function Settings({ onAvatarChange }) {
     if (onAvatarChange) onAvatarChange("");
   };
 
+const handleSave = async () => {
+  // Backend expects:
+  //   img  -> base64 data URL string
+  //   unit -> string (e.g. "metric" or "imperial")
+  const payload = {
+    unit: measurementSystem,   // "metric" or "imperial"
+  };
+
+  if (avatarUrl) {
+    payload.img = avatarUrl;   // data URL "data:image/png;base64,..."
+  }
+
+  console.log("Sending settings payload:", payload);
+
+  try {
+    const res = await fetch("/api/user/settings", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const bodyText = await res.text();
+    console.log("Settings response:", res.status, bodyText);
+
+    if (!res.ok) {
+      alert(
+        bodyText
+          ? `Could not save settings: ${bodyText}`
+          : `Could not save settings (status ${res.status}).`
+      );
+      return;
+    }
+
+    // Keep local cache in sync
+    localStorage.setItem("measurementSystem", measurementSystem);
+
+    if (avatarUrl) {
+      localStorage.setItem("avatarUrl", avatarUrl);
+      if (onAvatarChange) onAvatarChange(avatarUrl);
+    } else {
+      localStorage.removeItem("avatarUrl");
+      if (onAvatarChange) onAvatarChange("");
+    }
+
+    alert("Settings saved successfully.");
+  } catch (err) {
+    console.error("Network or parsing error while saving settings:", err);
+    alert("Could not save settings. Please try again.");
+  }
+};
+
+
   return (
     <div className="settings-page">
       <div className="settings-card">
         <h1 className="settings-title">User Settings</h1>
 
-        {/* Avatar section */}
+        {/* Avatar Section */}
         <div className="settings-avatar-section">
           <div className="settings-avatar-wrapper">
             {avatarUrl ? (
@@ -117,7 +149,7 @@ export default function Settings({ onAvatarChange }) {
           </div>
         </div>
 
-        {/* Measurement preference section */}
+        {/* Measurement preference */}
         <div className="settings-measure-section">
           <h2 className="settings-measure-title">Measurement Preference</h2>
           <p className="settings-measure-help">
@@ -142,12 +174,12 @@ export default function Settings({ onAvatarChange }) {
               <input
                 type="radio"
                 name="measurementSystem"
-                value="us"
-                checked={measurementSystem === "us"}
+                value="imperial"
+                checked={measurementSystem === "imperial"}
                 onChange={(e) => setMeasurementSystem(e.target.value)}
               />
               <span className="settings-radio-text">
-                US Standard (cups, tablespoons, pounds, ounces)
+                Imperial (pounds, ounces)
               </span>
             </label>
           </div>
