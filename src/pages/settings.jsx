@@ -28,7 +28,7 @@ export default function Settings({ onAvatarChange }) {
     }
 
     if (!under5MB) {
-      alert("Image too large. Please use a file under 5MB.");
+      alert("Image too large. Please use a file under 200KB.");
       e.target.value = "";
       return;
     }

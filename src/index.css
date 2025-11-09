@@ -224,6 +224,28 @@
   background: var(--color-brand-dark);
 }
 
+/* -------------------------------
+   LOGIN PAGE
+--------------------------------*/
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6; /* light gray */
+  padding: 1.5rem;
+}
+
+.login-card {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 400px;
+  padding: 2.5rem 2rem;
+}
+
 .login-title {
   font-size: 2rem;
   font-weight: 700;
