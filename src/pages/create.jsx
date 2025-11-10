@@ -173,7 +173,7 @@ export default function CreateRecipe() {
               />
             </div>
           )}
-          <p>Recipe image may not be larger than 256 KB</p>
+          <p>Recipe image may not be larger than ~200 KB</p>
           <br />
 
           <h3>Ingredients:</h3>
