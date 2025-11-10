@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,          // 👈 import Navigate
+} from "react-router-dom";
+
 import Navbar from "./pages/components/navbar";
 import Browse from "./pages/browse";
 import Create from "./pages/create";
@@ -28,8 +34,17 @@ export default function App() {
     localStorage.removeItem("username");
   };
 
+  // 👇 Inline ProtectedRoute component
+  const ProtectedRoute = ({ children }) => {
+    if (!isLoggedIn) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
+  };
+
   return (
-    <Router>c
+    <Router>
+      {/* 👆 removed the stray 'c' here */}
       <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
         <Navbar
           isLoggedIn={isLoggedIn}
@@ -42,7 +57,16 @@ export default function App() {
             <Route path="/browse" element={<Browse />} />
             <Route path="/create" element={<Create />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="/settings" element={<Settings />} />
+
+            {/* ✅ Protected settings route */}
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
       </div>
