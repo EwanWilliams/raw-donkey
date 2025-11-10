@@ -34,7 +34,6 @@ export default function App() {
     localStorage.removeItem("username");
   };
 
-  // Inline ProtectedRoute component
   const ProtectedRoute = ({ children }) => {
     if (!isLoggedIn) {
       return <Navigate to="/login" replace />;
@@ -42,9 +41,15 @@ export default function App() {
     return children;
   };
 
+  const ProtectedRoute2 = ({ children }) => {
+    if (isLoggedIn) {
+      return <Navigate to="/browse" replace />;
+    }
+    return children;
+  };
+
   return (
     <Router>
-      {/* removed the stray 'c' here */}
       <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
         <Navbar
           isLoggedIn={isLoggedIn}
@@ -56,8 +61,8 @@ export default function App() {
             <Route path="/" element={<Browse />} />
             <Route path="/browse" element={<Browse />} />
             <Route path="/create" element={<ProtectedRoute><Create /></ProtectedRoute>}/>
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute> }/>
+            <Route path="/login" element={<ProtectedRoute2><Login onLogin={handleLogin} /></ProtectedRoute2>}/>
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>}/>
           </Routes>
         </main>
       </div>
