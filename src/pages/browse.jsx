@@ -2,33 +2,52 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Browse() {
-  const recipes = [
-    { id: 1, title: "Mango Smoothie", image: "" },
-    { id: 2, title: "Veggie Tacos", image: "" },
-    { id: 3, title: "Chocolate Cake", image: "" },
-    { id: 4, title: "Spaghetti Carbonara", image: "" },
-    { id: 5, title: "Steak and Chips", image: "" },
-    { id: 6, title: "Vodka Pasta", image: "" },
-    { id: 7, title: "Lemon Cake", image: "" },
-    { id: 8, title: "Pesto Pasta", image: "" },
-    { id: 9, title: "Pork Chop", image: "" },
-  ];
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [pageSize, setPageSize] = useState(() => {
+    // Load saved selection or default to 6
     return Number(localStorage.getItem("pageSize")) || 6;
   });
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Fetch recipes from database
+  const fetchRecipes = async (page, size) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/recipe/list/${page}/${size}`);
+      if (!response.ok) {
+        // If API fails display specific message
+        throw new Error("Database connection issue");
+      }
+      const data = await response.json();
+      setRecipes(data);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      console.error("Error fetching recipes:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch recipes when component mounts or when page/pageSize changes
+  useEffect(() => {
+    fetchRecipes(currentPage, pageSize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, pageSize]);
+
+  // Persist selection
   useEffect(() => {
     localStorage.setItem("pageSize", pageSize);
   }, [pageSize]);
 
-  const totalPages = Math.ceil(recipes.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const currentRecipes = recipes.slice(startIndex, startIndex + pageSize);
+  const currentRecipes = recipes;
 
   return (
     <div className="browse-page">
+      {/* Header */}
       <div className="browse-header">
         <div className="browse-header-left">
           <label htmlFor="pageSize" className="browse-label">
@@ -42,6 +61,7 @@ export default function Browse() {
               setCurrentPage(1);
             }}
             className="browse-select"
+            data-test="page-size-selector"
           >
             <option value={3}>3</option>
             <option value={6}>6</option>
@@ -52,25 +72,83 @@ export default function Browse() {
         <h1 className="browse-title">Browse Recipes</h1>
       </div>
 
-      <div className="browse-grid">
-        {currentRecipes.map((recipe) => (
-          <div key={recipe.id} className="recipe-card">
-            {recipe.image ? (
-              <img src={recipe.image} alt={recipe.title} className="recipe-img" />
-            ) : (
-              <div className="recipe-placeholder">No image</div>
-            )}
+      {/* States: loading / error / empty / list */}
+      {loading ? (
+        <div className="browse-message">
+          <p className="browse-message-text">Loading recipes...</p>
+        </div>
+      ) : error ? (
+        <div className="browse-message">
+          <p className="browse-message-error">Error: {error}</p>
+          <button
+            onClick={() => fetchRecipes(currentPage, pageSize)}
+            className="browse-retry-button"
+          >
+            Retry
+          </button>
+        </div>
+      ) : currentRecipes.length === 0 ? (
+        <div className="browse-message">
+          <p className="browse-message-text">No recipes found.</p>
+        </div>
+      ) : (
+        <div className="browse-grid">
+          {currentRecipes.map((recipe) => {
+            // Convert Buffer to base64 string if needed
+            let imageSrc = null;
+            if (recipe.recipe_img?.data) {
+              if (
+                recipe.recipe_img.data.type === "Buffer" &&
+                recipe.recipe_img.data.data
+              ) {
+                const uint8Array = new Uint8Array(
+                  recipe.recipe_img.data.data
+                );
+                let binaryString = "";
+                const chunkSize = 8192;
+                for (let i = 0; i < uint8Array.length; i += chunkSize) {
+                  const chunk = uint8Array.slice(i, i + chunkSize);
+                  binaryString += String.fromCharCode(...chunk);
+                }
+                const base64String = btoa(binaryString);
+                imageSrc = `data:${recipe.recipe_img.contentType};base64,${base64String}`;
+              } else if (typeof recipe.recipe_img.data === "string") {
+                imageSrc = `data:${recipe.recipe_img.contentType};base64,${recipe.recipe_img.data}`;
+              }
+            }
 
-            <div className="recipe-body">
-              <Link to={`/recipe/${recipe.id}`} className="recipe-link">
-                {recipe.title}
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>
+            return (
+              <div key={recipe._id} className="recipe-card">
+                {imageSrc ? (
+                  <img
+                    src={imageSrc}
+                    alt={recipe.title}
+                    className="recipe-img"
+                  />
+                ) : (
+                  <div className="recipe-img-placeholder">
+                    <span className="recipe-img-placeholder-text">
+                      No Image
+                    </span>
+                  </div>
+                )}
+                <div className="recipe-body">
+                  <Link
+                    to={`/recipe/${recipe._id}`}
+                    className="recipe-link"
+                  >
+                    {recipe.title}
+                  </Link>
+                  <p className="recipe-desc">{recipe.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-      {totalPages > 1 && (
+      {/* Pagination */}
+      {!loading && !error && (
         <div className="browse-pagination">
           <button
             onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
@@ -79,14 +157,10 @@ export default function Browse() {
           >
             Previous
           </button>
-
-          <span className="page-info">
-            Page {currentPage} of {totalPages}
-          </span>
-
+          <span className="page-info">Page {currentPage}</span>
           <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            disabled={currentRecipes.length < pageSize}
             className="page-button"
           >
             Next

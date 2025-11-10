@@ -1,11 +1,12 @@
 /* -------------------------------
-   BROWSE PAGE STYLES
+   BROWSE PAGE
 --------------------------------*/
 
 .browse-page {
   padding: 1.5rem;
 }
 
+/* Header: title centered, selector left */
 .browse-header {
   position: relative;
   display: flex;
@@ -35,7 +36,7 @@
   padding: 0.25rem 0.5rem;
   color: #374151;
   font-size: 0.95rem;
-  transition: border-color 0.2s ease-in-out;
+  background-color: #ffffff;
 }
 
 .browse-select:focus {
@@ -50,29 +51,58 @@
   text-align: center;
 }
 
-/* Grid for recipes */
-/* Recipe grid layout — always 3 across on desktop */
-.browse-grid {
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(1, 1fr);
+/* Messages: loading / error / empty */
+.browse-message {
+  text-align: center;
+  padding: 2rem 0;
 }
 
-/* Medium screens: 2 across */
+.browse-message-text {
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.browse-message-error {
+  color: #dc2626;
+  font-size: 0.95rem;
+}
+
+.browse-retry-button {
+  margin-top: 0.75rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 0.375rem;
+  border: none;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.browse-retry-button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Grid: 1 / 2 / 3 columns responsive */
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
 @media (min-width: 640px) {
   .browse-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Large screens: 3 across */
 @media (min-width: 1024px) {
   .browse-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-
+/* Recipe cards */
 .recipe-card {
   background-color: #ffffff;
   border-radius: 0.75rem;
@@ -91,14 +121,17 @@
   object-fit: cover;
 }
 
-.recipe-placeholder {
+.recipe-img-placeholder {
   width: 100%;
   height: 12rem;
-  background-color: #f3f4f6;
-  color: #9ca3af;
+  background-color: #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.recipe-img-placeholder-text {
+  color: #6b7280;
   font-size: 0.9rem;
 }
 
@@ -110,14 +143,20 @@
 .recipe-link {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #2563eb;
+  color: #111827;
   text-decoration: none;
   transition: color 0.2s ease-in-out;
 }
 
 .recipe-link:hover {
-  color: #1e40af;
+  color: #2563eb;
   text-decoration: underline;
+}
+
+.recipe-desc {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  color: #6b7280;
 }
 
 /* Pagination */
@@ -131,12 +170,13 @@
 
 .page-button {
   padding: 0.4rem 0.75rem;
-  border: 1px solid #d1d5db;
   border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
   background-color: #ffffff;
   color: #374151;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.15s ease-in-out;
 }
 
 .page-button:hover:not(:disabled) {
@@ -149,9 +189,9 @@
 }
 
 .page-info {
+  font-size: 0.95rem;
   color: #374151;
   font-weight: 500;
-  font-size: 0.95rem;
 }
 
 /* -------------------------------
