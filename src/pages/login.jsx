@@ -91,7 +91,7 @@ export default function Login({ onLogin }) {
       // Handle failed registration
       .catch(() => {
         if (formData.username == "" || formData.password == "") {
-          setMessage("response.body.error")
+          setMessage("Enter a Username and Password")
         }
         else {
           setMessage("Username already taken")
