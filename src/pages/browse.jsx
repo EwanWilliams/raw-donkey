@@ -102,9 +102,15 @@ export default function Browse() {
                       if (recipe.recipe_img?.data) {
                           if (recipe.recipe_img.data.type === 'Buffer' && recipe.recipe_img.data.data) {
                               // Buffer was serialized as {type: 'Buffer', data: [array of bytes]}
-                              const base64String = btoa(
-                                  String.fromCharCode(...new Uint8Array(recipe.recipe_img.data.data))
-                              );
+                              // Process in chunks to avoid call stack issues with large images
+                              const uint8Array = new Uint8Array(recipe.recipe_img.data.data);
+                              let binaryString = '';
+                              const chunkSize = 8192; // Process 8KB at a time
+                              for (let i = 0; i < uint8Array.length; i += chunkSize) {
+                                  const chunk = uint8Array.slice(i, i + chunkSize);
+                                  binaryString += String.fromCharCode(...chunk);
+                              }
+                              const base64String = btoa(binaryString);
                               imageSrc = `data:${recipe.recipe_img.contentType};base64,${base64String}`;
                           } else if (typeof recipe.recipe_img.data === 'string') {
                               // Already a base64 string
