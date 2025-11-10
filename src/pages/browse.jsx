@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Browse() {
@@ -7,7 +7,6 @@ export default function Browse() {
   const [error, setError] = useState(null);
 
   const [pageSize, setPageSize] = useState(() => {
-    // Load saved selection or default to 6
     return Number(localStorage.getItem("pageSize")) || 6;
   });
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,35 +45,38 @@ export default function Browse() {
   const currentRecipes = recipes;
 
   return (
-      <div className="p-6">
-          <div className="relative flex items-center justify-center mb-8">
-              {/* Page selector — pinned to far left */}
-              <div className="absolute left-0 flex items-center gap-2 ml-6">
-                  <label htmlFor="pageSize" className="text-gray-700 font-medium">
-                      Recipes per page:
-                  </label>
-                  <select
-                      id="pageSize"
-                      value={pageSize}
-                      onChange={(e) => {
-                          setPageSize(Number(e.target.value));
-                          setCurrentPage(1);
-                      }}
-                      className="border border-gray-300 rounded-md px-2 py-1 text-gray-700"
-                      data-test="page-size-selector"
-                  >
-                      <option value={3}>3</option>
-                      <option value={6}>6</option>
-                      <option value={9}>9</option>
-                  </select>
-              </div>
+    <div className="browse-page">
+      <div className="browse-header">
+        <div className="browse-header-left">
+          <label htmlFor="pageSize" className="browse-label">
+            Recipes per page:
+          </label>
+          <select
+            id="pageSize"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="browse-select"
+          >
+            <option value={3}>3</option>
+            <option value={6}>6</option>
+            <option value={9}>9</option>
+          </select>
+        </div>
 
-              {/* Title — perfectly centered */}
-              <h1 className="text-4xl font-bold text-gray-800 text-center">
-                  Browse Recipes
-              </h1>
-          </div>
+        <h1 className="browse-title">Browse Recipes</h1>
+      </div>
 
+      <div className="browse-grid">
+        {currentRecipes.map((recipe) => (
+          <div key={recipe.id} className="recipe-card">
+            {recipe.image ? (
+              <img src={recipe.image} alt={recipe.title} className="recipe-img" />
+            ) : (
+              <div className="recipe-placeholder">No image</div>
+            )}
 
           {loading ? (
               <div className="text-center py-8">
@@ -152,6 +154,15 @@ export default function Browse() {
               </div>
           )}
 
+      {totalPages > 1 && (
+        <div className="browse-pagination">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+            className="page-button"
+          >
+            Previous
+          </button>
 
           {!loading && !error && (
               <div className="flex justify-center mt-8 gap-3">
