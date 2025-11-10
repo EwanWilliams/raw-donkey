@@ -55,18 +55,9 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Browse />} />
             <Route path="/browse" element={<Browse />} />
-            <Route path="/create" element={<Create />} />
+            <Route path="/create" element={<ProtectedRoute><Create /></ProtectedRoute>}/>
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
-
-            {/* Protected settings route */}
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute> }/>
           </Routes>
         </main>
       </div>
