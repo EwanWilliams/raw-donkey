@@ -174,9 +174,9 @@ export default function Login({ onLogin }) {
 
   // Render the login/register form
   return (
-    <div className="bg-gray-100 h-screen flex items-center justify-center">
-      <div className="bg-white shadow-lg rounded-2xl p-10 w-[400px]">
-        <h2 className="text-3xl font-bold text-center text-blue-700 mb-8">Login</h2>
+    <div className="login-page">
+      <div className="login-card">
+        <h2 className="login-title">Login</h2>
 
         <form className="space-y-5">
           <input
@@ -184,7 +184,7 @@ export default function Login({ onLogin }) {
             id="username"
             data-test="username-input"
             type="text"
-            className="form-control"
+            className="form-control login-input"
             placeholder="Username"
             value={formData.username.value}
             required
