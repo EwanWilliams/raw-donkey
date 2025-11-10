@@ -173,6 +173,7 @@ export default function CreateRecipe() {
               />
             </div>
           )}
+          <p>Recipe image may not be larger than 256 KB</p>
           <br />
 
           <h3>Ingredients:</h3>
@@ -221,6 +222,9 @@ export default function CreateRecipe() {
                 }}
               >
                 <option value="whole">whole</option>
+                <option value="tsp">tsp</option>
+                <option value="tbsp">tbsp</option>
+                <option value="cup">cup</option>
                 <option value="g">g</option>
                 <option value="ml">mL</option>
                 <option value="oz">oz</option>
