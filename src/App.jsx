@@ -4,6 +4,7 @@ import Navbar from "./pages/components/navbar";
 import Browse from "./pages/browse";
 import Create from "./pages/create";
 import Login from "./pages/login";
+import RecipeDetails from "./pages/details";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="/browse" element={<Browse />} />
             <Route path="/create" element={<Create />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route path="/recipe/:id" element={<RecipeDetails />} />
           </Routes>
         </main>
       </div>
