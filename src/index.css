@@ -1,7 +1,5 @@
-@import "tailwindcss";
-
 /* -------------------------------
-   Global Design Tokens
+   BROWSE PAGE
 --------------------------------*/
 :root {
   /* Colors */
@@ -24,66 +22,192 @@
   --transition-default: all 0.2s ease-in-out;
 }
 
-/* -------------------------------
-   Global Typography & Layout
---------------------------------*/
-body {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Header: title centered, selector left */
+.browse-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: var(--color-text);
+.browse-header-left {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1.5rem;
+}
+
+.browse-label {
+  color: #374151;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.browse-select {
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  color: #374151;
+  font-size: 0.95rem;
+  background-color: #ffffff;
+}
+
+.browse-select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.browse-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+}
+
+/* Messages: loading / error / empty */
+.browse-message {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.browse-message-text {
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.browse-message-error {
+  color: #dc2626;
+  font-size: 0.95rem;
+}
+
+.browse-retry-button {
+  margin-top: 0.75rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 0.375rem;
+  border: none;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.browse-retry-button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Grid: 1 / 2 / 3 columns responsive */
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .browse-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .browse-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Recipe cards */
+.recipe-card {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.recipe-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.recipe-img {
+  width: 100%;
+  height: 12rem;
+  object-fit: cover;
+}
+
+.recipe-img-placeholder {
+  width: 100%;
+  height: 12rem;
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recipe-img-placeholder-text {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.recipe-body {
+  padding: 1rem;
+  text-align: center;
+}
+
+.recipe-link {
+  font-size: 1.125rem;
   font-weight: 600;
+  color: #111827;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
 }
 
-p {
-  color: var(--color-text-light);
+.recipe-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
 }
 
-/* -------------------------------
-   Reusable Utility Classes
---------------------------------*/
-@layer components {
-  .container-default {
-    @apply max-w-6xl mx-auto px-6;
-  }
+.recipe-desc {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
 
-  .card {
-    background-color: var(--color-surface);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    transition: var(--transition-default);
-  }
+/* Pagination */
+.browse-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
 
-  .card:hover {
-    box-shadow: var(--shadow-hover);
-  }
+.page-button {
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
 
-  .btn-brand {
-    background-color: var(--color-brand);
-    color: white;
-    border-radius: var(--radius-button);
-    padding: 0.5rem 1.25rem;
-    transition: var(--transition-default);
-  }
+.page-button:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
 
-  .btn-brand:hover {
-    background-color: var(--color-brand-dark);
-  }
+.page-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
-  .link {
-    color: var(--color-brand);
-    transition: var(--transition-default);
-  }
-
-  .link:hover {
-    color: var(--color-brand-dark);
-    text-decoration: underline;
-  }
+.page-info {
+  font-size: 0.95rem;
+  color: #374151;
+  font-weight: 500;
 }
 
 /* -------------------------------
@@ -101,13 +225,219 @@ p {
 }
 
 /* -------------------------------
-   Dark Mode
+   LOGIN PAGE
 --------------------------------*/
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #111827;
-    --color-surface: #1f2937;
-    --color-text: #e5e7eb;
-    --color-text-light: #9ca3af;
-  }
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6; /* light gray */
+  padding: 1.5rem;
+}
+
+.login-card {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 400px;
+  padding: 2.5rem 2rem;
+}
+
+.login-title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1d4ed8; /* blue-700-ish */
+  margin-bottom: 1.75rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-input {
+  font-size: 0.95rem;
+}
+
+.login-button {
+  width: 100%;
+  border-radius: 9999px;
+  padding: 0.55rem 1rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+/* -------------------------------
+   USER SETTINGS PAGE
+--------------------------------*/
+
+.settings-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6; /* light gray around card */
+  padding: 2.5rem 1rem;
+}
+
+.settings-card {
+  background-color: #ffffff;
+  border-radius: 1.75rem;
+  box-shadow: 0 32px 60px rgba(15, 23, 42, 0.08);
+  padding: 2.5rem 2.25rem 2.75rem;
+  max-width: 640px;
+  width: 100%;
+  text-align: center;
+}
+
+.settings-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #111827; /* near-black title */
+  margin-bottom: 2rem;
+}
+
+/* -------------------------------
+   Avatar section
+--------------------------------*/
+
+.settings-avatar-section {
+  margin-bottom: 2.25rem;
+}
+
+.settings-avatar-wrapper {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.settings-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.settings-avatar-placeholder {
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.settings-help-text {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+/* hide actual file input */
+.settings-file-input {
+  display: none;
+}
+
+.settings-button-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+/* -------------------------------
+   Measurement section
+--------------------------------*/
+
+.settings-measure-section {
+  text-align: left;
+  margin-bottom: 2.25rem;
+}
+
+.settings-measure-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.35rem;
+}
+
+.settings-measure-help {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 0.9rem;
+}
+
+.settings-measure-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.settings-radio-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.settings-radio-label input[type="radio"] {
+  margin-top: 2px;
+  accent-color: #2563eb;
+}
+
+.settings-radio-text {
+  line-height: 1.4;
+}
+
+/* -------------------------------
+   Generic buttons for settings
+--------------------------------*/
+
+.rd-btn {
+  border-radius: 9999px;
+  padding: 0.5rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 2px solid #111827;    /* strong border like screenshot */
+  background-color: #f3f4f6;
+  color: #111827;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.rd-btn:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.rd-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+/* Save button – big bar across bottom */
+.rd-btn-primary.rd-btn-full {
+  width: 100%;
+  margin-top: 1.75rem;
+  padding: 0.85rem 1.5rem;
+  font-size: 1.05rem;
+  border-radius: 9999px;
+  background-color: #f3f4f6;
+  border-color: #111827;
+  color: #111827;
+}
+
+.rd-btn-primary.rd-btn-full:hover:not(:disabled) {
+  background-color: #e5e7eb;
 }
