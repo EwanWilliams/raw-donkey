@@ -28,6 +28,5 @@ app.use('/api/auth', authRoutes);
 app.use('/api/recipe', recipeRoutes);
 app.use('/api/user', userRoutes);
 
-ViteExpress.listen(app, PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
