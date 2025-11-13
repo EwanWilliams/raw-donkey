@@ -10,6 +10,7 @@ import Navbar from "./pages/components/navbar";
 import Browse from "./pages/browse";
 import Create from "./pages/create";
 import Login from "./pages/login";
+import RecipeDetails from "./pages/details";
 import Settings from "./pages/settings";
 
 export default function App() {
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/browse" element={<Browse />} />
             <Route path="/create" element={<Create />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route path="/recipe/:id" element={<RecipeDetails />} />
 
             {/* Protected settings route */}
             <Route
