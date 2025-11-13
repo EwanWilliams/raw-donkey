@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.mjs';
 import recipeRoutes from './routes/recipe.mjs';
+import userRoutes from './routes/user.mjs';
 
 const app = express();
 const PORT = process.env._PORT;
@@ -17,7 +18,7 @@ const DB_URI = `mongodb+srv://${db_username}:${db_password}@${db_cluster}`;
 
 // middleware
 app.use(express.json({ limit: '256kb' }));
-// app.use(cookieParser());
+app.use(cookieParser());
 app.use(morgan('dev'));
 
 mongoose.connect(DB_URI).then(() => console.log("Connected to DB.")).catch(error => console.log(error));
@@ -25,6 +26,7 @@ mongoose.connect(DB_URI).then(() => console.log("Connected to DB.")).catch(error
 // use routes in routes folder
 app.use('/api/auth', authRoutes);
 app.use('/api/recipe', recipeRoutes);
+app.use('/api/user', userRoutes);
 
 ViteExpress.listen(app, PORT, () => {
     console.log(`Server running on port ${PORT}`);
