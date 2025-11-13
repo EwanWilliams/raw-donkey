@@ -60,6 +60,11 @@ export default function CreateRecipe() {
       return;
     }
 
+    if (selectedImage == null) {
+      alert("Please select a recipe image");
+      return;
+    }
+
     setIsUploading(true);
     
     try {
@@ -106,6 +111,7 @@ export default function CreateRecipe() {
         setImagePreview(null);
         setIngredients([{ item: "", amount: "", unit: "g" }]);
         setSteps([""]);
+        document.getElementById('FileInput').value = null;
       } else {
         const error = await response.json();
         alert(`Failed to upload recipe: ${error.error || 'Unknown error'}`);
@@ -151,6 +157,7 @@ export default function CreateRecipe() {
           
           <label>Recipe Image:</label><br />
           <input
+            id="FileInput"
             type="file"
             data-test="recipe-image-input"
             accept="image/*"
@@ -173,6 +180,7 @@ export default function CreateRecipe() {
               />
             </div>
           )}
+          <p>Recipe image may not be larger than ~200 KB</p>
           <br />
 
           <h3>Ingredients:</h3>
@@ -221,6 +229,9 @@ export default function CreateRecipe() {
                 }}
               >
                 <option value="whole">whole</option>
+                <option value="tsp">tsp</option>
+                <option value="tbsp">tbsp</option>
+                <option value="cup">cup</option>
                 <option value="g">g</option>
                 <option value="ml">mL</option>
                 <option value="oz">oz</option>
@@ -297,7 +308,8 @@ export default function CreateRecipe() {
 
           <br />
           <button 
-            type="submit"
+            type="button"
+            onClick={handleUpload}
             data-test="recipe-submit-button"
             disabled={isUploading}
             style={{
