@@ -13,7 +13,8 @@ Web Application for creating and viewing recipes using a DevOps workflow.
 ## Tech Stack
 
 
-![Tech Stack](https://github-readme-tech-stack.vercel.app/api/cards?title=Tech+Stack&borderRadius=3&lineCount=2&theme=github&width=300&line1=node.js%2Cnode.js%2C2b6a75%3Bexpress%2Cexpress%2C5bb74e%3Bfigma%2Cfigma%2C77eae6%3Bgithub%2Cgithub%2Cc71cad%3Bvercel%2Cvercel%2C8ba1d4%3Bmongodb%2Cmongodb%2C3a8c31%3B&line2=cypress%2Ccypress%2C73b106%3Bvite%2Cvite%2C330657%3Btailwindcss%2Ctailwindcss%2C1bdb74%3Breact%2Creact%2C953637%3Bmongoose%2Cmongoose%2Cf364e0%3B)
+![Tech Stack](https://github-readme-tech-stack.vercel.app/api/cards?title=Tech+Stack&borderRadius=3&lineCount=2&theme=github&width=700&line1=node.js%2Cnode.js%2C2b6a75%3Bexpress%2Cexpress%2C5bb74e%3Bfigma%2Cfigma%2C77eae6%3Bgithub%2Cgithub%2Cc71cad%3Bvercel%2Cvercel%2C8ba1d4%3Bmongodb%2Cmongodb%2C3a8c31%3B&line2=cypress%2Ccypress%2C73b106%3Bvite%2Cvite%2C330657%3Btailwindcss%2Ctailwindcss%2C1bdb74%3Breact%2Creact%2C953637%3Bmongoose%2Cmongoose%2Cf364e0%3B)
+
 
 ## Project Features
 
