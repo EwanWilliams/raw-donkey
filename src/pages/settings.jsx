@@ -1,16 +1,27 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 export default function Settings({ onAvatarChange }) {
-  const [avatarUrl, setAvatarUrl] = useState(
-    () => localStorage.getItem("avatarUrl") || ""
-  );
-
-  // Now use "metric" or "imperial"
-  const [measurementSystem, setMeasurementSystem] = useState(
-    () => localStorage.getItem("measurementSystem") || "metric"
-  );
-
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [measurementSystem, setMeasurementSystem] = useState("metric");
   const fileInputRef = useRef(null);
+
+  // 🔄 Load settings from backend on page load
+  useEffect(() => {
+    fetch("/api/user/settings", { credentials: "include" })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data) return;
+
+        if (data.profile_img?.data) {
+          const base64 = `data:${data.profile_img.contentType};base64,${data.profile_img.data}`;
+          setAvatarUrl(base64);
+        }
+
+        if (data.unit_pref) {
+          setMeasurementSystem(data.unit_pref); // metric / imperial
+        }
+      });
+  }, []);
 
   const openFilePicker = () => fileInputRef.current?.click();
 
@@ -22,13 +33,13 @@ export default function Settings({ onAvatarChange }) {
     const under5MB = file.size <= 5 * 1024 * 1024;
 
     if (!isImage) {
-      alert("Please choose an image file (PNG, JPG, GIF).");
+      alert("Please choose an image file.");
       e.target.value = "";
       return;
     }
 
     if (!under5MB) {
-      alert("Image too large. Please use a file under 200KB.");
+      alert("Image too large. Please use a file under 5MB.");
       e.target.value = "";
       return;
     }
@@ -40,63 +51,37 @@ export default function Settings({ onAvatarChange }) {
 
   const handleRemove = () => {
     setAvatarUrl("");
-    localStorage.removeItem("avatarUrl");
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (onAvatarChange) onAvatarChange("");
   };
 
-const handleSave = async () => {
-  // Backend expects:
-  //   img  -> base64 data URL string
-  //   unit -> string (e.g. "metric" or "imperial")
-  const payload = {
-    unit: measurementSystem,   // "metric" or "imperial"
+  const handleSave = async () => {
+    const payload = {
+      unit: measurementSystem,
+    };
+
+    if (avatarUrl) payload.img = avatarUrl;
+
+    try {
+      const res = await fetch("/api/user/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        alert(`Could not save settings: ${text}`);
+        return;
+      }
+
+      alert("Settings saved successfully!");
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("Could not save settings.");
+    }
   };
-
-  if (avatarUrl) {
-    payload.img = avatarUrl;   // data URL "data:image/png;base64,..."
-  }
-
-  console.log("Sending settings payload:", payload);
-
-  try {
-    const res = await fetch("/api/user/settings", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const bodyText = await res.text();
-    console.log("Settings response:", res.status, bodyText);
-
-    if (!res.ok) {
-      alert(
-        bodyText
-          ? `Could not save settings: ${bodyText}`
-          : `Could not save settings (status ${res.status}).`
-      );
-      return;
-    }
-
-    // Keep local cache in sync
-    localStorage.setItem("measurementSystem", measurementSystem);
-
-    if (avatarUrl) {
-      localStorage.setItem("avatarUrl", avatarUrl);
-      if (onAvatarChange) onAvatarChange(avatarUrl);
-    } else {
-      localStorage.removeItem("avatarUrl");
-      if (onAvatarChange) onAvatarChange("");
-    }
-
-    alert("Settings saved successfully.");
-  } catch (err) {
-    console.error("Network or parsing error while saving settings:", err);
-    alert("Could not save settings. Please try again.");
-  }
-};
 
 
   return (

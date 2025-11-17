@@ -6,7 +6,7 @@ export default function Browse() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [pageSize, setPageSize] = useState(() => Number(localStorage.getItem("pageSize")) || 6);
+  const [pageSize, setPageSize] = useState(6);
   const [currentPage, setCurrentPage] = useState(1);
 
   const fetchRecipes = async (page, size) => {
@@ -24,8 +24,7 @@ export default function Browse() {
     }
   };
 
-  useEffect(() => { fetchRecipes(currentPage, pageSize); }, [currentPage, pageSize]);
-  useEffect(() => { localStorage.setItem("pageSize", pageSize); }, [pageSize]);
+  useEffect(() => { fetchRecipes(currentPage, pageSize); }, [currentPage, pageSize])
 
   const currentRecipes = recipes;
 
