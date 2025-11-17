@@ -58,6 +58,11 @@ export default function CreateRecipe() {
       return;
     }
 
+    if (selectedImage == null) {
+      alert("Please select a recipe image");
+      return;
+    }
+
     setIsUploading(true);
 
     try {
@@ -97,6 +102,7 @@ export default function CreateRecipe() {
         setImagePreview(null);
         setIngredients([{ item: "", amount: "", unit: "g" }]);
         setSteps([""]);
+        document.getElementById('FileInput').value = null;
       } else {
         const error = await response.json();
         alert(`Failed to upload recipe: ${error.error || "Unknown error"}`);

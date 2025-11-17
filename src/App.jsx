@@ -10,6 +10,7 @@ import Navbar from "./pages/components/navbar";
 import Browse from "./pages/browse";
 import Create from "./pages/create";
 import Login from "./pages/login";
+import RecipeDetails from "./pages/details";
 import Settings from "./pages/settings";
 
 export default function App() {
