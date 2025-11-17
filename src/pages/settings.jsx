@@ -5,20 +5,22 @@ export default function Settings({ onAvatarChange }) {
   const [measurementSystem, setMeasurementSystem] = useState("metric");
   const fileInputRef = useRef(null);
 
-  // 🔄 Load settings from backend on page load
+  // Load settings from backend
   useEffect(() => {
     fetch("/api/user/settings", { credentials: "include" })
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
         if (!data) return;
 
+        // Load profile picture
         if (data.profile_img?.data) {
           const base64 = `data:${data.profile_img.contentType};base64,${data.profile_img.data}`;
           setAvatarUrl(base64);
         }
 
+        // Load unit preference
         if (data.unit_pref) {
-          setMeasurementSystem(data.unit_pref); // metric / imperial
+          setMeasurementSystem(data.unit_pref);
         }
       });
   }, []);
@@ -29,17 +31,14 @@ export default function Settings({ onAvatarChange }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const isImage = file.type.startsWith("image/");
-    const under5MB = file.size <= 5 * 1024 * 1024;
-
-    if (!isImage) {
+    if (!file.type.startsWith("image/")) {
       alert("Please choose an image file.");
       e.target.value = "";
       return;
     }
 
-    if (!under5MB) {
-      alert("Image too large. Please use a file under 5MB.");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image too large (max 5MB).");
       e.target.value = "";
       return;
     }
@@ -50,17 +49,28 @@ export default function Settings({ onAvatarChange }) {
   };
 
   const handleRemove = () => {
-    setAvatarUrl("");
+    setAvatarUrl(""); // remove avatar
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (onAvatarChange) onAvatarChange("");
   };
 
   const handleSave = async () => {
+    // --- FIX: only send valid base64 image ---
+    let imgToSend = "";
+
+    if (
+      avatarUrl &&
+      avatarUrl.startsWith("data:image/") &&
+      avatarUrl.includes(",") &&
+      avatarUrl.split(",")[1].length > 0
+    ) {
+      imgToSend = avatarUrl;
+    }
+
     const payload = {
       unit: measurementSystem,
+      img: imgToSend, // empty string removes image
     };
-
-    if (avatarUrl) payload.img = avatarUrl;
 
     try {
       const res = await fetch("/api/user/settings", {
@@ -70,8 +80,9 @@ export default function Settings({ onAvatarChange }) {
         body: JSON.stringify(payload),
       });
 
+      const text = await res.text();
+
       if (!res.ok) {
-        const text = await res.text();
         alert(`Could not save settings: ${text}`);
         return;
       }
@@ -82,7 +93,6 @@ export default function Settings({ onAvatarChange }) {
       alert("Could not save settings.");
     }
   };
-
 
   return (
     <div className="settings-page">
@@ -103,9 +113,7 @@ export default function Settings({ onAvatarChange }) {
             )}
           </div>
 
-          <p className="settings-help-text">
-            Upload a profile picture (PNG, JPG, GIF, or WEBP — up to 5MB).
-          </p>
+          <p className="settings-help-text">Upload a profile picture.</p>
 
           <input
             ref={fileInputRef}
@@ -138,7 +146,7 @@ export default function Settings({ onAvatarChange }) {
         <div className="settings-measure-section">
           <h2 className="settings-measure-title">Measurement Preference</h2>
           <p className="settings-measure-help">
-            Choose how you want ingredients to be shown in recipes.
+            Choose how ingredients should be displayed.
           </p>
 
           <div className="settings-measure-options">
@@ -151,7 +159,7 @@ export default function Settings({ onAvatarChange }) {
                 onChange={(e) => setMeasurementSystem(e.target.value)}
               />
               <span className="settings-radio-text">
-                Metric (grams, millilitres, kilograms)
+                Metric (grams, millilitres)
               </span>
             </label>
 
@@ -164,7 +172,7 @@ export default function Settings({ onAvatarChange }) {
                 onChange={(e) => setMeasurementSystem(e.target.value)}
               />
               <span className="settings-radio-text">
-                Imperial (pounds, ounces)
+                Imperial (ounces, pounds)
               </span>
             </label>
           </div>
