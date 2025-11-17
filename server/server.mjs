@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
-import ViteExpress from 'vite-express';
+import cors from 'cors';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
@@ -20,6 +20,9 @@ const DB_URI = `mongodb+srv://${db_username}:${db_password}@${db_cluster}`;
 app.use(express.json({ limit: '256kb' }));
 app.use(cookieParser());
 app.use(morgan('dev'));
+app.use(cors({
+    origin: ['http://localhost:5173'],
+}));
 
 mongoose.connect(DB_URI).then(() => console.log("Connected to DB.")).catch(error => console.log(error));
 

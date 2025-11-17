@@ -11,7 +11,7 @@ export default function RecipeDetails() {
     const fetchRecipeDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/recipe/${id}`);
+        const response = await fetch(`${import.meta.env.VITE_API}/recipe/${id}`);
         if (!response.ok) throw new Error("Failed to fetch recipe details");
         const data = await response.json();
         setRecipe(data[0]); // API returns an array

@@ -94,7 +94,7 @@ export default function CreateRecipe() {
       };
 
       // Send to backend
-      const response = await fetch('/api/recipe/new', {
+      const response = await fetch(`${import.meta.env.VITE_API}/recipe/new`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -16,7 +16,7 @@ export default function Browse() {
   const fetchRecipes = async (page, size) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/recipe/list/${page}/${size}`);
+      const response = await fetch(`${import.meta.env.VITE_API}/recipe/list/${page}/${size}`);
       if (!response.ok) {
         // If API fails display specific message
         throw new Error("Database connection issue");

@@ -26,7 +26,7 @@ export default function Login({ onLogin }) {
     else {
 
     // Send login request to server
-    fetch('/api/auth/login', {
+    fetch(`${import.meta.env.VITE_API}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
@@ -72,7 +72,7 @@ export default function Login({ onLogin }) {
     else {
 
     // Send registration request to server
-    fetch('/api/auth/register', {
+    fetch(`${import.meta.env.VITE_API}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
