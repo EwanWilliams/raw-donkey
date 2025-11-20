@@ -62,6 +62,7 @@ const handleSave = async () => {
   try {
     const res = await fetch(`${import.meta.env.VITE_API}/user/settings`, {
       method: "PUT",
+      credentials: 'include',
       headers: {
         "Content-Type": "application/json",
       },

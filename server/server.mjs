@@ -22,6 +22,7 @@ app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(cors({
     origin: ['http://localhost:5173'],
+    credentials: true
 }));
 
 mongoose.connect(DB_URI).then(() => console.log("Connected to DB.")).catch(error => console.log(error));

@@ -28,6 +28,7 @@ export default function Login({ onLogin }) {
     // Send login request to server
     fetch(`${import.meta.env.VITE_API}/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
     })
@@ -74,6 +75,7 @@ export default function Login({ onLogin }) {
     // Send registration request to server
     fetch(`${import.meta.env.VITE_API}/auth/register`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
     })
