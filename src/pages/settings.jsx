@@ -60,7 +60,7 @@ const handleSave = async () => {
   console.log("Sending settings payload:", payload);
 
   try {
-    const res = await fetch(`${import.meta.env.VITE_API}/user/settings`, {
+    const res = await fetch(`/api/user/settings`, {
       method: "PUT",
       credentials: 'include',
       headers: {
