@@ -3,6 +3,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "bcrypt": "^6.0.0",
     "bootstrap": "^5.3.8",
+    "concurrently": "^9.2.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -17,7 +18,9 @@
     "vite": "^7.1.10"
   },
   "scripts": {
-    "dev": "vite",
+    "dev:client": "vite",
+    "dev:server": "node server/server.mjs",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "build": "vite build",
     "preview": "vite preview",
     "cypress:open": "cypress open"
