@@ -15,7 +15,13 @@ describe("browse_page", () => {
       assert(cy.get('[data-test="page-size-selector"]').should('have.value', '6'));
     cy.get('[data-test="page-size-selector"]').select('3');
       assert(cy.get('[data-test="page-size-selector"]').should('have.value', '3'));
+    
+    let count = true
+    
+    cy.get('[data-test="next-page-button"]').should('exist')
   });
+
+
 
   it('View Page', function() {
     cy.get('#root div:nth-child(1) > div.recipe-body > a.recipe-link').click();
@@ -26,3 +32,4 @@ describe("browse_page", () => {
     cy.get('#root a.nav-link').click();
   });
 })
+

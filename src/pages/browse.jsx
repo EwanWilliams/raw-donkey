@@ -155,6 +155,7 @@ export default function Browse() {
       {!loading && !error && (
         <div className="browse-pagination">
           <button
+            data-test="previous-page-button"
             onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
             disabled={currentPage === 1}
             className="page-button"
@@ -163,6 +164,7 @@ export default function Browse() {
           </button>
           <span className="page-info">Page {currentPage}</span>
           <button
+            data-test="next-page-button"
             onClick={() => setCurrentPage((p) => p + 1)}
             disabled={currentRecipes.length < pageSize}
             className="page-button"
