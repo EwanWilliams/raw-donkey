@@ -35,27 +35,25 @@ export default function CreateRecipe() {
     if (file) {
       setSelectedImage(file);
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target.result);
-      };
+      reader.onload = (e) => setImagePreview(e.target.result);
       reader.readAsDataURL(file);
     }
   };
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    
+
     if (!recipeTitle.trim()) {
       alert("Please enter a recipe title");
       return;
     }
 
-    if (ingredients.some(ing => !ing.item.trim() || !ing.amount)) {
+    if (ingredients.some((ing) => !ing.item.trim() || !ing.amount)) {
       alert("Please fill in all ingredient fields");
       return;
     }
 
-    if (steps.some(step => !step.trim())) {
+    if (steps.some((step) => !step.trim())) {
       alert("Please fill in all instruction steps");
       return;
     }
@@ -66,9 +64,8 @@ export default function CreateRecipe() {
     }
 
     setIsUploading(true);
-    
+
     try {
-      // Convert image to base64 if selected
       let imageData = null;
       if (selectedImage) {
         const reader = new FileReader();
@@ -78,19 +75,17 @@ export default function CreateRecipe() {
         });
       }
 
-      // Format ingredients to match schema (quantity instead of amount)
-      const formattedIngredients = ingredients.map(ing => ({
+      const formattedIngredients = ingredients.map((ing) => ({
         item: ing.item,
         quantity: parseFloat(ing.amount),
-        unit: ing.unit
+        unit: ing.unit,
       }));
 
-      // Prepare recipe data
       const recipeData = {
         title: recipeTitle,
         recipe_img: imageData,
         ingredients: formattedIngredients,
-        instructions: steps.filter(step => step.trim())
+        instructions: steps.filter((step) => step.trim()),
       };
 
       // Send to backend
@@ -104,9 +99,8 @@ export default function CreateRecipe() {
       });
 
       if (response.ok) {
-        const result = await response.json();
+        await response.json();
         alert("Recipe uploaded successfully!");
-        // Reset form
         setRecipeTitle("");
         setSelectedImage(null);
         setImagePreview(null);
@@ -115,7 +109,7 @@ export default function CreateRecipe() {
         document.getElementById('FileInput').value = null;
       } else {
         const error = await response.json();
-        alert(`Failed to upload recipe: ${error.error || 'Unknown error'}`);
+        alert(`Failed to upload recipe: ${error.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Upload error:", error);
@@ -126,207 +120,180 @@ export default function CreateRecipe() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <header>
-        <h1>Raw Donkey</h1>
-        <nav>
-          <a href="/">Browse</a> | <a href="/create">Create</a> | <a href="/login">Login</a>
-        </nav>
-      </header>
+    <div className="create-page">
+      <div className="create-card">
+        <main>
+          <h2 className="create-main-title">Create Recipe</h2>
 
-      <main>
-        <h2>Create Recipe</h2>
-
-        <form onSubmit={handleUpload} data-test="add-recipe-form">
-          <label>Recipe Title: *</label><br />
-          <input
-            type="text"
-            data-test="recipe-title-input"
-            value={recipeTitle}
-            onChange={(e) => setRecipeTitle(e.target.value)}
-            required
-            placeholder="Enter recipe title..."
-            style={{
-              width: "300px",
-              padding: "8px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              fontSize: "14px"
-            }}
-          />
-          <br /><br />
-          
-          <label>Recipe Image:</label><br />
-          <input
-            id="FileInput"
-            type="file"
-            data-test="recipe-image-input"
-            accept="image/*"
-            onChange={handleImageUpload}
-            style={{ marginBottom: "10px" }}
-          />
-          {imagePreview && (
-            <div style={{ marginBottom: "20px" }}>
-              <img 
-                src={imagePreview} 
-                alt="Recipe preview" 
-                data-test="recipe-image-preview"
-                style={{ 
-                  maxWidth: "200px", 
-                  maxHeight: "200px", 
-                  objectFit: "cover",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px"
-                }} 
-              />
-            </div>
-          )}
-          <p>Recipe image may not be larger than ~200 KB</p>
-          <br />
-
-          <h3>Ingredients:</h3>
-          {ingredients.map((ingredient, i) => (
-            <div key={i} style={{ marginBottom: "10px", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }}>
-              <label>Item: *</label>
+          <form onSubmit={handleUpload} data-test="add-recipe-form" className="create-form">
+            {/* Title */}
+            <div className="create-field-group">
+              <label className="create-label">Recipe Title: *</label>
               <input
                 type="text"
-                data-test="ingredient-item-input"
-                value={ingredient.item}
-                onChange={(e) => {
-                  const newIngredients = [...ingredients];
-                  newIngredients[i].item = e.target.value;
-                  setIngredients(newIngredients);
-                }}
+                data-test="recipe-title-input"
+                value={recipeTitle}
+                onChange={(e) => setRecipeTitle(e.target.value)}
                 required
-                placeholder="e.g. Flour, Sugar..."
-                style={{ marginRight: "10px", padding: "5px" }}
+                placeholder="Enter recipe title..."
+                className="create-input"
               />
+            </div>
 
-              <label>Amount: *</label>
+            {/* Image upload */}
+            <div className="create-field-group">
+              <label className="create-label">Recipe Image:</label>
               <input
-                type="number"
-                data-test="ingredient-amount-input"
-                min="0"
-                step="0.01"
-                value={ingredient.amount}
-                onChange={(e) => {
-                  const newIngredients = [...ingredients];
-                  newIngredients[i].amount = e.target.value;
-                  setIngredients(newIngredients);
-                }}
-                required
-                placeholder="0"
-                style={{ marginRight: "10px", padding: "5px", width: "80px" }}
+                type="file"
+                data-test="recipe-image-input"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="create-image-input"
               />
+              {imagePreview && (
+                <div className="create-image-preview-wrapper">
+                  <img
+                    src={imagePreview}
+                    alt="Recipe preview"
+                    data-test="recipe-image-preview"
+                    className="create-image-preview"
+                  />
+                </div>
+              )}
+            </div>
 
-              <label>Unit:</label>
-              <select
-                value={ingredient.unit}
-                data-test="ingredient-unit-select"
-                onChange={(e) => {
-                  const newIngredients = [...ingredients];
-                  newIngredients[i].unit = e.target.value;
-                  setIngredients(newIngredients);
-                }}
+            {/* Ingredients */}
+            <h3 className="create-section-title">Ingredients:</h3>
+            {ingredients.map((ingredient, i) => (
+              <div key={i} className="create-ingredient-block">
+                <div className="create-ingredient-row">
+                  <label className="create-label">Item: *</label>
+                  <input
+                    type="text"
+                    data-test="ingredient-item-input"
+                    value={ingredient.item}
+                    onChange={(e) => {
+                      const newIngredients = [...ingredients];
+                      newIngredients[i].item = e.target.value;
+                      setIngredients(newIngredients);
+                    }}
+                    required
+                    placeholder="e.g. Flour, Sugar..."
+                    className="create-ingredient-input create-ingredient-input--item"
+                  />
+
+                  <label className="create-label">Amount: *</label>
+                  <input
+                    type="number"
+                    data-test="ingredient-amount-input"
+                    min="0"
+                    step="0.01"
+                    value={ingredient.amount}
+                    onChange={(e) => {
+                      const newIngredients = [...ingredients];
+                      newIngredients[i].amount = e.target.value;
+                      setIngredients(newIngredients);
+                    }}
+                    required
+                    placeholder="0"
+                    className="create-ingredient-input create-ingredient-input--amount"
+                  />
+
+                  <label className="create-label">Unit:</label>
+                  <select
+                    value={ingredient.unit}
+                    data-test="ingredient-unit-select"
+                    onChange={(e) => {
+                      const newIngredients = [...ingredients];
+                      newIngredients[i].unit = e.target.value;
+                      setIngredients(newIngredients);
+                    }}
+                    className="create-ingredient-select"
+                  >
+                    <option value="whole">whole</option>
+                    <option value="g">g</option>
+                    <option value="ml">mL</option>
+                    <option value="oz">oz</option>
+                    <option value="floz">fl.oz</option>
+                  </select>
+
+                  {ingredients.length > 1 && (
+                    <button
+                      type="button"
+                      data-test="ingredient-remove-button"
+                      onClick={() => handleRemoveIngredient(i)}
+                      className="btn-create btn-create-danger"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={handleAddIngredient}
+              data-test="ingredient-add-button"
+              className="btn-create btn-create-secondary"
+            >
+              Add Ingredient
+            </button>
+
+            {/* Instructions */}
+            <h3 className="create-section-title">Instructions: *</h3>
+            {steps.map((step, i) => (
+              <div key={i} className="create-step-block">
+                <label className="create-step-label">Step {i + 1}: *</label>
+                <textarea
+                  placeholder="Describe this cooking step..."
+                  data-test="instruction-text-input"
+                  value={step}
+                  onChange={(e) => {
+                    const newSteps = [...steps];
+                    newSteps[i] = e.target.value;
+                    setSteps(newSteps);
+                  }}
+                  required
+                  className="create-textarea"
+                />
+                {steps.length > 1 && (
+                  <button
+                    type="button"
+                    data-test="instruction-remove-button"
+                    onClick={() => handleRemoveStep(i)}
+                    className="btn-create btn-create-danger"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={handleAddStep}
+              data-test="instruction-add-button"
+              className="btn-create btn-create-secondary"
+            >
+              Add Step
+            </button>
+
+            {/* Submit */}
+            <div className="create-submit-wrapper">
+              <button
+                type="submit"
+                data-test="recipe-submit-button"
+                disabled={isUploading}
+                className="btn-create btn-create-primary"
               >
-                <option value="whole">whole</option>
-                <option value="tsp">tsp</option>
-                <option value="tbsp">tbsp</option>
-                <option value="cup">cup</option>
-                <option value="g">g</option>
-                <option value="ml">mL</option>
-                <option value="oz">oz</option>
-                <option value="floz">fl.oz</option>
-              </select>
-
-              {ingredients.length > 1 && (
-                <button 
-                  type="button" 
-                  data-test="ingredient-remove-button"
-                  onClick={() => handleRemoveIngredient(i)}
-                  style={{ 
-                    marginLeft: "10px", 
-                    backgroundColor: "#ff6b6b", 
-                    color: "white", 
-                    border: "none", 
-                    padding: "5px 10px", 
-                    borderRadius: "3px",
-                    cursor: "pointer"
-                  }}
-                >
-                  Remove
-                </button>
-              )}
+                {isUploading ? "Uploading..." : "Upload Recipe"}
+              </button>
             </div>
-          ))}
-          <button type="button" onClick={handleAddIngredient} data-test="ingredient-add-button">Add Ingredient</button>
-
-          <h3>Instructions: *</h3>
-          {steps.map((step, i) => (
-            <div key={i} style={{ marginBottom: "10px", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }}>
-              <label>Step {i + 1}: *</label><br />
-              <textarea
-                placeholder="Describe this cooking step..."
-                data-test="instruction-text-input"
-                value={step}
-                onChange={(e) => {
-                  const newSteps = [...steps];
-                  newSteps[i] = e.target.value;
-                  setSteps(newSteps);
-                }}
-                required
-                style={{ 
-                  width: "100%", 
-                  minHeight: "80px", 
-                  marginBottom: "5px",
-                  padding: "8px",
-                  border: "1px solid #ddd",
-                  borderRadius: "4px",
-                  fontSize: "14px",
-                  resize: "vertical"
-                }}
-              />
-              {steps.length > 1 && (
-                <button 
-                  type="button"
-                  data-test="instruction-remove-button"
-                  onClick={() => handleRemoveStep(i)}
-                  style={{ 
-                    backgroundColor: "#ff6b6b", 
-                    color: "white", 
-                    border: "none", 
-                    padding: "5px 10px", 
-                    borderRadius: "3px",
-                    cursor: "pointer"
-                  }}
-                >
-                  Remove
-                </button>
-              )}
-            </div>
-          ))}
-          <button type="button" onClick={handleAddStep} data-test="instruction-add-button">Add Step</button>
-
-          <br />
-          <button 
-            type="button"
-            onClick={handleUpload}
-            data-test="recipe-submit-button"
-            disabled={isUploading}
-            style={{
-              backgroundColor: isUploading ? "#ccc" : "#4CAF50",
-              color: "white",
-              padding: "10px 20px",
-              border: "none",
-              borderRadius: "4px",
-              cursor: isUploading ? "not-allowed" : "pointer",
-              fontSize: "16px"
-            }}
-          >
-            {isUploading ? "Uploading..." : "Upload Recipe"}
-          </button>
-        </form>
-      </main>
+          </form>
+        </main>
+      </div>
     </div>
   );
 }
+

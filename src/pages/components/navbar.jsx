@@ -10,61 +10,61 @@ export default function Navbar({ isLoggedIn, username, onLogout }) {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg bg-white shadow-sm px-5 py-3 border-b">
-      <div className="container-fluid">
-        {/* Logo / Brand */}
-        <Link to="/" className="navbar-brand text-2xl font-bold text-blue-600">
-          RawDonkey
-        </Link>
+    <nav className="rd-navbar">
+      <div className="rd-navbar-container">
+        <Link to="/" className="rd-navbar-brand">RawDonkey</Link>
 
-        <ul className="navbar-nav ms-auto flex space-x-4 items-center">
-          {/* Browse link */}
+
+
+
+        <ul className="rd-navbar-menu">
+
           <li>
-            <Link to="/browse" className="nav-link text-gray-700 hover:text-blue-600">
-              Browse
-            </Link>
+            <Link to="/browse" className="rd-navbar-link">Browse</Link>
+
+
           </li>
 
           {isLoggedIn ? (
             <>
-              {/* Create link */}
+
               <li>
-                <Link to="/create" className="nav-link text-gray-700 hover:text-blue-600">
-                  Create
-                </Link>
+                <Link to="/create" className="rd-navbar-link">Create</Link>
+
+
               </li>
 
-              {/* User Settings link */}
+
               <li>
-                <Link to="/settings" className="nav-link text-gray-700 hover:text-blue-600">
-                  User Settings
-                </Link>
+                <Link to="/settings" className="rd-navbar-link">User Settings</Link>
+
+
               </li>
 
-              {/* Username */}
-              <li className="text-gray-700 font-medium">
-                Hi,{" "}
-                <span className="text-blue-600 font-semibold">
-                  {username}
-                </span>{" "}
-                👋
+              <li className="rd-navbar-username">
+                Hi, <span>{username}</span> 👋
+
+
+
+
+
               </li>
 
-              {/* Logout button */}
+
               <li>
-                <button
-                  onClick={handleLogoutClick}
-                  className="btn btn-outline-danger rounded-pill px-3"
-                >
+                <button onClick={handleLogoutClick} className="rd-btn-logout">
+
+
+
                   Logout
                 </button>
               </li>
             </>
           ) : (
             <li>
-              <Link to="/login" className="btn btn-outline-primary rounded-pill px-3">
-                Login
-              </Link>
+              <Link to="/login" className="rd-btn-login">Login</Link>
+
+
             </li>
           )}
         </ul>
