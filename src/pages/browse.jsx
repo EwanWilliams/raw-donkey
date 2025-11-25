@@ -39,6 +39,7 @@ export default function Browse() {
             value={pageSize}
             onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
             className="browse-select"
+            data-test="page-size-selector"
           >
             <option value={3}>3</option>
             <option value={6}>6</option>
@@ -108,7 +109,8 @@ export default function Browse() {
           {/* pagination */}
           <div className="browse-pagination" style={{ display: "flex", justifyContent: "center", gap: "12px", marginTop: "24px" }}>
             <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              data-test="previous-page-button"
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
               className="page-button"
             >
@@ -116,7 +118,8 @@ export default function Browse() {
             </button>
             <span className="page-info">Page {currentPage}</span>
             <button
-              onClick={() => setCurrentPage((p) => p + 1)}
+              data-test="next-page-button"
+            onClick={() => setCurrentPage((p) => p + 1)}
               disabled={currentRecipes.length < pageSize}
               className="page-button"
             >
