@@ -1,16 +1,29 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 export default function Settings({ onAvatarChange }) {
-  const [avatarUrl, setAvatarUrl] = useState(
-    () => localStorage.getItem("avatarUrl") || ""
-  );
-
-  // Now use "metric" or "imperial"
-  const [measurementSystem, setMeasurementSystem] = useState(
-    () => localStorage.getItem("measurementSystem") || "metric"
-  );
-
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [measurementSystem, setMeasurementSystem] = useState("metric");
   const fileInputRef = useRef(null);
+
+  // Load settings from backend
+  useEffect(() => {
+    fetch("/api/user/settings", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data) return;
+
+        // Load profile picture
+        if (data.profile_img?.data) {
+          const base64 = `data:${data.profile_img.contentType};base64,${data.profile_img.data}`;
+          setAvatarUrl(base64);
+        }
+
+        // Load unit preference
+        if (data.unit_pref) {
+          setMeasurementSystem(data.unit_pref);
+        }
+      });
+  }, []);
 
   const openFilePicker = () => fileInputRef.current?.click();
 
@@ -18,17 +31,14 @@ export default function Settings({ onAvatarChange }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const isImage = file.type.startsWith("image/");
-    const under5MB = file.size <= 5 * 1024 * 1024;
-
-    if (!isImage) {
-      alert("Please choose an image file (PNG, JPG, GIF).");
+    if (!file.type.startsWith("image/")) {
+      alert("Please choose an image file.");
       e.target.value = "";
       return;
     }
 
-    if (!under5MB) {
-      alert("Image too large. Please use a file under 200KB.");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image too large (max 5MB).");
       e.target.value = "";
       return;
     }
@@ -39,25 +49,28 @@ export default function Settings({ onAvatarChange }) {
   };
 
   const handleRemove = () => {
-    setAvatarUrl("");
-    localStorage.removeItem("avatarUrl");
+    setAvatarUrl(""); // remove avatar
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (onAvatarChange) onAvatarChange("");
   };
 
-const handleSave = async () => {
-  // Backend expects:
-  //   img  -> base64 data URL string
-  //   unit -> string (e.g. "metric" or "imperial")
-  const payload = {
-    unit: measurementSystem,   // "metric" or "imperial"
-  };
+  const handleSave = async () => {
+    // --- FIX: only send valid base64 image ---
+    let imgToSend = "";
 
-  if (avatarUrl) {
-    payload.img = avatarUrl;   // data URL "data:image/png;base64,..."
-  }
+    if (
+      avatarUrl &&
+      avatarUrl.startsWith("data:image/") &&
+      avatarUrl.includes(",") &&
+      avatarUrl.split(",")[1].length > 0
+    ) {
+      imgToSend = avatarUrl;
+    }
 
-  console.log("Sending settings payload:", payload);
+    const payload = {
+      unit: measurementSystem,
+      img: imgToSend, // empty string removes image
+    };
 
   try {
     const res = await fetch(`/api/user/settings`, {
@@ -69,36 +82,19 @@ const handleSave = async () => {
       body: JSON.stringify(payload),
     });
 
-    const bodyText = await res.text();
-    console.log("Settings response:", res.status, bodyText);
+      const text = await res.text();
 
-    if (!res.ok) {
-      alert(
-        bodyText
-          ? `Could not save settings: ${bodyText}`
-          : `Could not save settings (status ${res.status}).`
-      );
-      return;
+      if (!res.ok) {
+        alert(`Could not save settings: ${text}`);
+        return;
+      }
+
+      alert("Settings saved successfully!");
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("Could not save settings.");
     }
-
-    // Keep local cache in sync
-    localStorage.setItem("measurementSystem", measurementSystem);
-
-    if (avatarUrl) {
-      localStorage.setItem("avatarUrl", avatarUrl);
-      if (onAvatarChange) onAvatarChange(avatarUrl);
-    } else {
-      localStorage.removeItem("avatarUrl");
-      if (onAvatarChange) onAvatarChange("");
-    }
-
-    alert("Settings saved successfully.");
-  } catch (err) {
-    console.error("Network or parsing error while saving settings:", err);
-    alert("Could not save settings. Please try again.");
-  }
-};
-
+  };
 
   return (
     <div className="settings-page">
@@ -119,9 +115,7 @@ const handleSave = async () => {
             )}
           </div>
 
-          <p className="settings-help-text">
-            Upload a profile picture (PNG, JPG, GIF, or WEBP — up to 5MB).
-          </p>
+          <p className="settings-help-text">Upload a profile picture.</p>
 
           <input
             ref={fileInputRef}
@@ -154,7 +148,7 @@ const handleSave = async () => {
         <div className="settings-measure-section">
           <h2 className="settings-measure-title">Measurement Preference</h2>
           <p className="settings-measure-help">
-            Choose how you want ingredients to be shown in recipes.
+            Choose how ingredients should be displayed.
           </p>
 
           <div className="settings-measure-options">
@@ -167,7 +161,7 @@ const handleSave = async () => {
                 onChange={(e) => setMeasurementSystem(e.target.value)}
               />
               <span className="settings-radio-text">
-                Metric (grams, millilitres, kilograms)
+                Metric (grams, millilitres)
               </span>
             </label>
 
@@ -180,7 +174,7 @@ const handleSave = async () => {
                 onChange={(e) => setMeasurementSystem(e.target.value)}
               />
               <span className="settings-radio-text">
-                Imperial (pounds, ounces)
+                Imperial (ounces, pounds)
               </span>
             </label>
           </div>
