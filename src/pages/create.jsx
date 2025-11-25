@@ -94,8 +94,9 @@ export default function CreateRecipe() {
       };
 
       // Send to backend
-      const response = await fetch('/api/recipe/new', {
+      const response = await fetch(`/api/recipe/new`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

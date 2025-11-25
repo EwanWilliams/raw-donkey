@@ -60,8 +60,9 @@ const handleSave = async () => {
   console.log("Sending settings payload:", payload);
 
   try {
-    const res = await fetch("/api/user/settings", {
+    const res = await fetch(`/api/user/settings`, {
       method: "PUT",
+      credentials: 'include',
       headers: {
         "Content-Type": "application/json",
       },
