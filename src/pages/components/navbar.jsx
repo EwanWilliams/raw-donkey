@@ -13,49 +13,24 @@ export default function Navbar({ isLoggedIn, username, onLogout }) {
     <nav className="rd-navbar">
       <div className="rd-navbar-container">
         <Link to="/" className="rd-navbar-brand">RawDonkey</Link>
-
-
-
-
         <ul className="rd-navbar-menu">
-
           <li>
             <Link to="/browse" className="rd-navbar-link">Browse</Link>
 
-
           </li>
-
           {isLoggedIn ? (
             <>
-
               <li>
                 <Link to="/create" className="rd-navbar-link">Create</Link>
-
-
               </li>
-
-
               <li>
                 <Link to="/settings" className="rd-navbar-link">User Settings</Link>
-
-
               </li>
-
               <li className="rd-navbar-username">
                 Hi, <span>{username}</span> 👋
-
-
-
-
-
               </li>
-
-
               <li>
                 <button onClick={handleLogoutClick} className="rd-btn-logout">
-
-
-
                   Logout
                 </button>
               </li>
@@ -63,8 +38,6 @@ export default function Navbar({ isLoggedIn, username, onLogout }) {
           ) : (
             <li>
               <Link to="/login" className="rd-btn-login">Login</Link>
-
-
             </li>
           )}
         </ul>
