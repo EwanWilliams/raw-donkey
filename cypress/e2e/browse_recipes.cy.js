@@ -4,6 +4,16 @@ describe("browse_page", () => {
     cy.clearCookies();
   });
 
+  it('All Fields Render', () => {
+
+    cy.getByData("page-size-selector").should('exist').and('have.value', '6');
+    cy.getByData('next-page-button').should('exist');
+    cy.getByData('previous-page-button').should('exist');
+    cy.getByData('current-page-display').should('exist').and('have.text', 'Page 1');
+    cy.getByData("recipe-grid").should('exist');
+
+  });
+
   it('Change Number of Recipes', function() {
     let selector = cy.getByData("page-size-selector");
     selector.select('9');
