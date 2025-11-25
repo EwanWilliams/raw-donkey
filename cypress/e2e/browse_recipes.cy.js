@@ -4,10 +4,6 @@ describe("browse_page", () => {
     cy.clearCookies();
   });
 
-  it("Visit Page", () => {
-    
-  })
-
   it('Change Number of Recipes', function() {
     let selector = cy.getByData("page-size-selector");
     selector.select('9');
