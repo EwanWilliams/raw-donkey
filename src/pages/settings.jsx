@@ -72,13 +72,15 @@ export default function Settings({ onAvatarChange }) {
       img: imgToSend, // empty string removes image
     };
 
-    try {
-      const res = await fetch("/api/user/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
+  try {
+    const res = await fetch(`/api/user/settings`, {
+      method: "PUT",
+      credentials: 'include',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
       const text = await res.text();
 

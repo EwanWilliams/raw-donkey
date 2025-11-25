@@ -88,10 +88,14 @@ export default function CreateRecipe() {
         instructions: steps.filter((step) => step.trim()),
       };
 
-      const response = await fetch("/api/recipe/new", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(recipeData),
+      // Send to backend
+      const response = await fetch(`/api/recipe/new`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(recipeData)
       });
 
       if (response.ok) {
