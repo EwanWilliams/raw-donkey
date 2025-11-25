@@ -121,7 +121,10 @@ export default function Browse() {
             }
 
             return (
-              <div key={recipe._id} className="recipe-card">
+              <div key={recipe._id} 
+              className="recipe-card"
+              data-test={`recipe-card-${recipe._id}`}
+              >
                 {imageSrc ? (
                   <img
                     src={imageSrc}
@@ -139,6 +142,7 @@ export default function Browse() {
                   <Link
                     to={`/recipe/${recipe._id}`}
                     className="recipe-link"
+                    recipe_id={recipe._id}
                   >
                     {recipe.title}
                   </Link>
