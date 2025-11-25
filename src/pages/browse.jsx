@@ -39,6 +39,7 @@ export default function Browse() {
             value={pageSize}
             onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
             className="browse-select"
+            data-test="page-size-selector"
           >
             <option value={3}>3</option>
             <option value={6}>6</option>
