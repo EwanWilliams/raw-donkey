@@ -58,7 +58,7 @@ router.post('/login', async (req, res) => {
 });
 
 
-router.post('/verify', async (req, res) => {
+router.head('/verify', async (req, res) => {
     const token = req.cookies.jwt;
 
     try {
