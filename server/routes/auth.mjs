@@ -2,6 +2,7 @@ import express from "express";
 import User from "../models/User.mjs";
 import { generateTokenAndSetCookie } from "../utils/generateToken.mjs";
 import bcrypt from 'bcrypt';
+import { validateToken } from "../utils/validateToken.mjs";
 
 const router = express.Router();
 
@@ -52,6 +53,23 @@ router.post('/login', async (req, res) => {
         }
     } catch(err) {
         console.error("Login error: ", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+router.post('/verify', async (req, res) => {
+    const token = req.cookies.jwt;
+
+    try {
+        if (validateToken(token)) {
+            res.status(200).json({ message: "token verified" });
+        } else {
+            res.cookie("jwt", "", { maxAge: 0 });
+            res.status(401).json({ message: "token invalid, jwt cleared" });
+        }
+    } catch (err) {
+        console.log("Verify error: ", err.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
