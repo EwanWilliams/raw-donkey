@@ -26,8 +26,9 @@ export default function Login({ onLogin }) {
     else {
 
     // Send login request to server
-    fetch('/api/auth/login', {
+    fetch(`/api/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
     })
@@ -72,8 +73,9 @@ export default function Login({ onLogin }) {
     else {
 
     // Send registration request to server
-    fetch('/api/auth/register', {
+    fetch(`/api/auth/register`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
     })
