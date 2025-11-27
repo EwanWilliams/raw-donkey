@@ -1,12 +1,20 @@
+// Navbar.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function Navbar({ isLoggedIn, username, onLogout }) {
+export default function Navbar({ isLoggedIn, onLogout }) {
   const navigate = useNavigate();
 
-  const handleLogoutClick = () => {
-    onLogout();
-    navigate("/browse");
+  const handleLogoutClick = async () => {
+    try {
+      if (onLogout) {
+        await onLogout();        // this calls /api/auth/logout and sets isLoggedIn=false in App
+      }
+      navigate("/browse");
+    } catch (error) {
+      console.error("Logout click error:", error);
+      alert("Logout failed, please try again.");
+    }
   };
 
   return (
@@ -16,8 +24,8 @@ export default function Navbar({ isLoggedIn, username, onLogout }) {
         <ul className="rd-navbar-menu">
           <li>
             <Link to="/browse" className="rd-navbar-link">Browse</Link>
-
           </li>
+
           {isLoggedIn ? (
             <>
               <li>
@@ -27,7 +35,7 @@ export default function Navbar({ isLoggedIn, username, onLogout }) {
                 <Link to="/settings" className="rd-navbar-link">User Settings</Link>
               </li>
               <li className="rd-navbar-username">
-                Hi, <span>{username}</span> 👋
+                Hi 👋
               </li>
               <li>
                 <button onClick={handleLogoutClick} className="rd-btn-logout">

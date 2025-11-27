@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,          
+  Navigate,
 } from "react-router-dom";
 
 import Navbar from "./pages/components/navbar";
@@ -14,33 +14,108 @@ import RecipeDetails from "./pages/details";
 import Settings from "./pages/settings";
 
 export default function App() {
-  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  }
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  } 
+  // ✅ Call this to check the current session cookie
+  const validateUser = async () => {
+    try {
+      const result = await fetch("/api/auth/verify", {
+        method: "HEAD",
+        credentials: "include",
+      });
+      const ok = result.ok;
+      setIsLoggedIn(ok);
+      return ok;
+    } catch (err) {
+      console.error("Error validating user:", err);
+      setIsLoggedIn(false);
+      return false;
+    }
+  };
+
+  // Run once on app load
+  useEffect(() => {
+    validateUser().finally(() => setCheckingAuth(false));
+  }, []);
+
+  // Called by <Login /> after a successful POST /api/auth/login
+  const handleLogin = async () => {
+    // Check cookie again after login
+    await validateUser();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      setIsLoggedIn(false);
+    }
+  };
+
+  // Simple protected route wrapper
+  const ProtectedRoute = ({ children }) => {
+    if (!isLoggedIn) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
+  };
+
+  // While checking initial auth
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <Router>
-      <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
-        <Navbar
-          isLoggedIn={isLoggedIn}
-          username={username}
-          onLogout={handleLogout}
-        />
+      <div className="min-h-screen flex flex-col">
+        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Browse />} />
             <Route path="/browse" element={<Browse />} />
-            <Route path="/create" element={<Create />} />
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+
+            <Route
+              path="/create"
+              element={
+                <ProtectedRoute>
+                  <Create />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+  path="/login"
+  element={
+    <Login
+      onLogin={handleLogin}
+      onLogout={handleLogout}
+      isLoggedIn={isLoggedIn}
+    />
+  }
+/>
+
+
+
             <Route path="/recipe/:id" element={<RecipeDetails />} />
-            <Route path="/settings"element={<Settings />}/>
           </Routes>
         </main>
       </div>
