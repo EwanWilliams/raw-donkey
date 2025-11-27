@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,          
+  Navigate,
 } from "react-router-dom";
 
 import Navbar from "./pages/components/navbar";
@@ -14,28 +14,51 @@ import RecipeDetails from "./pages/details";
 import Settings from "./pages/settings";
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("isLoggedIn") === "true"
-  );
-  const [username, setUsername] = useState(
-    localStorage.getItem("username") || ""
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  const handleLogin = (name) => {
-    setIsLoggedIn(true);
-    setUsername(name);
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("username", name);
+  // ✅ Call this to check the current session cookie
+  const validateUser = async () => {
+    try {
+      const result = await fetch("/api/auth/verify", {
+        method: "HEAD",
+        credentials: "include",
+      });
+      const ok = result.ok;
+      setIsLoggedIn(ok);
+      return ok;
+    } catch (err) {
+      console.error("Error validating user:", err);
+      setIsLoggedIn(false);
+      return false;
+    }
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername("");
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("username");
+  // Run once on app load
+  useEffect(() => {
+    validateUser().finally(() => setCheckingAuth(false));
+  }, []);
+
+  // Called by <Login /> after a successful POST /api/auth/login
+  const handleLogin = async () => {
+    // Check cookie again after login
+    await validateUser();
   };
 
-  // Inline ProtectedRoute component
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      setIsLoggedIn(false);
+    }
+  };
+
+  // Simple protected route wrapper
   const ProtectedRoute = ({ children }) => {
     if (!isLoggedIn) {
       return <Navigate to="/login" replace />;
@@ -43,24 +66,33 @@ export default function App() {
     return children;
   };
 
+  // While checking initial auth
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <Router>
-      {/* removed the stray 'c' here */}
-      <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
-        <Navbar
-          isLoggedIn={isLoggedIn}
-          username={username}
-          onLogout={handleLogout}
-        />
+      <div className="min-h-screen flex flex-col">
+        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Browse />} />
             <Route path="/browse" element={<Browse />} />
-            <Route path="/create" element={<Create />} />
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="/recipe/:id" element={<RecipeDetails />} />
 
-            {/* Protected settings route */}
+            <Route
+              path="/create"
+              element={
+                <ProtectedRoute>
+                  <Create />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/settings"
               element={
@@ -69,6 +101,21 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+  path="/login"
+  element={
+    <Login
+      onLogin={handleLogin}
+      onLogout={handleLogout}
+      isLoggedIn={isLoggedIn}
+    />
+  }
+/>
+
+
+
+            <Route path="/recipe/:id" element={<RecipeDetails />} />
           </Routes>
         </main>
       </div>

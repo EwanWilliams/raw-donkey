@@ -1,185 +1,91 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Login({ onLogin }) {
-
-  // Changeable useStates for use throughout the component
+export default function Login({ onLogin, onLogout, isLoggedIn }) {
   const [formData, setFormData] = useState({ username: "", password: "" });
-  const [message, setMessage] = useState("")
-  const [errorMessage, setErrorMessage] = useState("")
+  const [message, setMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [mode, setMode] = useState("login"); // "login" or "register"
   const navigate = useNavigate();
 
-  // Handle form submission for login
+  // 🔒 If user visits /login while logged in, force logout (clear cookie + state)
+  useEffect(() => {
+    if (isLoggedIn && onLogout) {
+      onLogout(); // calls /api/auth/logout and sets isLoggedIn(false) in App
+    }
+  }, [isLoggedIn, onLogout]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setMessage("");
+    setErrorMessage("");
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Get form data and remove whitespace
-    formData.username = document.getElementById("username").value;
-    formData.username = formData.username.trim();
-    formData.password = document.getElementById("password").value;
-    formData.password = formData.password.trim();
 
-    // Basic front-end validation for empty fields
-    if (formData.username == "" || formData.password == "") {
-      setMessage('Enter a Username and Password')
-      return
+    const trimmed = {
+      username: formData.username.trim(),
+      password: formData.password.trim(),
+    };
+
+    if (!trimmed.username || !trimmed.password) {
+      setMessage("Enter a Username and Password");
+      return;
     }
-    else {
 
-    // Send login request to server
-    fetch(`/api/auth/login`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
+    const endpoint =
+      mode === "login" ? "/api/auth/login" : "/api/auth/register";
+
+    fetch(endpoint, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(trimmed),
     })
-      // Handle error responses
-      .then(response => {
-        if(!response.ok) throw new Error('Login failed');
-          return response.json();
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(mode === "login" ? "Login failed" : "Registration failed");
+        }
+        return response.json();
       })
-      // Handle successful login
-      .then(userData => {
-          onLogin(userData.username);
-          navigate("/browse");
+      .then(() => {
+        onLogin(); // will re-run /api/auth/verify in App
+        navigate("/browse");
       })
-      // Handle failed login
       .catch((err) => {
-        setErrorMessage(err)
-        console.log(err)
-        if (formData.username == "" || formData.password == "") {
-          setMessage('Enter a Username and Password')
+        console.error(err);
+        if (!trimmed.username || !trimmed.password) {
+          setMessage("Enter a Username and Password");
+        } else {
+          setMessage(
+            mode === "login"
+              ? "Incorrect Username or Password"
+              : "Username already taken"
+          );
         }
-        else {
-          setMessage('Incorrect Username or Password')
-        }
-      })
-    }
+        setErrorMessage(err.message || "Something went wrong");
+      });
   };
 
-  // Handle form submission for registration
-  const handleRegister = (e) => {
-    e.preventDefault();
-    // Get form data and remove whitespace
-    formData.username = document.getElementById("username").value;
-    formData.username = formData.username.trim();
-    formData.password = document.getElementById("password").value;
-    formData.password = formData.password.trim();
-
-    // Basic front-end validation for empty fields
-    if (formData.username == "" || formData.password == "") {
-      setMessage('Enter a Username and Password')
-      return
-    }
-    else {
-
-    // Send registration request to server
-    fetch(`/api/auth/register`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    })
-      // Handle error responses
-      .then(response => {
-        if(!response.ok) throw new Error('Registration failed');
-          return response.json();
-      })
-      // Handle successful registration
-      .then(userData => {
-          onLogin(userData.username);
-          navigate("/browse");
-      })
-      // Handle failed registration
-      .catch(() => {
-        if (formData.username == "" || formData.password == "") {
-          setMessage("Enter a Username and Password")
-        }
-        else {
-          setMessage("Username already taken")
-        }
-      })
-    }
+  const toggleMode = () => {
+    setMode((prev) => (prev === "login" ? "register" : "login"));
+    setMessage("");
+    setErrorMessage("");
   };
 
-  // Initial button state set to Login
-  const [newButton, setNewButton] = useState(
-    <button 
-      className="btn btn-primary w-full py-2 rounded-pill"
-      onClick={handleSubmit}
-    >
-      Login
-    </button>
-  )
+  const isLogin = mode === "login";
 
-  // Change button to Register
-  function buttonChangeRegister() {
-    setMessage("")
-    changeMessageLogin()
-    setNewButton(
-      <button 
-            className="btn btn-primary w-full py-2 rounded-pill"
-            onClick={handleRegister}
-          >
-              Register
-          </button>
-    )
-  }
-
-  // Change button to Login
-  function buttonChangeLogin() {
-    setMessage("")
-    changeMessageRegister()
-    setNewButton(
-      <button 
-            className="btn btn-primary w-full py-2 rounded-pill"
-            onClick={handleSubmit}
-          >
-              Login
-          </button>
-    )
-  }
-
-  // Initial change message state set to Register prompt
-  const [changeMessage, setChangeMessage] = useState(
-    <p
-      className="changeMessage"
-      onClick={buttonChangeRegister}
-    >
-      Don't have an account? Register here.
-    </p>
-  )
-
-  // Change message to Login prompt
-  function changeMessageLogin() {
-    setChangeMessage(
-      <p
-        className="changeMessage"
-        onClick={buttonChangeLogin}
-      >
-        Already have an account? Login here.
-      </p>
-    )
-  }
-
-  // Change message to Register prompt
-  function changeMessageRegister() {
-    setChangeMessage(
-      <p
-        className="changeMessage"
-        onClick={buttonChangeRegister}
-      >
-        Don't have an account? Register here.
-      </p>
-    )
-  }
-
-  // Render the login/register form
   return (
     <div className="login-page">
       <div className="login-card">
-        <h2 className="login-title">Login</h2>
+        <h2 className="login-title">{isLogin ? "Login" : "Register"}</h2>
 
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <input
             name="username"
             id="username"
@@ -187,7 +93,8 @@ export default function Login({ onLogin }) {
             type="text"
             className="form-control login-input"
             placeholder="Username"
-            value={formData.username.value}
+            value={formData.username}
+            onChange={handleChange}
             required
           />
           <input
@@ -195,24 +102,35 @@ export default function Login({ onLogin }) {
             id="password"
             data-test="password-input"
             type="password"
-            className="form-control" 
-            placeholder="Password" 
-            value={formData.password.value}
-            required 
+            className="form-control"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
           />
 
-          <div>
-            {newButton}
-          </div>
-          <div
-           id="errorMessage"
-           className="errorMessage"
+          <button
+            type="submit"
+            className="btn btn-primary w-full py-2 rounded-pill"
           >
+            {isLogin ? "Login" : "Register"}
+          </button>
+
+          <div id="errorMessage" className="errorMessage">
             {message}
           </div>
-          <div>
-            {changeMessage}
-          </div>
+
+          {errorMessage && (
+            <div className="errorMessage mt-1 text-sm">
+              {errorMessage}
+            </div>
+          )}
+
+          <p className="changeMessage" onClick={toggleMode}>
+            {isLogin
+              ? "Don't have an account? Register here."
+              : "Already have an account? Login here."}
+          </p>
         </form>
       </div>
     </div>
