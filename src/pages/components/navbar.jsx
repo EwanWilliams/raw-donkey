@@ -1,4 +1,3 @@
-// Navbar.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -13,25 +12,53 @@ export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme }) {
   return (
     <nav className="rd-navbar">
       <div className="rd-navbar-container">
-        <Link to="/" className="rd-navbar-brand">RawDonkey</Link>
+        <Link to="/" className="rd-navbar-brand">
+          RawDonkey
+        </Link>
 
         <ul className="rd-navbar-menu">
-          <li><Link to="/browse">Browse</Link></li>
+          {/* Browse link */}
+          <li>
+            <Link to="/browse" className="rd-navbar-link">
+              Browse
+            </Link>
+          </li>
 
           {isLoggedIn ? (
             <>
-              <li><Link to="/create">Create</Link></li>
-              <li><Link to="/settings">User Settings</Link></li>
-              <li>Hi 👋</li>
-              <li><button onClick={handleLogoutClick}>Logout</button></li>
+              <li>
+                <Link to="/create" className="rd-navbar-link">
+                  Create
+                </Link>
+              </li>
+              <li>
+                <Link to="/settings" className="rd-navbar-link">
+                  User Settings
+                </Link>
+              </li>
+              <li className="rd-navbar-username">Hi 👋</li>
+              <li>
+                <button
+                  type="button"
+                  onClick={handleLogoutClick}
+                  className="rd-btn-logout"
+                >
+                  Logout
+                </button>
+              </li>
             </>
           ) : (
-            <li><Link to="/login">Login</Link></li>
+            <li>
+              <Link to="/login" className="rd-btn-login">
+                Login
+              </Link>
+            </li>
           )}
 
           {/* 🌗 DARK MODE TOGGLE */}
           <li>
             <button
+              type="button"
               className="rd-btn-theme-toggle"
               onClick={onToggleTheme}
               aria-label="Toggle Theme"
@@ -44,5 +71,3 @@ export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme }) {
     </nav>
   );
 }
-
-
