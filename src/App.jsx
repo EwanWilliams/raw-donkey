@@ -18,7 +18,10 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-  // ✅ Call this to check the current session cookie
+  // 🌙 THEME STATE
+  const [theme, setTheme] = useState("light");
+
+  // ------ AUTH VALIDATION ------
   const validateUser = async () => {
     try {
       const result = await fetch("/api/auth/verify", {
@@ -35,14 +38,11 @@ export default function App() {
     }
   };
 
-  // Run once on app load
   useEffect(() => {
     validateUser().finally(() => setCheckingAuth(false));
   }, []);
 
-  // Called by <Login /> after a successful POST /api/auth/login
   const handleLogin = async () => {
-    // Check cookie again after login
     await validateUser();
   };
 
@@ -54,67 +54,70 @@ export default function App() {
       });
     } catch (err) {
       console.error("Logout error:", err);
-    } finally {
+    }finally {
       setIsLoggedIn(false);
     }
   };
 
-  // Simple protected route wrapper
-  const ProtectedRoute = ({ children }) => {
-    if (!isLoggedIn) {
-      return <Navigate to="/login" replace />;
+  // ------ THEME SETUP ------
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    if (stored) {
+      setTheme(stored);
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setTheme(prefersDark ? "dark" : "light");
     }
-    return children;
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () =>
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+
+  // ------ PROTECTED ROUTE ------
+  const ProtectedRoute = ({ children }) => {
+    return isLoggedIn ? children : <Navigate to="/login" replace />;
   };
 
-  // While checking initial auth
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    );
-  }
+  if (checkingAuth) return <p>Loading...</p>;
 
   return (
     <Router>
       <div className="min-h-screen flex flex-col">
-        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+        <Navbar
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
+
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Browse />} />
             <Route path="/browse" element={<Browse />} />
 
+            <Route path="/create" element={
+              <ProtectedRoute><Create /></ProtectedRoute>
+            }/>
+
+            <Route path="/settings" element={
+              <ProtectedRoute><Settings /></ProtectedRoute>
+            }/>
+
             <Route
-              path="/create"
+              path="/login"
               element={
-                <ProtectedRoute>
-                  <Create />
-                </ProtectedRoute>
+                <Login
+                  isLoggedIn={isLoggedIn}
+                  onLogin={handleLogin}
+                  onLogout={handleLogout}
+                />
               }
             />
-
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-  path="/login"
-  element={
-    <Login
-      onLogin={handleLogin}
-      onLogout={handleLogout}
-      isLoggedIn={isLoggedIn}
-    />
-  }
-/>
-
-
 
             <Route path="/recipe/:id" element={<RecipeDetails />} />
           </Routes>
