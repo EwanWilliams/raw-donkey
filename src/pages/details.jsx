@@ -53,6 +53,11 @@ export default function RecipeDetails() {
         {/* Header like the Figma: centered title */}
         <header className="create-header recipe-details-header">
           <h1 className="create-main-title">Recipe Details</h1>
+          {recipe && (
+    <h2 className="recipe-details-subtitle">
+      {recipe.title}
+    </h2>
+  )}
         </header>
 
         {/* STATES */}

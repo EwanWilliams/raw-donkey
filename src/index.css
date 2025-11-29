@@ -847,6 +847,16 @@ body {
   margin-bottom: 2rem;
 }
 
+/* Subtitle under the main page title */
+.recipe-details-subtitle {
+  margin-top: 1.25rem;        /* pull closer to main title */
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
 /* Top row: image + ingredients */
 .recipe-details-layout {
   display: flex;
