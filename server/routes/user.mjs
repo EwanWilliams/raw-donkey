@@ -47,4 +47,25 @@ router.put('/settings', async (req, res) => {
 });
 
 
+router.get('/details', async (req, res) => {
+    try {
+        const token = req.cookies.jwt;
+
+        if (validateToken(token)) {
+            const tokenData = jwt.decode(token);
+            const userDetails = await User.findOne({_id: tokenData.userId}, 'username unit_pref profile_img');
+            if (userDetails.length == 0) {
+                res.status(400).json({message: "User not found."});
+            } else {
+                res.status(200).json(userDetails);
+            }
+        } else {
+            res.status(401).json({ error: "user not logged in" });
+        }
+    } catch (err) {
+        console.error("User details error: ", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 export default router;
