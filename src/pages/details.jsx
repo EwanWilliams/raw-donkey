@@ -1,46 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
 export default function RecipeDetails() {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     const fetchRecipeDetails = async () => {
       try {
         setLoading(true);
         const response = await fetch(`/api/recipe/${id}`);
         if (!response.ok) throw new Error("Failed to fetch recipe details");
-
         const data = await response.json();
-        setRecipe(data[0] || null);
+        setRecipe(data[0]); // API returns an array
         setError(null);
       } catch (err) {
-        console.error("Error fetching recipe:", err);
         setError(err.message);
+        console.error("Error fetching recipe details:", err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchRecipeDetails();
   }, [id]);
 
-  // Convert image buffer → base64
+  // Convert image buffer to displayable format
   const getImageSrc = (recipeImg) => {
     if (!recipeImg?.data) return null;
 
     if (recipeImg.data.type === "Buffer" && recipeImg.data.data) {
-      const uint8 = new Uint8Array(recipeImg.data.data);
-      let str = "";
+      const uint8Array = new Uint8Array(recipeImg.data.data);
+      let binaryString = "";
       const chunkSize = 8192;
-      for (let i = 0; i < uint8.length; i += chunkSize) {
-        const chunk = uint8.slice(i, i + chunkSize);
-        str += String.fromCharCode(...chunk);
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.slice(i, i + chunkSize);
+        binaryString += String.fromCharCode(...chunk);
       }
-      return `data:${recipeImg.contentType};base64,${btoa(str)}`;
+      const base64String = btoa(binaryString);
+      return `data:${recipeImg.contentType};base64,${base64String}`;
     } else if (typeof recipeImg.data === "string") {
       return `data:${recipeImg.contentType};base64,${recipeImg.data}`;
     }
