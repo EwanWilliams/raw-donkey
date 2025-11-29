@@ -52,11 +52,10 @@ export default function RecipeDetails() {
       <section className="recipe-details-card">
         {/* Header like the Figma: centered title */}
         <header className="create-header recipe-details-header">
-          <h1 className="create-main-title">Recipe Details</h1>
           {recipe && (
-    <h2 className="recipe-details-subtitle">
+    <h1 className="create-main-title">
       {recipe.title}
-    </h2>
+    </h1>
   )}
         </header>
 
