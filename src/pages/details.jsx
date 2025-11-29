@@ -32,25 +32,30 @@ export default function RecipeDetails() {
   const getImageSrc = (recipeImg) => {
     if (!recipeImg?.data) return null;
 
-    if (recipeImg.data.type === "Buffer") {
+    if (recipeImg.data.type === "Buffer" && recipeImg.data.data) {
       const uint8 = new Uint8Array(recipeImg.data.data);
       let str = "";
-      for (let i = 0; i < uint8.length; i++) str += String.fromCharCode(uint8[i]);
+      const chunkSize = 8192;
+      for (let i = 0; i < uint8.length; i += chunkSize) {
+        const chunk = uint8.slice(i, i + chunkSize);
+        str += String.fromCharCode(...chunk);
+      }
       return `data:${recipeImg.contentType};base64,${btoa(str)}`;
+    } else if (typeof recipeImg.data === "string") {
+      return `data:${recipeImg.contentType};base64,${recipeImg.data}`;
     }
-    return `data:${recipeImg.contentType};base64,${recipeImg.data}`;
+    return null;
   };
 
   return (
     <main className="create-page">
-      <section className="create-card">
-        
-        <header className="create-header">
-          <h1 className="create-main-title">
-            {recipe?.title || "Recipe Details"}
-          </h1>
+      <section className="recipe-details-card">
+        {/* Header like the Figma: centered title */}
+        <header className="create-header recipe-details-header">
+          <h1 className="create-main-title">Recipe Details</h1>
         </header>
 
+        {/* STATES */}
         {loading ? (
           <div className="browse-message">
             <p className="browse-message-text">Loading recipe...</p>
@@ -65,47 +70,51 @@ export default function RecipeDetails() {
           </div>
         ) : (
           <>
-            {/* IMAGE */}
-            <div className="recipe-details-image-wrapper">
-              {getImageSrc(recipe.recipe_img) ? (
-                <img
-                  src={getImageSrc(recipe.recipe_img)}
-                  alt={recipe.title}
-                  className="recipe-details-image"
-                />
-              ) : (
-                <div className="recipe-details-image-placeholder">
-                  No Image Available
-                </div>
-              )}
-            </div>
+            {/* TOP ROW: Image + Ingredients */}
+            <section className="recipe-details-layout">
+              {/* LEFT: IMAGE PANEL */}
+              <div className="recipe-details-panel recipe-details-panel--image">
+                {getImageSrc(recipe.recipe_img) ? (
+                  <img
+                    src={getImageSrc(recipe.recipe_img)}
+                    alt={recipe.title}
+                    className="recipe-details-image"
+                  />
+                ) : (
+                  <div className="recipe-details-image-placeholder">
+                    Recipe Image
+                  </div>
+                )}
+              </div>
 
-            {/* INGREDIENTS */}
-            <section className="recipe-details-section">
-              <h2 className="recipe-details-title">Ingredients</h2>
-              <p className="recipe-details-help">
-                Everything needed for this recipe.
-              </p>
+              {/* RIGHT: INGREDIENTS PANEL */}
+              <div className="recipe-details-panel recipe-details-panel--ingredients">
+                <h2 className="recipe-details-panel-title">
+                  Recipe Ingredients
+                </h2>
 
-              {recipe.ingredients?.length ? (
-                <ul className="recipe-details-list">
-                  {recipe.ingredients.map((ing, idx) => (
-                    <li key={idx} className="recipe-details-list-item">
-                      <strong>{ing.item}</strong> — {ing.quantity} {ing.unit}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="recipe-details-help">No ingredients listed.</p>
-              )}
+                {recipe.ingredients?.length ? (
+                  <ul className="recipe-details-list">
+                    {recipe.ingredients.map((ing, idx) => (
+                      <li key={idx} className="recipe-details-list-item">
+                        <strong>{ing.item}</strong> — {ing.quantity}{" "}
+                        {ing.unit}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="recipe-details-help">
+                    No ingredients listed.
+                  </p>
+                )}
+              </div>
             </section>
 
-            {/* STEPS */}
-            <section className="recipe-details-section">
-              <h2 className="recipe-details-title">Method / Steps</h2>
-              <p className="recipe-details-help">
-                Follow these instructions to prepare the dish.
-              </p>
+            {/* BOTTOM: METHOD / STEPS FULL WIDTH */}
+            <section className="recipe-details-panel recipe-details-panel--method">
+              <h2 className="recipe-details-panel-title">
+                Recipe Method / Steps
+              </h2>
 
               {recipe.instructions?.length ? (
                 <ol className="recipe-details-list">
