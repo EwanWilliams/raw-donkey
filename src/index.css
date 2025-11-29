@@ -800,3 +800,68 @@ body {
   background-color: var(--color-brand);
   color: #ffffff;
 }
+
+/* -------------------------------
+   RECIPE DETAILS PAGE
+--------------------------------*/
+
+/* Image wrapper matches card spacing */
+.recipe-details-image-wrapper {
+  margin-bottom: 2rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+/* Actual image */
+.recipe-details-image {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Placeholder */
+.recipe-details-image-placeholder {
+  width: 100%;
+  height: 260px;
+  background: var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-light);
+  font-size: 0.95rem;
+}
+
+/* Section titles & text (match settings-measure-section) */
+.recipe-details-section {
+  margin-bottom: 2.25rem;
+}
+
+.recipe-details-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.35rem;
+}
+
+.recipe-details-help {
+  font-size: 0.95rem;
+  color: var(--color-text-light);
+  margin-bottom: 0.9rem;
+}
+
+/* Lists */
+.recipe-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-left: 1rem;
+}
+
+.recipe-details-list-item {
+  color: var(--color-text);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
