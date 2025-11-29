@@ -31,7 +31,8 @@ export default function App() {
       const ok = result.ok;
       setIsLoggedIn(ok);
       return ok;
-    } catch {
+    } catch (err) {
+      console.error("Error validating user:", err);
       setIsLoggedIn(false);
       return false;
     }
@@ -51,7 +52,9 @@ export default function App() {
         method: "POST",
         credentials: "include",
       });
-    } finally {
+    } catch (err) {
+      console.error("Logout error:", err);
+    }finally {
       setIsLoggedIn(false);
     }
   };
