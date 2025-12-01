@@ -21,3 +21,8 @@ jobs:
         with:
           # build: npm run build
           start: npm run dev
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage
+          path: coverage
