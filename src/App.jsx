@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Analytics } from '@vercel/analytics/react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,          
+  Navigate,
 } from "react-router-dom";
 
 import Navbar from "./pages/components/navbar";
@@ -14,63 +15,114 @@ import RecipeDetails from "./pages/details";
 import Settings from "./pages/settings";
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    localStorage.getItem("isLoggedIn") === "true"
-  );
-  const [username, setUsername] = useState(
-    localStorage.getItem("username") || ""
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  const handleLogin = (name) => {
-    setIsLoggedIn(true);
-    setUsername(name);
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("username", name);
-  };
+  // 🌙 THEME STATE
+  const [theme, setTheme] = useState("light");
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername("");
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("username");
-  };
-
-  // Inline ProtectedRoute component
-  const ProtectedRoute = ({ children }) => {
-    if (!isLoggedIn) {
-      return <Navigate to="/login" replace />;
+  // ------ AUTH VALIDATION ------
+  const validateUser = async () => {
+    try {
+      const result = await fetch("/api/auth/verify", {
+        method: "HEAD",
+        credentials: "include",
+      });
+      const ok = result.ok;
+      setIsLoggedIn(ok);
+      return ok;
+    } catch (err) {
+      console.error("Error validating user:", err);
+      setIsLoggedIn(false);
+      return false;
     }
-    return children;
   };
+
+  useEffect(() => {
+    validateUser().finally(() => setCheckingAuth(false));
+  }, []);
+
+  const handleLogin = async () => {
+    await validateUser();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }finally {
+      setIsLoggedIn(false);
+    }
+  };
+
+  // ------ THEME SETUP ------
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    if (stored) {
+      setTheme(stored);
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setTheme(prefersDark ? "dark" : "light");
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () =>
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+
+  // ------ PROTECTED ROUTE ------
+  const ProtectedRoute = ({ children }) => {
+    return isLoggedIn ? children : <Navigate to="/login" replace />;
+  };
+
+  if (checkingAuth) return <p>Loading...</p>;
 
   return (
     <Router>
-      {/* removed the stray 'c' here */}
-      <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
+      <div className="min-h-screen flex flex-col">
         <Navbar
           isLoggedIn={isLoggedIn}
-          username={username}
           onLogout={handleLogout}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
+
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Browse />} />
             <Route path="/browse" element={<Browse />} />
-            <Route path="/create" element={<Create />} />
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="/recipe/:id" element={<RecipeDetails />} />
 
-            {/* Protected settings route */}
+            <Route path="/create" element={
+              <ProtectedRoute><Create /></ProtectedRoute>
+            }/>
+
+            <Route path="/settings" element={
+              <ProtectedRoute><Settings /></ProtectedRoute>
+            }/>
+
             <Route
-              path="/settings"
+              path="/login"
               element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
+                <Login
+                  isLoggedIn={isLoggedIn}
+                  onLogin={handleLogin}
+                  onLogout={handleLogout}
+                />
               }
             />
+
+            <Route path="/recipe/:id" element={<RecipeDetails />} />
           </Routes>
         </main>
+        <Analytics />
       </div>
     </Router>
   );

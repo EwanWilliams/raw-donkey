@@ -119,9 +119,7 @@ describe('create_page', () => {
         
         
         cy.getByData("recipe-submit-button").click();
-        
-        
-    
+
         
         
     });
