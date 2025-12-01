@@ -98,7 +98,7 @@ export default function Settings({ onAvatarChange }) {
 
   return (
     <div className="settings-page">
-      <div className="settings-card">
+      <div className="recipe-details-card">
         <h1 className="settings-title">User Settings</h1>
 
         {/* Avatar Section */}
