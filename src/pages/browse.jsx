@@ -41,7 +41,6 @@ export default function Browse() {
             className="browse-select"
             data-test="page-size-selector"
           >
-            <option value={3}>3</option>
             <option value={6}>6</option>
             <option value={9}>9</option>
           </select>
