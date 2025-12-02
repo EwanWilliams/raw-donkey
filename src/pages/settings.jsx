@@ -133,14 +133,6 @@ export default function Settings({ onAvatarChange }) {
             >
               Change Picture
             </button>
-            <button
-              type="button"
-              onClick={handleRemove}
-              disabled={!avatarUrl}
-              className="rd-btn rd-btn-outline"
-            >
-              Remove
-            </button>
           </div>
         </div>
 
