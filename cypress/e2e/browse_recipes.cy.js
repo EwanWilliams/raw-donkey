@@ -9,7 +9,7 @@ describe("browse_page", () => {
     selector.select('9');
       assert(selector.should('have.value', '9'));
     selector.select('6');
-      assert(selector.should('have.value', '6'));S
+      assert(selector.should('have.value', '6'));
     
     let count = true
     
