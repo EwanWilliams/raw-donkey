@@ -117,9 +117,15 @@ function buildAvatarUrl(profile_img) {
       const text = await res.text();
 
       if (!res.ok) {
-        alert(`Could not save settings: ${text}`);
-        return;
-      }
+  try {
+    const data = JSON.parse(text);
+    alert(data.error || "Could not save settings.");
+  } catch {
+    alert("Could not save settings.");
+  }
+  return;
+}
+
 
       alert("Settings saved successfully!");
     } catch (err) {
