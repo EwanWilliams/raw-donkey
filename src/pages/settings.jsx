@@ -7,7 +7,7 @@ export default function Settings({ onAvatarChange }) {
 
   // Load settings from backend
   useEffect(() => {
-    fetch("/api/user/settings", { credentials: "include" })
+    fetch("/api/user/details", { credentials: "include" })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!data) return;
