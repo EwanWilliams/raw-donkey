@@ -121,7 +121,7 @@ export default function CreateRecipe() {
 
   return (
     <div className="create-page">
-      <div className="create-card">
+      <div className="recipe-details-card">
         <main>
           <h2 className="create-main-title">Create Recipe</h2>
 
