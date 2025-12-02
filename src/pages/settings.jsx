@@ -5,25 +5,57 @@ export default function Settings({ onAvatarChange }) {
   const [measurementSystem, setMeasurementSystem] = useState("metric");
   const fileInputRef = useRef(null);
 
-  // Load settings from backend
+  // Convert { contentType, data: { type: 'Buffer', data: [...] } }
+// into a data:image/...;base64,... URL
+function buildAvatarUrl(profile_img) {
+  if (!profile_img || !profile_img.data) return "";
+
+  // profile_img.data is likely { type: 'Buffer', data: [...] }
+  const raw = profile_img.data;
+
+  const byteArray = Array.isArray(raw)
+    ? raw
+    : raw.data; // if it's { type: 'Buffer', data: [...] }
+
+  if (!byteArray) return "";
+
+  const uint8 = new Uint8Array(byteArray);
+
+  // Convert bytes → binary string
+  let binary = "";
+  for (let i = 0; i < uint8.length; i++) {
+    binary += String.fromCharCode(uint8[i]);
+  }
+
+  // Binary → base64
+  const base64 = window.btoa(binary);
+
+  return `data:${profile_img.contentType};base64,${base64}`;
+}
+
+
   useEffect(() => {
-    fetch("/api/user/details", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!data) return;
+  fetch("/api/user/details", { credentials: "include" })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data) => {
+      if (!data) return;
 
-        // Load profile picture
-        if (data.profile_img?.data) {
-          const base64 = `data:${data.profile_img.contentType};base64,${data.profile_img.data}`;
-          setAvatarUrl(base64);
-        }
+      console.log("DETAILS RESPONSE:", data);
 
-        // Load unit preference
-        if (data.unit_pref) {
-          setMeasurementSystem(data.unit_pref);
-        }
-      });
-  }, []);
+      // Load profile picture
+      if (data.profile_img) {
+        const url = buildAvatarUrl(data.profile_img);
+        console.log("BUILT AVATAR URL:", url);
+        setAvatarUrl(url);
+      }
+
+      // Load unit preference
+      if (data.unit_pref) {
+        setMeasurementSystem(data.unit_pref);
+      }
+    });
+}, []);
+
 
   const openFilePicker = () => fileInputRef.current?.click();
 
