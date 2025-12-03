@@ -17,7 +17,7 @@ const db_cluster = process.env.db_cluster;
 const DB_URI = `mongodb+srv://${db_username}:${db_password}@${db_cluster}`;
 
 // middleware
-app.use(express.json({ limit: '200kb' }));
+app.use(express.json({ limit: '256kb' }));
 app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(cors({
