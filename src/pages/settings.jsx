@@ -33,7 +33,6 @@ function buildAvatarUrl(profile_img) {
   return `data:${profile_img.contentType};base64,${base64}`;
 }
 
-
   useEffect(() => {
   fetch("/api/user/details", { credentials: "include" })
     .then((res) => (res.ok ? res.json() : null))
@@ -87,52 +86,66 @@ function buildAvatarUrl(profile_img) {
   };
 
   const handleSave = async () => {
-    // --- FIX: only send valid base64 image ---
-    let imgToSend = "";
+  // --- FIX: only send valid base64 image ---
+  let imgToSend = "";
 
-    if (
-      avatarUrl &&
-      avatarUrl.startsWith("data:image/") &&
-      avatarUrl.includes(",") &&
-      avatarUrl.split(",")[1].length > 0
-    ) {
-      imgToSend = avatarUrl;
+  if (
+    avatarUrl &&
+    avatarUrl.startsWith("data:image/") &&
+    avatarUrl.includes(",") &&
+    avatarUrl.split(",")[1].length > 0
+  ) {
+    imgToSend = avatarUrl;
+  }
+
+  // 🔒 EXTRA CLIENT-SIDE GUARD: check base64 size before sending
+  if (imgToSend) {
+    const base64Part = imgToSend.split(",")[1] || "";
+
+    // approximate bytes from base64 length: bytes ≈ (len * 3) / 4
+    const estimatedBytes = (base64Part.length * 3) / 4;
+    const MAX_BYTES = 5 * 1024 * 1024; // 5MB – set this to match your real limit
+
+    if (estimatedBytes > MAX_BYTES) {
+      alert("Image too large (max 5MB). Please choose a smaller file.");
+      return; // 🚫 do NOT send the request
     }
+  }
 
-    const payload = {
-      unit: measurementSystem,
-      img: imgToSend, // empty string removes image
-    };
+  const payload = {
+    unit: measurementSystem,
+    img: imgToSend, // empty string means "no change/remove"
+  };
 
   try {
     const res = await fetch(`/api/user/settings`, {
       method: "PUT",
-      credentials: 'include',
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
     });
 
-      const text = await res.text();
+    const text = await res.text();
 
-      if (!res.ok) {
-  try {
-    const data = JSON.parse(text);
-    alert(data.error || "Could not save settings.");
-  } catch {
+    if (!res.ok) {
+      try {
+        const data = JSON.parse(text);
+        alert(data.error || "Could not save settings.");
+      } catch {
+        alert("Could not save settings.");
+      }
+      return;
+    }
+
+    alert("Settings saved successfully!");
+  } catch (err) {
+    console.error("Save error:", err);
     alert("Could not save settings.");
   }
-  return;
-}
+};
 
-
-      alert("Settings saved successfully!");
-    } catch (err) {
-      console.error("Save error:", err);
-      alert("Could not save settings.");
-    }
-  };
 
   return (
     <div className="settings-page">
