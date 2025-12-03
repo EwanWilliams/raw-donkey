@@ -3,53 +3,46 @@ import React, { useRef, useState, useEffect } from "react";
 export default function Settings({ onAvatarChange }) {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [measurementSystem, setMeasurementSystem] = useState("metric");
+  const [errorMessage, setErrorMessage] = useState(""); // popup message
   const fileInputRef = useRef(null);
 
-function buildAvatarUrl(profile_img) {
-  if (!profile_img || !profile_img.data) return "";
+  function buildAvatarUrl(profile_img) {
+    if (!profile_img || !profile_img.data) return "";
 
-  const raw = profile_img.data;
+    const raw = profile_img.data;
+    const byteArray = Array.isArray(raw) ? raw : raw.data;
+    if (!byteArray) return "";
 
-  const byteArray = Array.isArray(raw)
-    ? raw
-    : raw.data;
+    const uint8 = new Uint8Array(byteArray);
 
-  if (!byteArray) return "";
+    let binary = "";
+    for (let i = 0; i < uint8.length; i++) {
+      binary += String.fromCharCode(uint8[i]);
+    }
 
-  const uint8 = new Uint8Array(byteArray);
-
-  let binary = "";
-  for (let i = 0; i < uint8.length; i++) {
-    binary += String.fromCharCode(uint8[i]);
+    const base64 = window.btoa(binary);
+    return `data:${profile_img.contentType};base64,${base64}`;
   }
 
-  const base64 = window.btoa(binary);
-
-  return `data:${profile_img.contentType};base64,${base64}`;
-}
-
   useEffect(() => {
-  fetch("/api/user/details", { credentials: "include" })
-    .then((res) => (res.ok ? res.json() : null))
-    .then((data) => {
-      if (!data) return;
+    fetch("/api/user/details", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data) return;
 
-      console.log("DETAILS RESPONSE:", data);
+        console.log("DETAILS RESPONSE:", data);
 
-      // Load profile picture
-      if (data.profile_img) {
-        const url = buildAvatarUrl(data.profile_img);
-        console.log("BUILT AVATAR URL:", url);
-        setAvatarUrl(url);
-      }
+        if (data.profile_img) {
+          const url = buildAvatarUrl(data.profile_img);
+          console.log("BUILT AVATAR URL:", url);
+          setAvatarUrl(url);
+        }
 
-      // Load unit preference
-      if (data.unit_pref) {
-        setMeasurementSystem(data.unit_pref);
-      }
-    });
-}, []);
-
+        if (data.unit_pref) {
+          setMeasurementSystem(data.unit_pref);
+        }
+      });
+  }, []);
 
   const openFilePicker = () => fileInputRef.current?.click();
 
@@ -58,13 +51,14 @@ function buildAvatarUrl(profile_img) {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Please choose an image file.");
+      setErrorMessage("Please choose an image file.");
       e.target.value = "";
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Image too large (max 2MB).");
+    // 2MB limit on original file
+    if (file.size > 200 * 1024) {
+      setErrorMessage("Image too large (max 1MB). Please choose a smaller file.");
       e.target.value = "";
       return;
     }
@@ -75,155 +69,160 @@ function buildAvatarUrl(profile_img) {
   };
 
   const handleRemove = () => {
-    setAvatarUrl(""); // remove avatar
+    setAvatarUrl("");
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (onAvatarChange) onAvatarChange("");
   };
 
   const handleSave = async () => {
-  let imgToSend = "";
+    let imgToSend = "";
 
-  if (
-    avatarUrl &&
-    avatarUrl.startsWith("data:image/") &&
-    avatarUrl.includes(",") &&
-    avatarUrl.split(",")[1].length > 0
-  ) {
-    imgToSend = avatarUrl;
-  }
-
-  if (imgToSend) {
-    const base64Part = imgToSend.split(",")[1] || "";
-
-    const estimatedBytes = (base64Part.length * 3) / 4;
-    const MAX_BYTES = 2 * 1024 * 1024; // 
-
-    if (estimatedBytes > MAX_BYTES) {
-      alert("Image too large (max 2MB). Please choose a smaller file.");
-      return; // 🚫 do NOT send the request
+    if (
+      avatarUrl &&
+      avatarUrl.startsWith("data:image/") &&
+      avatarUrl.includes(",") &&
+      avatarUrl.split(",")[1].length > 0
+    ) {
+      imgToSend = avatarUrl;
     }
-  }
 
-  const payload = {
-    unit: measurementSystem,
-    img: imgToSend, 
+    const payload = {
+      unit: measurementSystem,
+      img: imgToSend,
+    };
+
+    try {
+      const res = await fetch("/api/user/settings", {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const text = await res.text();
+
+      if (!res.ok) {
+        try {
+          const data = JSON.parse(text);
+          setErrorMessage(data.error || "Could not save settings.");
+        } catch {
+          setErrorMessage("Could not save settings.");
+        }
+        return;
+      }
+
+      alert("Settings saved successfully!");
+    } catch (err) {
+      console.error("Save error:", err);
+      setErrorMessage("Could not save settings.");
+    }
   };
 
-  try {
-    const res = await fetch(`/api/user/settings`, {
-      method: "PUT",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const text = await res.text();
-
-    if (!res.ok) {
-      try {
-        const data = JSON.parse(text);
-        alert(data.error || "Could not save settings.");
-      } catch {
-        alert("Could not save settings.");
-      }
-      return;
-    }
-
-    alert("Settings saved successfully!");
-  } catch (err) {
-    console.error("Save error:", err);
-    alert("Could not save settings.");
-  }
-};
-
-
   return (
-    <div className="settings-page">
-      <div className="recipe-details-card">
-        <h1 className="settings-title">User Settings</h1>
-
-        {/* Avatar Section */}
-        <div className="settings-avatar-section">
-          <div className="settings-avatar-wrapper">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt="Profile preview"
-                className="settings-avatar-img"
-              />
-            ) : (
-              <div className="settings-avatar-placeholder">No picture</div>
-            )}
-          </div>
-
-          <p className="settings-help-text">Upload a profile picture.</p>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="settings-file-input"
-            onChange={handleFileChange}
-          />
-
-          <div className="settings-button-row">
+    <>
+      {/* Error popup */}
+      {errorMessage && (
+        <div className="settings-popup-overlay">
+          <div className="settings-popup">
+            <p className="settings-popup-message">{errorMessage}</p>
             <button
               type="button"
-              onClick={openFilePicker}
-              className="rd-btn rd-btn-outline"
+              onClick={() => setErrorMessage("")}
+              className="rd-btn rd-btn-primary"
             >
-              Change Picture
+              OK
             </button>
           </div>
         </div>
+      )}
 
-        {/* Measurement preference */}
-        <div className="settings-measure-section">
-          <h2 className="settings-measure-title">Measurement Preference</h2>
-          <p className="settings-measure-help">
-            Choose how ingredients should be displayed.
-          </p>
+      <div className="settings-page">
+        <div className="recipe-details-card">
+          <h1 className="settings-title">User Settings</h1>
 
-          <div className="settings-measure-options">
-            <label className="settings-radio-label">
-              <input
-                type="radio"
-                name="measurementSystem"
-                value="metric"
-                checked={measurementSystem === "metric"}
-                onChange={(e) => setMeasurementSystem(e.target.value)}
-              />
-              <span className="settings-radio-text">
-                Metric (grams, millilitres)
-              </span>
-            </label>
+          {/* Avatar Section */}
+          <div className="settings-avatar-section">
+            <div className="settings-avatar-wrapper">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Profile preview"
+                  className="settings-avatar-img"
+                />
+              ) : (
+                <div className="settings-avatar-placeholder">No picture</div>
+              )}
+            </div>
 
-            <label className="settings-radio-label">
-              <input
-                type="radio"
-                name="measurementSystem"
-                value="imperial"
-                checked={measurementSystem === "imperial"}
-                onChange={(e) => setMeasurementSystem(e.target.value)}
-              />
-              <span className="settings-radio-text">
-                Imperial (ounces, pounds)
-              </span>
-            </label>
+            <p className="settings-help-text">Upload a profile picture.</p>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="settings-file-input"
+              onChange={handleFileChange}
+            />
+
+            <div className="settings-button-row">
+              <button
+                type="button"
+                onClick={openFilePicker}
+                className="rd-btn rd-btn-outline"
+              >
+                Change Picture
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Save button */}
-        <button
-          type="button"
-          onClick={handleSave}
-          className="rd-btn rd-btn-primary rd-btn-full"
-        >
-          Save Settings
-        </button>
+          {/* Measurement preference */}
+          <div className="settings-measure-section">
+            <h2 className="settings-measure-title">Measurement Preference</h2>
+            <p className="settings-measure-help">
+              Choose how ingredients should be displayed.
+            </p>
+
+            <div className="settings-measure-options">
+              <label className="settings-radio-label">
+                <input
+                  type="radio"
+                  name="measurementSystem"
+                  value="metric"
+                  checked={measurementSystem === "metric"}
+                  onChange={(e) => setMeasurementSystem(e.target.value)}
+                />
+                <span className="settings-radio-text">
+                  Metric (grams, millilitres)
+                </span>
+              </label>
+
+              <label className="settings-radio-label">
+                <input
+                  type="radio"
+                  name="measurementSystem"
+                  value="imperial"
+                  checked={measurementSystem === "imperial"}
+                  onChange={(e) => setMeasurementSystem(e.target.value)}
+                />
+                <span className="settings-radio-text">
+                  Imperial (ounces, pounds)
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {/* Save button */}
+          <button
+            type="button"
+            onClick={handleSave}
+            className="rd-btn rd-btn-primary rd-btn-full"
+          >
+            Save Settings
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
