@@ -5,29 +5,24 @@ export default function Settings({ onAvatarChange }) {
   const [measurementSystem, setMeasurementSystem] = useState("metric");
   const fileInputRef = useRef(null);
 
-  // Convert { contentType, data: { type: 'Buffer', data: [...] } }
-// into a data:image/...;base64,... URL
 function buildAvatarUrl(profile_img) {
   if (!profile_img || !profile_img.data) return "";
 
-  // profile_img.data is likely { type: 'Buffer', data: [...] }
   const raw = profile_img.data;
 
   const byteArray = Array.isArray(raw)
     ? raw
-    : raw.data; // if it's { type: 'Buffer', data: [...] }
+    : raw.data;
 
   if (!byteArray) return "";
 
   const uint8 = new Uint8Array(byteArray);
 
-  // Convert bytes → binary string
   let binary = "";
   for (let i = 0; i < uint8.length; i++) {
     binary += String.fromCharCode(uint8[i]);
   }
 
-  // Binary → base64
   const base64 = window.btoa(binary);
 
   return `data:${profile_img.contentType};base64,${base64}`;
@@ -68,7 +63,7 @@ function buildAvatarUrl(profile_img) {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 2 * 1024 * 1024) {
       alert("Image too large (max 5MB).");
       e.target.value = "";
       return;
@@ -86,7 +81,6 @@ function buildAvatarUrl(profile_img) {
   };
 
   const handleSave = async () => {
-  // --- FIX: only send valid base64 image ---
   let imgToSend = "";
 
   if (
@@ -102,19 +96,18 @@ function buildAvatarUrl(profile_img) {
   if (imgToSend) {
     const base64Part = imgToSend.split(",")[1] || "";
 
-    // approximate bytes from base64 length: bytes ≈ (len * 3) / 4
     const estimatedBytes = (base64Part.length * 3) / 4;
-    const MAX_BYTES = 5 * 1024 * 1024; // 5MB – set this to match your real limit
+    const MAX_BYTES = 2 * 1024 * 1024; // 
 
     if (estimatedBytes > MAX_BYTES) {
-      alert("Image too large (max 5MB). Please choose a smaller file.");
+      alert("Image too large (max 2MB). Please choose a smaller file.");
       return; // 🚫 do NOT send the request
     }
   }
 
   const payload = {
     unit: measurementSystem,
-    img: imgToSend, // empty string means "no change/remove"
+    img: imgToSend, 
   };
 
   try {
