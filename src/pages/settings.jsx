@@ -58,7 +58,7 @@ export default function Settings({ onAvatarChange }) {
 
   
     if (file.size > 200 * 1024) {
-      setErrorMessage("Image too large (max 1MB). Please choose a smaller file.");
+      setErrorMessage("Image too large (max 200kb). Please choose a smaller file.");
       e.target.value = "";
       return;
     }
