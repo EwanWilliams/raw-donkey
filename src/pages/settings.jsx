@@ -64,7 +64,7 @@ function buildAvatarUrl(profile_img) {
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      alert("Image too large (max 5MB).");
+      alert("Image too large (max 2MB).");
       e.target.value = "";
       return;
     }
@@ -92,7 +92,6 @@ function buildAvatarUrl(profile_img) {
     imgToSend = avatarUrl;
   }
 
-  // 🔒 EXTRA CLIENT-SIDE GUARD: check base64 size before sending
   if (imgToSend) {
     const base64Part = imgToSend.split(",")[1] || "";
 
