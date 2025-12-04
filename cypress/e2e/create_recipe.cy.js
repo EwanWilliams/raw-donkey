@@ -72,7 +72,7 @@ describe('create_page', () => {
         cy.get("@api.all").should("have.length", 0);
     });
 
-    it('submits the form and navigates to the created recipe on success', () => {
+    it('Create Recipe Successfully', () => {
         cy.intercept('POST', '/api/recipe/new', {
             statusCode: 201,
             body: {
@@ -135,4 +135,37 @@ describe('create_page', () => {
         });
     });
 
+    it('Successfully Add and Remove new Ingredients and Recipes', () => {
+        
+        cy.get('#root a.rd-btn-login').click();        
+
+
+        cy.getByData("username-input").click();        
+
+
+        cy.getByData("username-input").type('test_user');        
+
+
+        cy.getByData("password-input").click();        
+
+
+        cy.getByData("password-input").type('password1');        
+
+
+        cy.get('#root button.w-full').click();        
+
+
+        cy.get('#root a[href="/create"]').click();        
+
+        
+        cy.getByData("ingredient-add-button").click();
+        
+        cy.getByData("ingredient-item-input").type('Ingredient to Remove');
+
+        cy.getByData("ingredient-remove-button").click();
+
+        cy.getByData("instruction-add-button").click();
+
+        cy.getByData("instruction-remove-button").click();
+    });
 });
