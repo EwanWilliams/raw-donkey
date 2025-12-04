@@ -12,9 +12,6 @@ const conversionTable = {
   kg: { unit: "lb", factor: 2.20462 },
   lb: { unit: "kg", factor: 0.453592 },
 
-  ml: { unit: "cups", factor: 1 / 240 },
-  cups: { unit: "ml", factor: 240 },
-
   fl_oz: { unit: "ml", factor: 29.5735 },
   ml: { unit: "fl_oz", factor: 1 / 29.5735 },
 
