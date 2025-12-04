@@ -144,6 +144,7 @@ export default function CreateRecipe() {
             <div className="create-field-group">
               <label className="create-label">Recipe Image:</label>
               <input
+                id="FileInput"
                 type="file"
                 data-test="recipe-image-input"
                 accept="image/*"
@@ -160,6 +161,8 @@ export default function CreateRecipe() {
                   />
                 </div>
               )}
+
+              <p>Recipe image may not be larger than ~200 KB</p>
             </div>
 
             {/* Ingredients */}
@@ -215,6 +218,9 @@ export default function CreateRecipe() {
                     <option value="ml">mL</option>
                     <option value="oz">oz</option>
                     <option value="floz">fl.oz</option>
+                    <option value="cups">cups</option>
+                    <option value="tsp">tbsp</option>
+                    <option value="tbsp">tsp</option>
                   </select>
 
                   {ingredients.length > 1 && (
