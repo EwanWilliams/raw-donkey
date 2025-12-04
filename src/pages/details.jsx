@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+// import { formatIngredient } from "../utils/units"; // as we discussed before
+
 export default function RecipeDetails() {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
+  const [measurementSystem, setMeasurementSystem] = useState("metric"); // 👈 NEW
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Load recipe + user settings (two separate effects for clarity)
   useEffect(() => {
     const fetchRecipeDetails = async () => {
       try {
@@ -23,6 +28,21 @@ export default function RecipeDetails() {
     };
     fetchRecipeDetails();
   }, [id]);
+
+  // 👇 NEW: fetch user unit preference (same as Settings)
+  useEffect(() => {
+    fetch("/api/user/details", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data) return;
+        if (data.unit_pref) {
+          setMeasurementSystem(data.unit_pref); // "metric" | "imperial"
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading user details:", err);
+      });
+  }, []);
 
   // Convert image buffer to displayable format
   const getImageSrc = (recipeImg) => {
@@ -44,19 +64,39 @@ export default function RecipeDetails() {
     return null;
   };
 
+  // Simple placeholder formatter until you plug in real conversions
+  const formatIngredient = (ingredient, unitSystem) => {
+    // Here you can implement the real metric/imperial conversion.
+    // For now we just return what’s stored, or fake a conversion as needed.
+    const { quantity, unit } = ingredient;
+
+    // Example: if DB stores metric, convert on the fly for imperial:
+    if (unitSystem === "imperial") {
+      if (unit === "g") {
+        const oz = quantity * 0.0352739619;
+        return { quantity: oz.toFixed(1), unit: "oz" };
+      }
+      if (unit === "ml") {
+        const cups = quantity / 240;
+        return { quantity: cups.toFixed(1), unit: "cups" };
+      }
+    }
+
+    // metric or unknown: just return as-is
+    return { quantity, unit };
+  };
+
   return (
     <main className="create-page">
       <section className="recipe-details-card">
-        {/* Header like the Figma: centered title */}
         <header className="create-header recipe-details-header">
           {recipe && (
-    <h1 className="create-main-title">
-      {recipe.title}
-    </h1>
-  )}
+            <h1 className="create-main-title">
+              {recipe.title}
+            </h1>
+          )}
         </header>
 
-        {/* STATES */}
         {loading ? (
           <div className="browse-message">
             <p className="browse-message-text">Loading recipe...</p>
@@ -73,7 +113,6 @@ export default function RecipeDetails() {
           <>
             {/* TOP ROW: Image + Ingredients */}
             <section className="recipe-details-layout">
-              {/* LEFT: IMAGE PANEL */}
               <div className="recipe-details-panel recipe-details-panel--image">
                 {getImageSrc(recipe.recipe_img) ? (
                   <img
@@ -92,16 +131,25 @@ export default function RecipeDetails() {
               <div className="recipe-details-panel recipe-details-panel--ingredients">
                 <h2 className="recipe-details-panel-title">
                   Recipe Ingredients
+                  <span className="settings-badge">
+                    ({measurementSystem === "metric" ? "Metric" : "Imperial"})
+                  </span>
                 </h2>
 
                 {recipe.ingredients?.length ? (
                   <ul className="recipe-details-list">
-                    {recipe.ingredients.map((ing, idx) => (
-                      <li key={idx} className="recipe-details-list-item">
-                        <strong>{ing.item}</strong> — {ing.quantity}{" "}
-                        {ing.unit}
-                      </li>
-                    ))}
+                    {recipe.ingredients.map((ing, idx) => {
+                      const { quantity, unit } = formatIngredient(
+                        ing,
+                        measurementSystem
+                      );
+
+                      return (
+                        <li key={idx} className="recipe-details-list-item">
+                          <strong>{ing.item}</strong> — {quantity} {unit}
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : (
                   <p className="recipe-details-help">
@@ -111,7 +159,7 @@ export default function RecipeDetails() {
               </div>
             </section>
 
-            {/* BOTTOM: METHOD / STEPS FULL WIDTH */}
+            {/* METHOD */}
             <section className="recipe-details-panel recipe-details-panel--method">
               <h2 className="recipe-details-panel-title">
                 Recipe Method / Steps
