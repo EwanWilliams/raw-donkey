@@ -73,6 +73,14 @@ describe('create_page', () => {
     });
 
     it('submits the form and navigates to the created recipe on success', () => {
+        cy.intercept('POST', '/api/recipe/new', {
+            statusCode: 201,
+            body: {
+                message: "Recipe added successfully",
+                recipeId: "64a7b2f5c25e4b6f8d0e4b2a"
+            }
+        }).as('createRecipe');
+        
         cy.get('#root a.rd-btn-login').click();
         
         
@@ -92,9 +100,6 @@ describe('create_page', () => {
         
         
         cy.get('#root a[href="/create"]').click();
-        
-        
-        cy.intercept('localhost:5173/api/recipe/new').as('api');
         
         
         cy.getByData("recipe-title-input").click();
@@ -121,16 +126,12 @@ describe('create_page', () => {
         cy.getByData("instruction-text-input").type('Test instruction step 1.');
         
         
-        cy.intercept('POST', '/api/recipe/new', {
-            statusCode: 201,
-            body: { message: "Recipe added successfully", recipeId: "64a7b2f5c9e77b001f5d4e8b" }
-        });
-        
-        
         cy.getByData("recipe-submit-button").click();
         
+        cy.wait('@createRecipe').its('response.statusCode').should('eq', 201);
+        
         cy.on('window:alert', (str) => {
-            expect(str).to.equal(`Recipe Uploaded Successfully!`);
+            expect(str).to.equal(`Recipe uploaded successfully!`);
         });
     });
 
