@@ -218,7 +218,7 @@ export default function CreateRecipe() {
                     <option value="ml">mL</option>
                     <option value="oz">oz</option>
                     <option value="floz">fl.oz</option>
-                    <option value="cups">cups</option>
+                    <option value="cup">cup</option>
                     <option value="tsp">tbsp</option>
                     <option value="tbsp">tsp</option>
                   </select>
