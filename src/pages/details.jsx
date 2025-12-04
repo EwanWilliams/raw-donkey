@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
    Unit conversion helpers
    ============================ */
 
-// All conversions are: 1 <key unit> = factor <mapped unit>
 const conversionTable = {
   g: { unit: "oz", factor: 0.0352739619 },
   oz: { unit: "g", factor: 28.3495231 },
@@ -15,6 +14,9 @@ const conversionTable = {
 
   ml: { unit: "cups", factor: 1 / 240 },
   cups: { unit: "ml", factor: 240 },
+
+  fl_oz: { unit: "ml", factor: 29.5735 },
+  ml: { unit: "fl_oz", factor: 1 / 29.5735 },
 
   l: { unit: "quarts", factor: 1.05669 },
   quarts: { unit: "l", factor: 0.946353 },
@@ -41,6 +43,11 @@ const UNIT_ALIASES = {
 
   quart: "quarts",
   quarts: "quarts",
+
+  "fl oz": "fl_oz",
+  floz: "fl_oz",
+  "fluid ounce": "fl_oz",
+  "fluid ounces": "fl_oz",
 };
 
 function normalizeUnit(rawUnit) {
