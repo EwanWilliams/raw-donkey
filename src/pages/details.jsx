@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 /* ============================
-   Unit conversion helpers
+   Unit conversion table
    ============================ */
 
 const conversionTable = {
@@ -24,10 +24,8 @@ const conversionTable = {
 
 const METRIC_UNITS = ["g", "kg", "ml", "l"];
 
-// Not required for logic but useful for clarity
 const IMPERIAL_UNITS = ["oz", "lb", "cups", "quarts"];
 
-// Common input variations mapped to valid internal keys
 const UNIT_ALIASES = {
   ounce: "oz",
   ounces: "oz",
