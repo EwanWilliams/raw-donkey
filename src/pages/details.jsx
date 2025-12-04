@@ -116,7 +116,7 @@ export default function RecipeDetails() {
         const response = await fetch(`/api/recipe/${id}`);
         if (!response.ok) throw new Error("Failed to fetch recipe details");
         const data = await response.json();
-        setRecipe(data[0]); // API sends array
+        setRecipe(data[0]); // API returns an array
         setError(null);
       } catch (err) {
         console.error("Error fetching recipe details:", err);
@@ -186,7 +186,7 @@ export default function RecipeDetails() {
           )}
         </header>
 
-        {/* STATE HANDLING */}
+        {/* STATES */}
         {loading ? (
           <div className="browse-message">
             <p className="browse-message-text">Loading recipe...</p>
@@ -201,7 +201,7 @@ export default function RecipeDetails() {
           </div>
         ) : (
           <>
-            {/* TOP: IMAGE + INGREDIENTS */}
+            {/* TOP ROW: Image + Ingredients */}
             <section className="recipe-details-layout">
               
               {/* IMAGE */}
@@ -219,7 +219,7 @@ export default function RecipeDetails() {
                 )}
               </div>
 
-              {/* INGREDIENTS */}
+              {/* RIGHT: INGREDIENTS PANEL */}
               <div className="recipe-details-panel recipe-details-panel--ingredients">
                 <h2 className="recipe-details-panel-title">
                   Recipe Ingredients{" "}
@@ -249,7 +249,7 @@ export default function RecipeDetails() {
               </div>
             </section>
 
-            {/* METHOD */}
+            {/* BOTTOM: METHOD / STEPS FULL WIDTH */}
             <section className="recipe-details-panel recipe-details-panel--method">
               <h2 className="recipe-details-panel-title">
                 Recipe Method / Steps
