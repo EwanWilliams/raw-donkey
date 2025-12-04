@@ -7,6 +7,7 @@ export default function CreateRecipe() {
   const [ingredients, setIngredients] = useState([{ item: "", amount: "", unit: "g" }]);
   const [steps, setSteps] = useState([""]);
   const [isUploading, setIsUploading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleAddIngredient = () => {
     setIngredients([...ingredients, { item: "", amount: "", unit: "g" }]);
@@ -31,13 +32,32 @@ export default function CreateRecipe() {
   };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => setImagePreview(e.target.result);
-      reader.readAsDataURL(file);
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Must be an image
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("Please choose an image file.");
+      e.target.value = "";
+      setSelectedImage(null);
+      setImagePreview(null);
+      return;
     }
+
+    // 200KB limit
+    if (file.size > 200 * 1024) {
+      setErrorMessage("Image too large (max 200KB). Please choose a smaller file.");
+      e.target.value = "";
+      setSelectedImage(null);
+      setImagePreview(null);
+      return;
+    }
+
+    setSelectedImage(file);
+
+    const reader = new FileReader();
+    reader.onload = (event) => setImagePreview(event.target.result);
+    reader.readAsDataURL(file);
   };
 
   const handleUpload = async (e) => {
@@ -120,6 +140,22 @@ export default function CreateRecipe() {
   };
 
   return (
+  <>
+    {errorMessage && (
+      <div className="settings-popup-overlay">
+        <div className="settings-popup">
+          <p className="settings-popup-message">{errorMessage}</p>
+          <button
+            type="button"
+            onClick={() => setErrorMessage("")}
+            className="rd-btn rd-btn-primary"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    )}
+
     <div className="create-page">
       <div className="recipe-details-card">
         <main>
@@ -144,6 +180,7 @@ export default function CreateRecipe() {
             <div className="create-field-group">
               <label className="create-label">Recipe Image:</label>
               <input
+                id="FileInput"
                 type="file"
                 data-test="recipe-image-input"
                 accept="image/*"
@@ -160,6 +197,8 @@ export default function CreateRecipe() {
                   />
                 </div>
               )}
+
+              <p>Recipe image may not be larger than ~200 KB</p>
             </div>
 
             {/* Ingredients */}
@@ -215,6 +254,9 @@ export default function CreateRecipe() {
                     <option value="ml">mL</option>
                     <option value="oz">oz</option>
                     <option value="floz">fl.oz</option>
+                    <option value="cup">cup</option>
+                    <option value="tsp">tbsp</option>
+                    <option value="tbsp">tsp</option>
                   </select>
 
                   {ingredients.length > 1 && (
@@ -294,6 +336,7 @@ export default function CreateRecipe() {
         </main>
       </div>
     </div>
+     </>
   );
 }
 

@@ -1,10 +1,114 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
+/* ============================
+   Unit conversion table
+   ============================ */
+
+const conversionTable = {
+  g: { unit: "oz", factor: 0.0352739619 },
+  oz: { unit: "g", factor: 28.3495231 },
+
+  kg: { unit: "lb", factor: 2.20462 },
+  lb: { unit: "kg", factor: 0.453592 },
+
+  ml: { unit: "cups", factor: 1 / 240 },
+  cups: { unit: "ml", factor: 240 },
+
+  fl_oz: { unit: "ml", factor: 29.5735 },
+  ml: { unit: "fl_oz", factor: 1 / 29.5735 },
+
+  l: { unit: "quarts", factor: 1.05669 },
+  quarts: { unit: "l", factor: 0.946353 },
+};
+
+const METRIC_UNITS = ["g", "kg", "ml", "l"];
+
+const IMPERIAL_UNITS = ["oz", "lb", "cups", "quarts"];
+
+const UNIT_ALIASES = {
+  ounce: "oz",
+  ounces: "oz",
+  oz: "oz",
+
+  pound: "lb",
+  pounds: "lb",
+  lb: "lb",
+  lbs: "lb",
+
+  cup: "cups",
+  cups: "cups",
+
+  quart: "quarts",
+  quarts: "quarts",
+
+  "fl oz": "fl_oz",
+  floz: "fl_oz",
+  "fluid ounce": "fl_oz",
+  "fluid ounces": "fl_oz",
+};
+
+function normalizeUnit(rawUnit) {
+  if (!rawUnit) return "";
+  const u = String(rawUnit).trim().toLowerCase();
+  return UNIT_ALIASES[u] || u;
+}
+
+function formatIngredient(ingredient, targetSystem) {
+  if (!ingredient) return { quantity: "", unit: "" };
+
+  let { quantity, unit } = ingredient;
+
+  const normalizedUnit = normalizeUnit(unit);
+
+  const num = typeof quantity === "number" ? quantity : parseFloat(quantity);
+  if (Number.isNaN(num)) {
+    return { quantity, unit: normalizedUnit || unit };
+  }
+
+  // Unknown unit → no conversion
+  if (!conversionTable[normalizedUnit]) {
+    return { quantity: num, unit: normalizedUnit };
+  }
+
+  const system = String(targetSystem || "").trim().toLowerCase();
+  const wantsMetric = system === "metric";
+  const isMetric = METRIC_UNITS.includes(normalizedUnit);
+
+  // Already in preferred system → skip conversion
+  if ((isMetric && wantsMetric) || (!isMetric && !wantsMetric)) {
+    return { quantity: num, unit: normalizedUnit };
+  }
+
+  // Convert
+  const { unit: newUnit, factor } = conversionTable[normalizedUnit];
+  const newQuantity = num * factor;
+
+  // Rounding rules
+  let rounded;
+  if (newQuantity < 1) rounded = Number(newQuantity.toFixed(2));
+  else if (newQuantity < 10) rounded = Number(newQuantity.toFixed(2));
+  else rounded = Number(newQuantity.toFixed(1));
+
+  return {
+    quantity: rounded,
+    unit: newUnit,
+  };
+}
+
+/* ============================
+   Main component
+   ============================ */
+
 export default function RecipeDetails() {
   const { id } = useParams();
+
   const [recipe, setRecipe] = useState(null);
+  const [measurementSystem, setMeasurementSystem] = useState("metric");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  /* --- Fetch recipe data --- */
   useEffect(() => {
     const fetchRecipeDetails = async () => {
       try {
@@ -15,16 +119,32 @@ export default function RecipeDetails() {
         setRecipe(data[0]); // API returns an array
         setError(null);
       } catch (err) {
-        setError(err.message);
         console.error("Error fetching recipe details:", err);
+        setError(err.message || "Failed to fetch recipe details");
       } finally {
         setLoading(false);
       }
     };
+
     fetchRecipeDetails();
   }, [id]);
 
-  // Convert image buffer to displayable format
+  /* --- Fetch user settings (unit preference) --- */
+  useEffect(() => {
+    fetch("/api/user/details", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data) return;
+        if (data.unit_pref) {
+          setMeasurementSystem(String(data.unit_pref).trim().toLowerCase());
+        }
+      })
+      .catch((err) =>
+        console.error("Error loading user details:", err)
+      );
+  }, []);
+
+  /* --- Convert image buffer to base64 --- */
   const getImageSrc = (recipeImg) => {
     if (!recipeImg?.data) return null;
 
@@ -32,28 +152,38 @@ export default function RecipeDetails() {
       const uint8Array = new Uint8Array(recipeImg.data.data);
       let binaryString = "";
       const chunkSize = 8192;
+
       for (let i = 0; i < uint8Array.length; i += chunkSize) {
         const chunk = uint8Array.slice(i, i + chunkSize);
         binaryString += String.fromCharCode(...chunk);
       }
+
       const base64String = btoa(binaryString);
       return `data:${recipeImg.contentType};base64,${base64String}`;
-    } else if (typeof recipeImg.data === "string") {
+    }
+
+    if (typeof recipeImg.data === "string") {
       return `data:${recipeImg.contentType};base64,${recipeImg.data}`;
     }
+
     return null;
   };
+
+  /* ============================
+       Render
+     ============================ */
 
   return (
     <main className="create-page">
       <section className="recipe-details-card">
-        {/* Header like the Figma: centered title */}
+        
+        {/* Header */}
         <header className="create-header recipe-details-header">
           {recipe && (
-    <h1 className="create-main-title">
-      {recipe.title}
-    </h1>
-  )}
+            <h1 className="create-main-title">
+              {recipe.title}
+            </h1>
+          )}
         </header>
 
         {/* STATES */}
@@ -73,7 +203,8 @@ export default function RecipeDetails() {
           <>
             {/* TOP ROW: Image + Ingredients */}
             <section className="recipe-details-layout">
-              {/* LEFT: IMAGE PANEL */}
+              
+              {/* IMAGE */}
               <div className="recipe-details-panel recipe-details-panel--image">
                 {getImageSrc(recipe.recipe_img) ? (
                   <img
@@ -91,22 +222,29 @@ export default function RecipeDetails() {
               {/* RIGHT: INGREDIENTS PANEL */}
               <div className="recipe-details-panel recipe-details-panel--ingredients">
                 <h2 className="recipe-details-panel-title">
-                  Recipe Ingredients
+                  Recipe Ingredients{" "}
+                  <span className="settings-badge">
+                    ({measurementSystem === "metric" ? "Metric" : "Imperial"})
+                  </span>
                 </h2>
 
                 {recipe.ingredients?.length ? (
                   <ul className="recipe-details-list">
-                    {recipe.ingredients.map((ing, idx) => (
-                      <li key={idx} className="recipe-details-list-item">
-                        <strong>{ing.item}</strong> — {ing.quantity}{" "}
-                        {ing.unit}
-                      </li>
-                    ))}
+                    {recipe.ingredients.map((ing, idx) => {
+                      const { quantity, unit } = formatIngredient(
+                        ing,
+                        measurementSystem
+                      );
+
+                      return (
+                        <li key={idx} className="recipe-details-list-item">
+                          <strong>{ing.item}</strong> — {quantity} {unit}
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : (
-                  <p className="recipe-details-help">
-                    No ingredients listed.
-                  </p>
+                  <p className="recipe-details-help">No ingredients listed.</p>
                 )}
               </div>
             </section>
