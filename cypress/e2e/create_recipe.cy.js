@@ -102,6 +102,9 @@ describe('create_page', () => {
         cy.getByData("recipe-title-input").type('Test Recipe Title');
         
         
+        cy.getByData("recipe-image-input").selectFile('cypress/fixtures/test_image.jpg', { force: true });
+        
+        
         cy.getByData("ingredient-item-input").click();
         
         cy.getByData("ingredient-item-input").type('Test Ingredient');
@@ -118,10 +121,17 @@ describe('create_page', () => {
         cy.getByData("instruction-text-input").type('Test instruction step 1.');
         
         
+        cy.intercept('POST', '/api/recipe/new', {
+            statusCode: 201,
+            body: { message: "Recipe added successfully", recipeId: "64a7b2f5c9e77b001f5d4e8b" }
+        });
+        
+        
         cy.getByData("recipe-submit-button").click();
-
         
-        
+        cy.on('window:alert', (str) => {
+            expect(str).to.equal(`Recipe Uploaded Successfully!`);
+        });
     });
 
 });

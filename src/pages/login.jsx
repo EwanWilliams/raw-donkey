@@ -126,11 +126,30 @@ export default function Login({ onLogin, onLogout, isLoggedIn }) {
             </div>
           )}
 
-          <p className="changeMessage" onClick={toggleMode}>
-            {isLogin
-              ? "Don't have an account? Register here."
-              : "Already have an account? Login here."}
-          </p>
+          <p className="changeMessage">
+  {isLogin ? (
+    <>
+      Don't have an account?
+      <span
+        className="changeMessage-link"
+        onClick={toggleMode}
+      >
+        {" "}Register here.
+      </span>
+    </>
+  ) : (
+    <>
+      Already have an account?
+      <span
+        className="changeMessage-link"
+        onClick={toggleMode}
+      >
+        {" "}Login here.
+      </span>
+    </>
+  )}
+</p>
+
         </form>
       </div>
     </div>

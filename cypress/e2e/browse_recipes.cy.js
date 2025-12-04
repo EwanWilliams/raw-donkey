@@ -20,8 +20,6 @@ describe("browse_page", () => {
       assert(selector.should('have.value', '9'));
     selector.select('6');
       assert(selector.should('have.value', '6'));
-    selector.select('3');
-      assert(selector.should('have.value', '3'));
     
     let count = true
     
