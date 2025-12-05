@@ -1017,3 +1017,36 @@ body {
     transform: scale(1);
   }
 }
+
+/* Mobile 2-tier navbar */
+@media (max-width: 640px) {
+  .rd-navbar {
+    padding: 0.75rem 1rem; /* a bit tighter on mobile */
+  }
+
+  .rd-navbar-container {
+    flex-direction: column;      /* stack brand & menu */
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .rd-navbar-brand {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+
+  .rd-navbar-menu {
+    width: 100%;
+    justify-content: center;     /* center links */
+    flex-wrap: wrap;             /* allow wrapping onto 2nd line */
+    row-gap: 0.4rem;
+  }
+
+  .rd-navbar-link,
+  .rd-btn-login,
+  .rd-btn-logout,
+  .rd-navbar-username {
+    font-size: 0.9rem;
+  }
+}
