@@ -17,9 +17,32 @@ import Settings from "./pages/settings";
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [username, setUsername] = useState("");   // 👈 username from JWT (via backend)
 
   // 🌙 THEME STATE
   const [theme, setTheme] = useState("light");
+
+  // ------ FETCH USER DETAILS (username, etc.) ------
+  const fetchUserDetails = async () => {
+    try {
+      const res = await fetch("/api/user/details", {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        setUsername("");
+        return;
+      }
+      const data = await res.json();
+      if (data?.username) {
+        setUsername(data.username);
+      } else {
+        setUsername("");
+      }
+    } catch (err) {
+      console.error("Error fetching user details:", err);
+      setUsername("");
+    }
+  };
 
   // ------ AUTH VALIDATION ------
   const validateUser = async () => {
@@ -30,10 +53,19 @@ export default function App() {
       });
       const ok = result.ok;
       setIsLoggedIn(ok);
+
+      if (ok) {
+        // JWT is valid server-side -> fetch username decoded from token
+        await fetchUserDetails();
+      } else {
+        setUsername("");
+      }
+
       return ok;
     } catch (err) {
       console.error("Error validating user:", err);
       setIsLoggedIn(false);
+      setUsername("");
       return false;
     }
   };
@@ -43,7 +75,10 @@ export default function App() {
   }, []);
 
   const handleLogin = async () => {
-    await validateUser();
+    const ok = await validateUser();
+    if (ok) {
+      await fetchUserDetails();
+    }
   };
 
   const handleLogout = async () => {
@@ -54,8 +89,9 @@ export default function App() {
       });
     } catch (err) {
       console.error("Logout error:", err);
-    }finally {
+    } finally {
       setIsLoggedIn(false);
+      setUsername("");   // 👈 clear navbar username
     }
   };
 
@@ -93,6 +129,7 @@ export default function App() {
           onLogout={handleLogout}
           theme={theme}
           onToggleTheme={toggleTheme}
+          username={username}      // 👈 pass it down
         />
 
         <main className="flex-grow">
@@ -100,13 +137,23 @@ export default function App() {
             <Route path="/" element={<Browse />} />
             <Route path="/browse" element={<Browse />} />
 
-            <Route path="/create" element={
-              <ProtectedRoute><Create /></ProtectedRoute>
-            }/>
+            <Route
+              path="/create"
+              element={
+                <ProtectedRoute>
+                  <Create />
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/settings" element={
-              <ProtectedRoute><Settings /></ProtectedRoute>
-            }/>
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/login"

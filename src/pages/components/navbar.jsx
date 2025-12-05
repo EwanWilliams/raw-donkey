@@ -1,23 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme }) {
+export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme, username }) {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-
-  // Fetch username on mount when logged in
-  useEffect(() => {
-    if (!isLoggedIn) return;
-
-    fetch("/api/user/details", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.username) {
-          setUsername(data.username);
-        }
-      })
-      .catch(() => {});
-  }, [isLoggedIn]);
 
   const handleLogoutClick = async () => {
     await onLogout();
@@ -32,20 +17,27 @@ export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme }) {
         </Link>
 
         <ul className="rd-navbar-menu">
+          {/* Browse link */}
           <li>
-            <Link to="/browse" className="rd-navbar-link">Browse</Link>
+            <Link to="/browse" className="rd-navbar-link">
+              Browse
+            </Link>
           </li>
 
           {isLoggedIn ? (
             <>
               <li>
-                <Link to="/create" className="rd-navbar-link">Create</Link>
+                <Link to="/create" className="rd-navbar-link">
+                  Create
+                </Link>
+              </li>
+              <li>
+                <Link to="/settings" className="rd-navbar-link">
+                  User Settings
+                </Link>
               </li>
 
-              <li>
-                <Link to="/settings" className="rd-navbar-link">User Settings</Link>
-              </li>
-              
+              {/* 👇 Username before emoji */}
               <li className="rd-navbar-username">
                 Hi {username && <strong>{username}</strong>} 👋
               </li>
@@ -62,11 +54,13 @@ export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme }) {
             </>
           ) : (
             <li>
-              <Link to="/login" className="rd-btn-login">Login</Link>
+              <Link to="/login" className="rd-btn-login">
+                Login
+              </Link>
             </li>
           )}
 
-          {/* Theme Toggle */}
+          {/* 🌗 DARK MODE TOGGLE */}
           <li>
             <button
               type="button"
