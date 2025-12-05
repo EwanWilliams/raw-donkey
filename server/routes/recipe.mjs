@@ -1,7 +1,5 @@
 import express from "express";
-import Recipe from "../models/Recipe.mjs";
-import Comment from "../models/Comment.mjs";
-import { validateToken } from "../utils/validateToken.mjs";
+import Recipe from "../models/Recipe.mjs"
 
 const router = express.Router();
 
@@ -63,63 +61,6 @@ router.post('/new', async (req, res) => {
         })
     } catch(err) {
         console.error("Recipe add error: ", err);
-        if (err.name === 'ValidationError') {
-            res.status(400).json({ error: "Validation Error: " + err.message });
-        } else {
-            res.status(500).json({ error: "Internal Server Error" });
-        }
-    }
-});
-
-
-// get comments for a specific recipe
-router.get('/:id/comments', async (req, res) => {
-    try {
-        const comments = await Comment.find({ recipeId: req.params.id })
-            .sort({ createdAt: -1 });
-        res.status(200).json(comments);
-    } catch(err) {
-        console.error("Get comments error: ", err);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
-
-
-// add a new comment to a recipe (requires authentication)
-router.post('/:id/comments', async (req, res) => {
-    try {
-        // Validate user is logged in
-        const token = req.cookies.jwt;
-        if (!token) {
-            return res.status(401).json({ error: "Authentication required" });
-        }
-
-        const decoded = validateToken(token);
-        if (!decoded) {
-            return res.status(401).json({ error: "Invalid or expired token" });
-        }
-
-        // Fetch username from database
-        const User = (await import('../models/User.mjs')).default;
-        const user = await User.findById(decoded.userId);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        // Create new comment
-        const newComment = await Comment.create({
-            recipeId: req.params.id,
-            userId: decoded.userId,
-            username: user.username,
-            commentText: req.body.commentText
-        });
-
-        res.status(201).json({
-            message: "Comment added successfully",
-            comment: newComment
-        });
-    } catch(err) {
-        console.error("Add comment error: ", err);
         if (err.name === 'ValidationError') {
             res.status(400).json({ error: "Validation Error: " + err.message });
         } else {
