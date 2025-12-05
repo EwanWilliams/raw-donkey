@@ -128,7 +128,7 @@ export default function RecipeDetails() {
     fetchRecipeDetails();
   }, [id]);
 
-  /* --- Fetch user settings (unit preference) --- */
+  /* --- Fetch user settings (unit preference) and login status --- */
   useEffect(() => {
     fetch("/api/user/details", { credentials: "include" })
       .then((res) => (res.ok ? res.json() : null))
@@ -143,8 +143,6 @@ export default function RecipeDetails() {
         console.error("Error loading user details:", err)
       );
   }, []);
-
-
 
   /* --- Convert image buffer to base64 --- */
   const getImageSrc = (recipeImg) => {
