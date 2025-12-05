@@ -37,7 +37,6 @@ export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme, use
                 </Link>
               </li>
 
-              {/* 👇 Username before emoji */}
               <li className="rd-navbar-username">
                 Hi {username && <strong>{username}</strong>} 👋
               </li>

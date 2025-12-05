@@ -55,7 +55,6 @@ export default function App() {
       setIsLoggedIn(ok);
 
       if (ok) {
-        // JWT is valid server-side -> fetch username decoded from token
         await fetchUserDetails();
       } else {
         setUsername("");
@@ -91,7 +90,7 @@ export default function App() {
       console.error("Logout error:", err);
     } finally {
       setIsLoggedIn(false);
-      setUsername("");   // 👈 clear navbar username
+      setUsername("");   // 
     }
   };
 
@@ -129,7 +128,7 @@ export default function App() {
           onLogout={handleLogout}
           theme={theme}
           onToggleTheme={toggleTheme}
-          username={username}      // 👈 pass it down
+          username={username}     
         />
 
         <main className="flex-grow">
