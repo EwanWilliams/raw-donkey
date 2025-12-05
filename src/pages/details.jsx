@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Comments from "./components/Comments";
 
 /* ============================
    Unit conversion table
@@ -104,6 +105,7 @@ export default function RecipeDetails() {
   const [measurementSystem, setMeasurementSystem] = useState("metric");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   /* --- Fetch recipe data --- */
   useEffect(() => {
@@ -126,7 +128,7 @@ export default function RecipeDetails() {
     fetchRecipeDetails();
   }, [id]);
 
-  /* --- Fetch user settings (unit preference) --- */
+  /* --- Fetch user settings (unit preference) and login status --- */
   useEffect(() => {
     fetch("/api/user/details", { credentials: "include" })
       .then((res) => (res.ok ? res.json() : null))
@@ -135,6 +137,7 @@ export default function RecipeDetails() {
         if (data.unit_pref) {
           setMeasurementSystem(String(data.unit_pref).trim().toLowerCase());
         }
+        setIsLoggedIn(true);
       })
       .catch((err) =>
         console.error("Error loading user details:", err)
@@ -266,6 +269,9 @@ export default function RecipeDetails() {
                 </p>
               )}
             </section>
+
+            {/* COMMENTS SECTION */}
+            <Comments recipeId={id} isLoggedIn={isLoggedIn} />
           </>
         )}
       </section>
