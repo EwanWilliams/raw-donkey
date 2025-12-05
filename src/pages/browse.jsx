@@ -33,6 +33,7 @@ export default function Browse() {
       {/* header */}
       <div className="browse-header">
         <div className="browse-header-left">
+          
           <label htmlFor="pageSize" className="browse-label">Recipes per page:</label>
           <select
             id="pageSize"
