@@ -66,7 +66,9 @@ export default function Browse() {
           {currentRecipes.length === 0 ? (
             <div className="browse-message"><p className="browse-message-text">No recipes found.</p></div>
           ) : (
-            <div className="browse-grid">
+            <div className="browse-grid"
+            data-test="recipe-grid"
+            >
               {currentRecipes.map((recipe) => {
                 // build image src (same logic as before)
                 let imageSrc = null;
@@ -115,7 +117,10 @@ export default function Browse() {
             >
               Previous
             </button>
-            <span className="page-info">Page {currentPage}</span>
+            <span 
+            className="page-info"
+            data-test="current-page-display"
+            >Page {currentPage}</span>
             <button
               data-test="next-page-button"
             onClick={() => setCurrentPage((p) => p + 1)}
