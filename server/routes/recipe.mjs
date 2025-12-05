@@ -2,6 +2,7 @@ import express from "express";
 import Recipe from "../models/Recipe.mjs";
 import Comment from "../models/Comment.mjs";
 import { validateToken } from "../utils/validateToken.mjs";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
@@ -90,27 +91,17 @@ router.post('/:id/comments', async (req, res) => {
     try {
         // Validate user is logged in
         const token = req.cookies.jwt;
-        if (!token) {
+        if (!token || !validateToken(token)) {
             return res.status(401).json({ error: "Authentication required" });
         }
 
-        const decoded = validateToken(token);
-        if (!decoded) {
-            return res.status(401).json({ error: "Invalid or expired token" });
-        }
-
-        // Fetch username from database
-        const User = (await import('../models/User.mjs')).default;
-        const user = await User.findById(decoded.userId);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
+        const decoded = jwt.decode(token);
 
         // Create new comment
         const newComment = await Comment.create({
             recipeId: req.params.id,
             userId: decoded.userId,
-            username: user.username,
+            username: decoded.username,
             commentText: req.body.commentText
         });
 
