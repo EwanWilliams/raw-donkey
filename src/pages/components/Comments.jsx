@@ -56,10 +56,10 @@ export default function Comments({ recipeId, isLoggedIn }) {
   };
 
   return (
-    <section className="recipe-details-panel recipe-details-panel--comments">
-      <h2 className="recipe-details-panel-title">
+    <section className="comment-section">
+      <h3>
         Comments ({comments.length})
-      </h2>
+      </h3>
 
       {/* Comment form for logged-in users */}
       {isLoggedIn ? (
@@ -68,7 +68,7 @@ export default function Comments({ recipeId, isLoggedIn }) {
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="Share your thoughts about this recipe..."
-            className="comment-textarea"
+            className="comment-input"
             rows="4"
             disabled={submittingComment}
           />
@@ -91,15 +91,15 @@ export default function Comments({ recipeId, isLoggedIn }) {
         {comments.length > 0 ? (
           comments.map((comment) => (
             <div key={comment._id} className="comment-item">
-              <div className="comment-header">
-                <span className="comment-username">
+              <div className="comment-item-header">
+                <span className="comment-item-username">
                   {comment.username}
                 </span>
-                <span className="comment-date">
+                <span className="comment-item-date">
                   {new Date(comment.createdAt).toLocaleDateString()}
                 </span>
               </div>
-              <p className="comment-text">{comment.commentText}</p>
+              <p className="comment-item-text">{comment.commentText}</p>
             </div>
           ))
         ) : (
