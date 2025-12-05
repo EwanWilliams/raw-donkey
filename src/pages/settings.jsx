@@ -68,11 +68,6 @@ export default function Settings({ onAvatarChange }) {
     reader.readAsDataURL(file);
   };
 
-  const handleRemove = () => {
-    setAvatarUrl("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    if (onAvatarChange) onAvatarChange("");
-  };
 
   const handleSave = async () => {
     let imgToSend = "";
