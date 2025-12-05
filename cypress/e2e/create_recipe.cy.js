@@ -44,30 +44,22 @@ describe('create_page', () => {
         
         cy.get('#root a.rd-btn-login').click();
         
-        
         cy.getByData("username-input").click();
-        
         
         cy.getByData("username-input").type('test_user');
         
-        
         cy.getByData("password-input").click();
-        
         
         cy.getByData("password-input").type('password1');
         
-        
         cy.get('#root button.w-full').click();
-        
         
         cy.get('#root a[href="/create"]').click();
         
-        
+
         cy.intercept('localhost:5173/api/recipe/new').as('api');
 
-
         cy.getByData("recipe-submit-button").click();
-        
         
         cy.get("@api.all").should("have.length", 0);
     });
@@ -83,21 +75,15 @@ describe('create_page', () => {
         
         cy.get('#root a.rd-btn-login').click();
         
-        
         cy.getByData("username-input").click();
-        
         
         cy.getByData("username-input").type('test_user');
         
-        
         cy.getByData("password-input").click();
-        
         
         cy.getByData("password-input").type('password1');
         
-        
         cy.get('#root button.w-full').click();
-        
         
         cy.get('#root a[href="/create"]').click();
         
@@ -106,9 +92,7 @@ describe('create_page', () => {
         
         cy.getByData("recipe-title-input").type('Test Recipe Title');
         
-        
         cy.getByData("recipe-image-input").selectFile('cypress/fixtures/test_image.jpg', { force: true });
-        
         
         cy.getByData("ingredient-item-input").click();
         
@@ -136,36 +120,77 @@ describe('create_page', () => {
     });
 
     it('Successfully Add and Remove new Ingredients and Recipes', () => {
+        cy.get('#root a.rd-btn-login').click();
         
-        cy.get('#root a.rd-btn-login').click();        
-
-
-        cy.getByData("username-input").click();        
-
-
-        cy.getByData("username-input").type('test_user');        
-
-
-        cy.getByData("password-input").click();        
-
-
-        cy.getByData("password-input").type('password1');        
-
-
-        cy.get('#root button.w-full').click();        
-
-
-        cy.get('#root a[href="/create"]').click();        
-
+        cy.getByData("username-input").click();
         
-        cy.getByData("ingredient-add-button").click();
+        cy.getByData("username-input").type('test_user');
         
-        cy.getByData("ingredient-item-input").type('Ingredient to Remove');
-
-        cy.getByData("ingredient-remove-button").click();
-
+        cy.getByData("password-input").click();
+        
+        cy.getByData("password-input").type('password1');
+        
+        cy.get('#root button.w-full').click();
+        
+        cy.get('#root a[href="/create"]').click();
+        
+        
+        cy.getByData("ingredient-add-button").click();        
+                
+        cy.get('div:nth-child(4) [data-test="ingredient-remove-button"]').click();
+        
         cy.getByData("instruction-add-button").click();
+        
+        cy.get('div:nth-child(7) [data-test="instruction-remove-button"]').click();
+    });
 
-        cy.getByData("instruction-remove-button").click();
+    it('Each Input Incorrect', () => {
+        cy.get('#root a.rd-btn-login').click();
+        
+        cy.getByData("username-input").click();
+        
+        cy.getByData("username-input").type('test_user');
+        
+        cy.getByData("password-input").click();
+        
+        cy.getByData("password-input").type('password1');
+        
+        cy.get('#root button.w-full').click();
+        
+        cy.get('#root a[href="/create"]').click();
+        
+        cy.getByData("recipe-image-input").selectFile('cypress/fixtures/test_text.txt', { force: true });
+        
+        assert(cy.getByData("settings-popup").should('exist'));
+        
+        cy.getByData("settings-popup-ok-button").click();
+        
+        cy.getByData("recipe-submit-button").click();
+        
+        cy.getByData("recipe-title-input").click();
+        
+        cy.getByData("recipe-title-input").type('A');
+        
+        cy.getByData("recipe-submit-button").click();
+        
+        cy.getByData("ingredient-item-input").type('A');
+        
+        cy.getByData("recipe-submit-button").click();
+        
+        cy.getByData("ingredient-amount-input").type('1');
+        
+        cy.getByData("recipe-submit-button").click();
+        
+        cy.getByData("instruction-text-input").type('B');
+        
+        cy.getByData("recipe-submit-button").click();
+
+        cy.getByData("recipe-image-input").selectFile('cypress/fixtures/large_test_image.png', { force: true });
+
+        assert(cy.getByData("settings-popup").should('exist'));
+        
+        cy.getByData("settings-popup-ok-button").click();
+        
+        cy.get('#root button.rd-btn-logout').click();
     });
 });
