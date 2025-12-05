@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
                 password: req.body.password
             });
             // set login cookie and response
-            generateTokenAndSetCookie(user._id, res);
+            generateTokenAndSetCookie(user._id, user.username, res);
             res.status(201).json({message: "user created successfully"});
         }
     } catch(err) {
@@ -42,7 +42,7 @@ router.post('/login', async (req, res) => {
             const passwordCorrect =  await bcrypt.compare(req.body.password, userFound.password);
 
             if (passwordCorrect) {
-                generateTokenAndSetCookie(userFound._id, res);
+                generateTokenAndSetCookie(userFound._id, userFound.username, res);
                 res.status(200).json({ message: "logged in" });
             } else {
                 res.status(400).json({ error: "Invalid username or password." });
