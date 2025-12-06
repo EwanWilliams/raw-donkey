@@ -178,7 +178,9 @@ export default function RecipeDetails() {
       <section className="recipe-details-card">
         
         {/* Header */}
-        <header className="create-header recipe-details-header">
+        <header className="create-header recipe-details-header"
+          data-test="recipe-details-header"
+        >
           {recipe && (
             <h1 className="create-main-title">
               {recipe.title}
@@ -211,6 +213,7 @@ export default function RecipeDetails() {
                     src={getImageSrc(recipe.recipe_img)}
                     alt={recipe.title}
                     className="recipe-details-image"
+                    data-test="recipe-image"
                   />
                 ) : (
                   <div className="recipe-details-image-placeholder">
@@ -220,7 +223,9 @@ export default function RecipeDetails() {
               </div>
 
               {/* RIGHT: INGREDIENTS PANEL */}
-              <div className="recipe-details-panel recipe-details-panel--ingredients">
+              <div className="recipe-details-panel recipe-details-panel--ingredients"
+                data-test="ingredients-panel"
+              >
                 <h2 className="recipe-details-panel-title">
                   Recipe Ingredients{" "}
                   <span className="settings-badge">
@@ -229,7 +234,9 @@ export default function RecipeDetails() {
                 </h2>
 
                 {recipe.ingredients?.length ? (
-                  <ul className="recipe-details-list">
+                  <ul className="recipe-details-list"
+                    data-test="ingredients-list"
+                  >
                     {recipe.ingredients.map((ing, idx) => {
                       const { quantity, unit } = formatIngredient(
                         ing,
@@ -250,13 +257,17 @@ export default function RecipeDetails() {
             </section>
 
             {/* BOTTOM: METHOD / STEPS FULL WIDTH */}
-            <section className="recipe-details-panel recipe-details-panel--method">
+            <section className="recipe-details-panel recipe-details-panel--method"
+              data-test="details-panel"
+            >
               <h2 className="recipe-details-panel-title">
                 Recipe Method / Steps
               </h2>
 
               {recipe.instructions?.length ? (
-                <ol className="recipe-details-list">
+                <ol className="recipe-details-list"
+                  data-test="instructions-list"
+                >
                   {recipe.instructions.map((step, idx) => (
                     <li key={idx} className="recipe-details-list-item">
                       {step}
