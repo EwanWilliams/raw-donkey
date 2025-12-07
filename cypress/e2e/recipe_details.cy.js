@@ -54,9 +54,7 @@ describe("browse_page", () => {
         
         cy.get('#root a[href="/settings"]').click();
         
-        cy.get('[data-test="settings-measure-section"] label:nth-child(2)').click();
-        
-        cy.getByData('settings-imperial-radio').check();
+        cy.get('[data-test="settings-imperial-radio"]').check();
         
         cy.getByData('settings-save-button').click(); 
         
@@ -70,7 +68,7 @@ describe("browse_page", () => {
         
         cy.get('[data-test="settings-measure-section"] label:nth-child(2)').click();
         
-        cy.getByData('settings-metric-radio').check();
+        cy.get('[data-test="settings-metric-radio"]').check();
         
         cy.getByData('settings-save-button').click();
     });
