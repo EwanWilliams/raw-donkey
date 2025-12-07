@@ -9,13 +9,11 @@ export default function Browse() {
   const [pageSize, setPageSize] = useState(6);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 🔐 likes-related state
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [likedIds, setLikedIds] = useState(new Set());
   const [showLikedOnly, setShowLikedOnly] = useState(false);
   const [likesLoading, setLikesLoading] = useState(false);
 
-  // NEW: full list of liked recipes (for liked-only view)
   const [likedRecipes, setLikedRecipes] = useState([]);
 
   const fetchRecipes = async (page, size) => {
@@ -33,14 +31,12 @@ export default function Browse() {
     }
   };
 
-  // ⏬ normal paginated recipes
   useEffect(() => {
     if (!showLikedOnly) {
       fetchRecipes(currentPage, pageSize);
     }
   }, [currentPage, pageSize, showLikedOnly]);
 
-  // ⏬ initial login + liked IDs
   useEffect(() => {
     const initLikes = async () => {
       try {
@@ -55,7 +51,7 @@ export default function Browse() {
 
         if (!res.ok) return;
 
-        const data = await res.json(); // { likes: [...] }
+        const data = await res.json(); 
         setIsUserLoggedIn(true);
         setLikedIds(new Set((data.likes || []).map((id) => String(id))));
       } catch (err) {
@@ -68,7 +64,6 @@ export default function Browse() {
     initLikes();
   }, []);
 
-  // NEW: fetch full liked recipes list for liked-only view
   const fetchLikedRecipes = async () => {
     try {
       setLikesLoading(true);
@@ -87,7 +82,7 @@ export default function Browse() {
         return;
       }
 
-      const data = await res.json(); // full recipe objects
+      const data = await res.json(); 
       setLikedRecipes(data);
     } catch (err) {
       console.error("Error loading liked recipes:", err);
@@ -107,7 +102,6 @@ export default function Browse() {
     const idStr = String(recipeId);
     const currentlyLiked = likedIds.has(idStr);
 
-    // optimistic update
     setLikedIds((prev) => {
       const next = new Set(prev);
       if (currentlyLiked) next.delete(idStr);
@@ -115,7 +109,6 @@ export default function Browse() {
       return next;
     });
 
-    // if we're in liked-only view and unliking, also remove from likedRecipes
     if (showLikedOnly && currentlyLiked) {
       setLikedRecipes((prev) =>
         prev.filter((r) => String(r._id) !== idStr)
@@ -145,15 +138,12 @@ export default function Browse() {
 
   const handleToggleShowLiked = () => {
     if (!showLikedOnly) {
-      // turning liked-only ON → load full liked recipes
       fetchLikedRecipes();
-      setCurrentPage(1); // reset pagination, though we hide it
+      setCurrentPage(1); 
     }
     setShowLikedOnly((prev) => !prev);
   };
 
-  // When not in liked-only mode, show paginated recipes
-  // When in liked-only mode, show ALL liked recipes in one page
   const currentRecipes =
     showLikedOnly && isUserLoggedIn ? likedRecipes : recipes;
 
