@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
-
+// number of salts generated in rounds of encryption
 const saltRounds = 10;
 
-
+// definining user document structure
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
+// before save is carried out, hash the password string
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, saltRounds);
