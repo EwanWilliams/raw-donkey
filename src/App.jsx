@@ -17,6 +17,7 @@ import Settings from "./pages/settings";
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [username, setUsername] = useState("");
 
   // 🌙 THEME STATE
   const [theme, setTheme] = useState("light");
@@ -28,6 +29,7 @@ export default function App() {
         method: "HEAD",
         credentials: "include",
       });
+
       const ok = result.ok;
       setIsLoggedIn(ok);
       return ok;
@@ -39,11 +41,36 @@ export default function App() {
   };
 
   useEffect(() => {
-    validateUser().finally(() => setCheckingAuth(false));
+    const initAuth = async () => {
+      const ok = await validateUser();
+
+      if (ok) {
+        const storedUsername = localStorage.getItem("username");
+        if (storedUsername) {
+          setUsername(storedUsername);
+        }
+      } else {
+        localStorage.removeItem("username");
+        setUsername("");
+      }
+
+      setCheckingAuth(false);
+    };
+
+    initAuth();
   }, []);
 
-  const handleLogin = async () => {
-    await validateUser();
+  const handleLogin = (usernameFromLogin) => {
+    setIsLoggedIn(true);
+
+    const finalUsername = usernameFromLogin || "";
+    setUsername(finalUsername);
+
+    if (finalUsername) {
+      localStorage.setItem("username", finalUsername);
+    } else {
+      localStorage.removeItem("username");
+    }
   };
 
   const handleLogout = async () => {
@@ -54,8 +81,10 @@ export default function App() {
       });
     } catch (err) {
       console.error("Logout error:", err);
-    }finally {
+    } finally {
       setIsLoggedIn(false);
+      setUsername("");
+      localStorage.removeItem("username");
     }
   };
 
@@ -65,7 +94,9 @@ export default function App() {
     if (stored) {
       setTheme(stored);
     } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
       setTheme(prefersDark ? "dark" : "light");
     }
   }, []);
@@ -93,6 +124,7 @@ export default function App() {
           onLogout={handleLogout}
           theme={theme}
           onToggleTheme={toggleTheme}
+          username={username}
         />
 
         <main className="flex-grow">
@@ -100,13 +132,23 @@ export default function App() {
             <Route path="/" element={<Browse />} />
             <Route path="/browse" element={<Browse />} />
 
-            <Route path="/create" element={
-              <ProtectedRoute><Create /></ProtectedRoute>
-            }/>
+            <Route
+              path="/create"
+              element={
+                <ProtectedRoute>
+                  <Create />
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/settings" element={
-              <ProtectedRoute><Settings /></ProtectedRoute>
-            }/>
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/login"
