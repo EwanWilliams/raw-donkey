@@ -75,6 +75,7 @@ export default function Comments({ recipeId, isLoggedIn }) {
           <button
             type="submit"
             className="comment-submit-btn"
+            data-test="comment-submit-button"
             disabled={!commentText.trim() || submittingComment}
           >
             {submittingComment ? "Posting..." : "Post Comment"}

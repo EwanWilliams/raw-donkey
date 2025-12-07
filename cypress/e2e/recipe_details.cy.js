@@ -1,3 +1,5 @@
+import { comment } from "postcss";
+
 describe("browse_page", () => {
   beforeEach(() => {
     cy.visit("http://localhost:5173");
@@ -71,6 +73,45 @@ describe("browse_page", () => {
         cy.getByData('settings-metric-radio').check();
         
         cy.getByData('settings-save-button').click();
+    });
+
+    it('Add Comment Works', () => {
+        const newComment = {
+            recipeId: '0123456789abcdef01234567',
+            userId: 'abcdef0123456789abcdef01',
+            username: 'test_user',
+            commentText: 'This is a test comment.'
+        };
+        
+        cy.intercept('POST', '/api/recipe/6911c04d5506244383ea9a09/comments', {
+            statusCode: 201,
+            body: {
+                message: "Comment added successfully",
+                comment: newComment      
+            }
+        }).as('createRecipe');
+        
+        
+        cy.get('#root a.rd-btn-login').click();
+                
+        cy.getByData("username-input").click();
+        
+        cy.getByData("username-input").type('test_user');
+        
+        cy.getByData("password-input").click();
+        
+        cy.getByData("password-input").type('password1');
+        
+        cy.get('#root button.w-full').click();
+        
+        cy.get('[data-test="recipe-grid"] div:nth-child(2) > div.recipe-body > a.recipe-link').click();
+        
+        cy.get('#root textarea.comment-input').click();
+        
+        cy.get('#root textarea.comment-input').type('This is a test comment.');
+        
+        cy.getByData('comment-submit-button').click();
+        cy.get('[data-test="comments-list"] div:nth-child(1) > p.comment-item-text').contains('This is a test comment.')
     });
 
 });
