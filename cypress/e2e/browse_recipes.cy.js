@@ -5,7 +5,7 @@ describe("browse_page", () => {
   });
 
   it('All Fields Render', () => {
-
+    cy.wait(5000)
     cy.getByData("page-size-selector").should('exist').and('have.value', '6');
     cy.getByData('next-page-button').should('exist');
     cy.getByData('previous-page-button').should('exist');
