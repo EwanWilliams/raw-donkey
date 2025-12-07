@@ -43,7 +43,7 @@ router.post('/login', async (req, res) => {
 
             if (passwordCorrect) {
                 generateTokenAndSetCookie(userFound._id, userFound.username, res);
-                res.status(200).json({ message: "logged in" });
+                res.status(200).json({ message: "logged in", username: userFound.username  });
             } else {
                 res.status(400).json({ error: "Invalid username or password." });
             }

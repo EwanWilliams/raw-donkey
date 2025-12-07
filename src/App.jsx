@@ -17,6 +17,7 @@ import Settings from "./pages/settings";
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [username, setUsername] = useState("");
 
   // 🌙 THEME STATE
   const [theme, setTheme] = useState("light");
@@ -42,22 +43,28 @@ export default function App() {
     validateUser().finally(() => setCheckingAuth(false));
   }, []);
 
-  const handleLogin = async () => {
-    await validateUser();
-  };
+  // was: const handleLogin = async () => { await validateUser(); };
+
+const handleLogin = (usernameFromLogin) => {
+  // ✅ we already know login succeeded if this is called
+  setIsLoggedIn(true);
+  setUsername(usernameFromLogin || "");
+};
+
 
   const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-    } catch (err) {
-      console.error("Logout error:", err);
-    }finally {
-      setIsLoggedIn(false);
-    }
-  };
+  try {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch (err) {
+    console.error("Logout error:", err);
+  } finally {
+    setIsLoggedIn(false);
+    setUsername("");   // clear it
+  }
+};
 
   // ------ THEME SETUP ------
   useEffect(() => {
@@ -93,6 +100,7 @@ export default function App() {
           onLogout={handleLogout}
           theme={theme}
           onToggleTheme={toggleTheme}
+          username={username}
         />
 
         <main className="flex-grow">
@@ -109,15 +117,16 @@ export default function App() {
             }/>
 
             <Route
-              path="/login"
-              element={
-                <Login
-                  isLoggedIn={isLoggedIn}
-                  onLogin={handleLogin}
-                  onLogout={handleLogout}
-                />
-              }
-            />
+  path="/login"
+  element={
+    <Login
+      isLoggedIn={isLoggedIn}
+      onLogin={handleLogin}
+      onLogout={handleLogout}
+    />
+  }
+/>
+
 
             <Route path="/recipe/:id" element={<RecipeDetails />} />
           </Routes>

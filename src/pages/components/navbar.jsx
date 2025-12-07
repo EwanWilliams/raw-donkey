@@ -1,7 +1,13 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme }) {
+export default function Navbar({
+  isLoggedIn,
+  onLogout,
+  theme,
+  onToggleTheme,
+  username    // 👈 ADD THIS
+}) {
   const navigate = useNavigate();
 
   const handleLogoutClick = async () => {
@@ -17,7 +23,7 @@ export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme }) {
         </Link>
 
         <ul className="rd-navbar-menu">
-          {/* Browse link */}
+          {/* Browse */}
           <li>
             <Link to="/browse" className="rd-navbar-link">
               Browse
@@ -31,12 +37,18 @@ export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme }) {
                   Create
                 </Link>
               </li>
+
               <li>
                 <Link to="/settings" className="rd-navbar-link">
                   User Settings
                 </Link>
               </li>
-              <li className="rd-navbar-username">Hi 👋</li>
+
+              {/* 👇 username display */}
+              <li className="rd-navbar-username">
+                Hi {username || ""} 👋
+              </li>
+
               <li>
                 <button
                   type="button"
@@ -55,7 +67,7 @@ export default function Navbar({ isLoggedIn, onLogout, theme, onToggleTheme }) {
             </li>
           )}
 
-          {/* 🌗 DARK MODE TOGGLE */}
+          {/* Dark mode toggle */}
           <li>
             <button
               type="button"
