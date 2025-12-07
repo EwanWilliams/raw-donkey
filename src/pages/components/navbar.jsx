@@ -23,7 +23,7 @@ export default function Navbar({
         </Link>
 
         <ul className="rd-navbar-menu">
-          {/* Browse */}
+          {/* Browse link */}
           <li>
             <Link to="/browse" className="rd-navbar-link">
               Browse
