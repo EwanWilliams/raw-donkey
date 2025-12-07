@@ -9,7 +9,7 @@ export default function Browse() {
   const [pageSize, setPageSize] = useState(6);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 🔐 likes-related state
+  // likes-related state
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [likedIds, setLikedIds] = useState(new Set());
   const [showLikedOnly, setShowLikedOnly] = useState(false);
@@ -30,12 +30,10 @@ export default function Browse() {
     }
   };
 
-  // fetch paginated recipes
   useEffect(() => {
     fetchRecipes(currentPage, pageSize);
   }, [currentPage, pageSize]);
 
-  // 🔐 check login *and* load likes using your existing backend behaviour
   useEffect(() => {
     const initLikes = async () => {
       try {
@@ -43,16 +41,12 @@ export default function Browse() {
         const res = await fetch("/api/user/likes", { credentials: "include" });
 
         if (res.status === 401) {
-          // not logged in
           setIsUserLoggedIn(false);
           setLikedIds(new Set());
           return;
         }
 
-        if (!res.ok) {
-          console.error("Failed to load likes");
-          return;
-        }
+        if (!res.ok) return;
 
         const data = await res.json(); // { likes: [...] }
         setIsUserLoggedIn(true);
@@ -78,7 +72,6 @@ export default function Browse() {
     const idStr = String(recipeId);
     const currentlyLiked = likedIds.has(idStr);
 
-    // optimistic UI update
     setLikedIds((prev) => {
       const next = new Set(prev);
       if (currentlyLiked) next.delete(idStr);
@@ -94,7 +87,6 @@ export default function Browse() {
       });
 
       if (!res.ok) {
-        // revert if server rejects
         setLikedIds((prev) => {
           const next = new Set(prev);
           if (currentlyLiked) next.add(idStr);
@@ -104,13 +96,6 @@ export default function Browse() {
       }
     } catch (err) {
       console.error("Error toggling like:", err);
-      // revert on error
-      setLikedIds((prev) => {
-        const next = new Set(prev);
-        if (currentlyLiked) next.add(idStr);
-        else next.delete(idStr);
-        return next;
-      });
     }
   };
 
@@ -118,16 +103,23 @@ export default function Browse() {
     setShowLikedOnly((prev) => !prev);
   };
 
-  // base list = recipes from current page
+  // base recipes from current page
   const pagedRecipes = recipes;
+
+  // filtered list when in liked-only mode
   const currentRecipes =
     showLikedOnly && isUserLoggedIn
       ? pagedRecipes.filter((r) => isLiked(r._id))
       : pagedRecipes;
 
+  const canGoNext =
+    showLikedOnly && isUserLoggedIn
+      ? currentRecipes.length === pageSize
+      : pagedRecipes.length === pageSize;
+
   return (
     <div className="browse-page">
-      {/* header */}
+      {/* HEADER */}
       <div className="browse-header">
         <div className="browse-header-left">
           <label htmlFor="pageSize" className="browse-label">
@@ -150,19 +142,20 @@ export default function Browse() {
 
         <h1 className="browse-title">Browse Recipes</h1>
 
-        {/* ❤️ My liked recipes toggle (logged-in only) */}
-        {isUserLoggedIn && (
-          <button
-            type="button"
-            onClick={handleToggleShowLiked}
-            className="rd-btn rd-btn-outline"
-          >
-            {showLikedOnly ? "Show All Recipes" : "Show My Liked Recipes"}
-          </button>
-        )}
+        <div className="browse-header-right">
+          {isUserLoggedIn && (
+            <button
+              type="button"
+              className="liked-toggle-button"
+              onClick={handleToggleShowLiked}
+            >
+              {showLikedOnly ? "Show All Recipes" : "Show My Liked Recipes"}
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* states */}
+      {/* STATES */}
       {loading && (
         <div className="browse-message">
           <p className="browse-message-text">Loading recipes...</p>
@@ -200,7 +193,6 @@ export default function Browse() {
           ) : (
             <div className="browse-grid" data-test="recipe-grid">
               {currentRecipes.map((recipe) => {
-                // build image src (same logic as before)
                 let imageSrc = null;
                 if (recipe.recipe_img?.data) {
                   if (
@@ -211,10 +203,9 @@ export default function Browse() {
                       recipe.recipe_img.data.data
                     );
                     let binary = "";
-                    const chunk = 8192;
-                    for (let i = 0; i < uint8Array.length; i += chunk) {
+                    for (let i = 0; i < uint8Array.length; i += 8192) {
                       binary += String.fromCharCode(
-                        ...uint8Array.slice(i, i + chunk)
+                        ...uint8Array.slice(i, i + 8192)
                       );
                     }
                     imageSrc = `data:${recipe.recipe_img.contentType};base64,${btoa(
@@ -249,7 +240,6 @@ export default function Browse() {
                         {recipe.title}
                       </Link>
 
-                      {/* ❤️ Like button (logged-in only) */}
                       {isUserLoggedIn && (
                         <button
                           type="button"
@@ -268,7 +258,7 @@ export default function Browse() {
             </div>
           )}
 
-          {/* pagination */}
+          {/* PAGINATION */}
           <div
             className="browse-pagination"
             style={{
@@ -286,16 +276,15 @@ export default function Browse() {
             >
               Previous
             </button>
-            <span
-              className="page-info"
-              data-test="current-page-display"
-            >
+
+            <span className="page-info" data-test="current-page-display">
               Page {currentPage}
             </span>
+
             <button
               data-test="next-page-button"
               onClick={() => setCurrentPage((p) => p + 1)}
-              disabled={pagedRecipes.length < pageSize}
+              disabled={!canGoNext}  
               className="page-button"
             >
               Next
