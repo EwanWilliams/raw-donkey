@@ -223,9 +223,6 @@ export default function RecipeDetails() {
               <div className="recipe-details-panel recipe-details-panel--ingredients">
                 <h2 className="recipe-details-panel-title">
                   Recipe Ingredients{" "}
-                  <span className="settings-badge">
-                    ({measurementSystem === "metric" ? "Metric" : "Imperial"})
-                  </span>
                 </h2>
 
                 {recipe.ingredients?.length ? (
