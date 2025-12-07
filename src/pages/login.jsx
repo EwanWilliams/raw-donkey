@@ -8,7 +8,7 @@ export default function Login({ onLogin, onLogout, isLoggedIn }) {
   const [mode, setMode] = useState("login"); // "login" or "register"
   const navigate = useNavigate();
 
-  // 🔒 If user visits /login while logged in, force logout (clear cookie + state)
+  //  If user visits /login while logged in, force logout (clear cookie + state)
   useEffect(() => {
     if (isLoggedIn && onLogout) {
       onLogout(); // calls /api/auth/logout and sets isLoggedIn(false) in App
@@ -54,7 +54,6 @@ const handleSubmit = (e) => {
       return response.json();
     })
     .then((data) => {
-      // 👇 NEW: pass username to App on login
       if (mode === "login" && data && data.username) {
         onLogin(data.username);
       } else {

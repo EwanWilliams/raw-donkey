@@ -6,7 +6,7 @@ export default function Navbar({
   onLogout,
   theme,
   onToggleTheme,
-  username    // 👈 ADD THIS
+  username   
 }) {
   const navigate = useNavigate();
 
@@ -43,8 +43,7 @@ export default function Navbar({
                   User Settings
                 </Link>
               </li>
-
-              {/* 👇 username display */}
+              
               <li className="rd-navbar-username">
                 Hi {username || ""} 👋
               </li>
