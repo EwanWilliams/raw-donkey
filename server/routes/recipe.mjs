@@ -1,16 +1,34 @@
 import express from "express";
 import Recipe from "../models/Recipe.mjs";
 import Comment from "../models/Comment.mjs";
-import User from "../models/User.mjs";            
+import User from "../models/User.mjs";
 import { validateToken } from "../utils/validateToken.mjs";
 import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
 /**
- * 🔹 GET all liked recipes for the logged-in user
- * URL: /api/recipe/liked
- * Must come BEFORE "/:id" so it isn't swallowed by that route.
+ * List recipes for homepage (paginated)
+ * GET /api/recipe/list/:page/:range
+ */
+router.get("/list/:page/:range", async (req, res) => {
+  try {
+    const skipAmount = (req.params.page - 1) * req.params.range;
+    const recipesFound = await Recipe.find(
+      {},
+      { _id: 1, title: 1, recipe_img: 1 },
+      { skip: skipAmount, limit: req.params.range }
+    );
+    res.status(200).json(recipesFound);
+  } catch (err) {
+    console.error("Recipe list error: ", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+/**
+ * All liked recipes for logged-in user
+ * GET /api/recipe/liked
  */
 router.get("/liked", async (req, res) => {
   try {
@@ -28,7 +46,7 @@ router.get("/liked", async (req, res) => {
     }
 
     if (!user.liked_recipes || user.liked_recipes.length === 0) {
-      return res.status(200).json([]); // no liked recipes
+      return res.status(200).json([]);
     }
 
     const recipes = await Recipe.find({
@@ -42,11 +60,56 @@ router.get("/liked", async (req, res) => {
   }
 });
 
-// request for recipe details from the database
-router.get('/:id', async (req, res) => {
+/**
+ * Add new recipe
+ * POST /api/recipe/new
+ */
+router.post("/new", async (req, res) => {
+  try {
+    let recipeImageData = null;
+
+    // Handle base64 image data
+    if (req.body.recipe_img) {
+      const matches = req.body.recipe_img.match(
+        /^data:([A-Za-z-+/]+);base64,(.+)$/
+      );
+      if (matches && matches.length === 3) {
+        recipeImageData = {
+          data: Buffer.from(matches[2], "base64"),
+          contentType: matches[1],
+        };
+      }
+    }
+
+    const newRecipe = await Recipe.create({
+      title: req.body.title,
+      recipe_img: recipeImageData,
+      ingredients: req.body.ingredients,
+      instructions: req.body.instructions,
+    });
+
+    res.status(201).json({
+      message: "Recipe added successfully",
+      recipeId: newRecipe._id,
+    });
+  } catch (err) {
+    console.error("Recipe add error: ", err);
+    if (err.name === "ValidationError") {
+      res.status(400).json({ error: "Validation Error: " + err.message });
+    } else {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+});
+
+/**
+ * Recipe details
+ * GET /api/recipe/:id
+ */
+router.get("/:id", async (req, res) => {
   try {
     const recipeDetails = await Recipe.find({ _id: req.params.id });
-    if (recipeDetails.length == 0) {
+    if (recipeDetails.length === 0) {
       res.status(400).json({ message: "Recipe not found." });
     } else {
       res.status(200).json(recipeDetails);
@@ -57,24 +120,11 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// request for list of recipes for homepage
-router.get('/list/:page/:range', async (req, res) => {
-  try {
-    const skipAmount = (req.params.page - 1) * req.params.range;
-    const recipesFound = await Recipe.find(
-      {},
-      { _id: 1, title: 1, recipe_img: 1 },
-      { skip: skipAmount, limit: req.params.range }
-    );
-    res.status(200).json(recipesFound);
-  } catch (err) {
-    console.error("Recipe list error: ", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-// like a recipe (requires authentication)
-router.post('/:id/like', async (req, res) => {
+/**
+ * Like a recipe
+ * POST /api/recipe/:id/like
+ */
+router.post("/:id/like", async (req, res) => {
   try {
     const token = req.cookies.jwt;
 
@@ -96,8 +146,7 @@ router.post('/:id/like', async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Only push if not already liked
-    if (!user.liked_recipes.some(id => id.toString() === recipeId)) {
+    if (!user.liked_recipes.some((id) => id.toString() === recipeId)) {
       user.liked_recipes.push(recipeId);
       await user.save();
     }
@@ -109,8 +158,11 @@ router.post('/:id/like', async (req, res) => {
   }
 });
 
-// unlike a recipe (requires authentication)
-router.delete('/:id/like', async (req, res) => {
+/**
+ * Unlike a recipe
+ * DELETE /api/recipe/:id/like
+ */
+router.delete("/:id/like", async (req, res) => {
   try {
     const token = req.cookies.jwt;
 
@@ -139,11 +191,15 @@ router.delete('/:id/like', async (req, res) => {
   }
 });
 
-// get comments for a specific recipe
-router.get('/:id/comments', async (req, res) => {
+/**
+ * Comments for a recipe
+ * GET /api/recipe/:id/comments
+ */
+router.get("/:id/comments", async (req, res) => {
   try {
-    const comments = await Comment.find({ recipeId: req.params.id })
-      .sort({ createdAt: -1 });
+    const comments = await Comment.find({ recipeId: req.params.id }).sort({
+      createdAt: -1,
+    });
     res.status(200).json(comments);
   } catch (err) {
     console.error("Get comments error: ", err);
@@ -151,8 +207,11 @@ router.get('/:id/comments', async (req, res) => {
   }
 });
 
-// add a new comment to a recipe (requires authentication)
-router.post('/:id/comments', async (req, res) => {
+/**
+ * Add a comment
+ * POST /api/recipe/:id/comments
+ */
+router.post("/:id/comments", async (req, res) => {
   try {
     const token = req.cookies.jwt;
     if (!token || !validateToken(token)) {
@@ -165,16 +224,16 @@ router.post('/:id/comments', async (req, res) => {
       recipeId: req.params.id,
       userId: decoded.userId,
       username: decoded.username,
-      commentText: req.body.commentText
+      commentText: req.body.commentText,
     });
 
     res.status(201).json({
       message: "Comment added successfully",
-      comment: newComment
+      comment: newComment,
     });
   } catch (err) {
     console.error("Add comment error: ", err);
-    if (err.name === 'ValidationError') {
+    if (err.name === "ValidationError") {
       res.status(400).json({ error: "Validation Error: " + err.message });
     } else {
       res.status(500).json({ error: "Internal Server Error" });

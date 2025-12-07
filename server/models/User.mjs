@@ -6,18 +6,10 @@ const saltRounds = 10;
 
 // definining user document structure
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-
-  profile_img: {
-    data: Buffer,
-    contentType: String,
-  },
-
-  unit_pref: {
-    type: String,
-    default: "metric",
-  },
+    username: { type: String, required: true, unique: true},
+    password: { type: String, required: true},
+    profile_img: { data: Buffer, contentType: String },
+    unit_pref: { type: String, default: "metric" },
 
   liked_recipes: [
     {
