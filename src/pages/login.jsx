@@ -112,6 +112,7 @@ export default function Login({ onLogin, onLogout, isLoggedIn }) {
           <button
             type="submit"
             className="btn btn-primary w-full py-2 rounded-pill"
+            data-test="login-submit-button"
           >
             {isLogin ? "Login" : "Register"}
           </button>
@@ -132,6 +133,7 @@ export default function Login({ onLogin, onLogout, isLoggedIn }) {
       Don't have an account?
       <span
         className="changeMessage-link"
+        data-test="toggle-register"
         onClick={toggleMode}
       >
         {" "}Register here.

@@ -68,11 +68,6 @@ export default function Settings({ onAvatarChange }) {
     reader.readAsDataURL(file);
   };
 
-  const handleRemove = () => {
-    setAvatarUrl("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    if (onAvatarChange) onAvatarChange("");
-  };
 
   const handleSave = async () => {
     let imgToSend = "";
@@ -125,12 +120,15 @@ export default function Settings({ onAvatarChange }) {
       {/* Error popup */}
       {errorMessage && (
         <div className="settings-popup-overlay">
-          <div className="settings-popup">
+          <div className="settings-popup"
+          data-test="settings-error-popup"
+          >
             <p className="settings-popup-message">{errorMessage}</p>
             <button
               type="button"
               onClick={() => setErrorMessage("")}
               className="rd-btn rd-btn-primary"
+              data-test="settings-error-popup-ok-button"
             >
               OK
             </button>
@@ -138,9 +136,13 @@ export default function Settings({ onAvatarChange }) {
         </div>
       )}
 
-      <div className="settings-page">
-        <div className="recipe-details-card">
-          <h1 className="settings-title">User Settings</h1>
+      <div className="settings-page"
+      data-test="settings-page">
+        <div className="recipe-details-card"
+        data-test="settings-card">
+          <h1 className="settings-title"
+          data-test="settings-title"
+          >User Settings</h1>
 
           {/* Avatar Section */}
           <div className="settings-avatar-section">
@@ -150,6 +152,7 @@ export default function Settings({ onAvatarChange }) {
                   src={avatarUrl}
                   alt="Profile preview"
                   className="settings-avatar-img"
+                  data-test="settings-avatar-img"
                 />
               ) : (
                 <div className="settings-avatar-placeholder">No picture</div>
@@ -163,6 +166,7 @@ export default function Settings({ onAvatarChange }) {
               type="file"
               accept="image/*"
               className="settings-file-input"
+              data-test="settings-file-input"
               onChange={handleFileChange}
             />
 
@@ -171,6 +175,7 @@ export default function Settings({ onAvatarChange }) {
                 type="button"
                 onClick={openFilePicker}
                 className="rd-btn rd-btn-outline"
+                data-test="settings-change-picture-button"
               >
                 Change Picture
               </button>
@@ -178,8 +183,11 @@ export default function Settings({ onAvatarChange }) {
           </div>
 
           {/* Measurement preference */}
-          <div className="settings-measure-section">
-            <h2 className="settings-measure-title">Measurement Preference</h2>
+          <div className="settings-measure-section"
+          data-test="settings-measure-section">
+            <h2 className="settings-measure-title"
+            data-test="settings-measure-title"
+            >Measurement Preference</h2>
             <p className="settings-measure-help">
               Choose how ingredients should be displayed.
             </p>
@@ -189,6 +197,7 @@ export default function Settings({ onAvatarChange }) {
                 <input
                   type="radio"
                   name="measurementSystem"
+                  data-test="settings-metric-radio"
                   value="metric"
                   checked={measurementSystem === "metric"}
                   onChange={(e) => setMeasurementSystem(e.target.value)}
@@ -202,6 +211,7 @@ export default function Settings({ onAvatarChange }) {
                 <input
                   type="radio"
                   name="measurementSystem"
+                  data-test="settings-imperial-radio"
                   value="imperial"
                   checked={measurementSystem === "imperial"}
                   onChange={(e) => setMeasurementSystem(e.target.value)}
@@ -218,6 +228,7 @@ export default function Settings({ onAvatarChange }) {
             type="button"
             onClick={handleSave}
             className="rd-btn rd-btn-primary rd-btn-full"
+            data-test="settings-save-button"
           >
             Save Settings
           </button>
