@@ -146,10 +146,10 @@ export default function CreateRecipe() {
         <div 
         className="settings-popup"
         >
-          <p 
+          <div 
           className="settings-popup-message"
           data-test="settings-popup"
-          >{errorMessage}</p>
+          >{errorMessage}</div>
           <button
             type="button"
             data-test="settings-popup-ok-button"
