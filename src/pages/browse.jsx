@@ -9,11 +9,14 @@ export default function Browse() {
   const [pageSize, setPageSize] = useState(6);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // likes-related state
+  // 🔐 likes-related state
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [likedIds, setLikedIds] = useState(new Set());
   const [showLikedOnly, setShowLikedOnly] = useState(false);
   const [likesLoading, setLikesLoading] = useState(false);
+
+  // NEW: full list of liked recipes (for liked-only view)
+  const [likedRecipes, setLikedRecipes] = useState([]);
 
   const fetchRecipes = async (page, size) => {
     try {
@@ -30,10 +33,14 @@ export default function Browse() {
     }
   };
 
+  // ⏬ normal paginated recipes
   useEffect(() => {
-    fetchRecipes(currentPage, pageSize);
-  }, [currentPage, pageSize]);
+    if (!showLikedOnly) {
+      fetchRecipes(currentPage, pageSize);
+    }
+  }, [currentPage, pageSize, showLikedOnly]);
 
+  // ⏬ initial login + liked IDs
   useEffect(() => {
     const initLikes = async () => {
       try {
@@ -61,6 +68,34 @@ export default function Browse() {
     initLikes();
   }, []);
 
+  // NEW: fetch full liked recipes list for liked-only view
+  const fetchLikedRecipes = async () => {
+    try {
+      setLikesLoading(true);
+      const res = await fetch("/api/recipe/liked", {
+        credentials: "include",
+      });
+
+      if (res.status === 401) {
+        setIsUserLoggedIn(false);
+        setLikedRecipes([]);
+        return;
+      }
+
+      if (!res.ok) {
+        console.error("Failed to load liked recipes");
+        return;
+      }
+
+      const data = await res.json(); // full recipe objects
+      setLikedRecipes(data);
+    } catch (err) {
+      console.error("Error loading liked recipes:", err);
+    } finally {
+      setLikesLoading(false);
+    }
+  };
+
   const isLiked = (id) => likedIds.has(String(id));
 
   const handleToggleLike = async (recipeId) => {
@@ -72,12 +107,20 @@ export default function Browse() {
     const idStr = String(recipeId);
     const currentlyLiked = likedIds.has(idStr);
 
+    // optimistic update
     setLikedIds((prev) => {
       const next = new Set(prev);
       if (currentlyLiked) next.delete(idStr);
       else next.add(idStr);
       return next;
     });
+
+    // if we're in liked-only view and unliking, also remove from likedRecipes
+    if (showLikedOnly && currentlyLiked) {
+      setLikedRecipes((prev) =>
+        prev.filter((r) => String(r._id) !== idStr)
+      );
+    }
 
     try {
       const method = currentlyLiked ? "DELETE" : "POST";
@@ -87,6 +130,7 @@ export default function Browse() {
       });
 
       if (!res.ok) {
+        // revert on failure
         setLikedIds((prev) => {
           const next = new Set(prev);
           if (currentlyLiked) next.add(idStr);
@@ -100,22 +144,18 @@ export default function Browse() {
   };
 
   const handleToggleShowLiked = () => {
+    if (!showLikedOnly) {
+      // turning liked-only ON → load full liked recipes
+      fetchLikedRecipes();
+      setCurrentPage(1); // reset pagination, though we hide it
+    }
     setShowLikedOnly((prev) => !prev);
   };
 
-  // base recipes from current page
-  const pagedRecipes = recipes;
-
-  // filtered list when in liked-only mode
+  // When not in liked-only mode, show paginated recipes
+  // When in liked-only mode, show ALL liked recipes in one page
   const currentRecipes =
-    showLikedOnly && isUserLoggedIn
-      ? pagedRecipes.filter((r) => isLiked(r._id))
-      : pagedRecipes;
-
-  const canGoNext =
-    showLikedOnly && isUserLoggedIn
-      ? currentRecipes.length === pageSize
-      : pagedRecipes.length === pageSize;
+    showLikedOnly && isUserLoggedIn ? likedRecipes : recipes;
 
   return (
     <div className="browse-page">
@@ -156,13 +196,13 @@ export default function Browse() {
       </div>
 
       {/* STATES */}
-      {loading && (
+      {loading && !showLikedOnly && (
         <div className="browse-message">
           <p className="browse-message-text">Loading recipes...</p>
         </div>
       )}
 
-      {!loading && error && (
+      {!loading && error && !showLikedOnly && (
         <div className="browse-message">
           <p className="browse-message-error">Error: {error}</p>
           <button
@@ -178,7 +218,9 @@ export default function Browse() {
         <>
           {likesLoading && isUserLoggedIn && (
             <div className="browse-message">
-              <p className="browse-message-text">Loading your likes...</p>
+              <p className="browse-message-text">
+                {showLikedOnly ? "Loading your liked recipes..." : "Loading your likes..."}
+              </p>
             </div>
           )}
 
@@ -186,7 +228,7 @@ export default function Browse() {
             <div className="browse-message">
               <p className="browse-message-text">
                 {showLikedOnly
-                  ? "You haven't liked any recipes on this page yet."
+                  ? "You haven't liked any recipes yet."
                   : "No recipes found."}
               </p>
             </div>
@@ -203,9 +245,10 @@ export default function Browse() {
                       recipe.recipe_img.data.data
                     );
                     let binary = "";
-                    for (let i = 0; i < uint8Array.length; i += 8192) {
+                    const chunk = 8192;
+                    for (let i = 0; i < uint8Array.length; i += chunk) {
                       binary += String.fromCharCode(
-                        ...uint8Array.slice(i, i + 8192)
+                        ...uint8Array.slice(i, i + chunk)
                       );
                     }
                     imageSrc = `data:${recipe.recipe_img.contentType};base64,${btoa(
@@ -258,38 +301,41 @@ export default function Browse() {
             </div>
           )}
 
-          {/* PAGINATION */}
-          <div
-            className="browse-pagination"
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "12px",
-              marginTop: "24px",
-            }}
-          >
-            <button
-              data-test="previous-page-button"
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-              className="page-button"
+          {/* PAGINATION - HIDDEN IN LIKED-ONLY MODE */}
+          {!showLikedOnly && (
+            <div
+              className="browse-pagination"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "12px",
+                marginTop: "24px",
+              }}
             >
-              Previous
-            </button>
-
-            <span className="page-info" data-test="current-page-display">
-              Page {currentPage}
-            </span>
-
-            <button
-              data-test="next-page-button"
-              onClick={() => setCurrentPage((p) => p + 1)}
-              disabled={!canGoNext}  
-              className="page-button"
-            >
-              Next
-            </button>
-          </div>
+              <button
+                data-test="previous-page-button"
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="page-button"
+              >
+                Previous
+              </button>
+              <span
+                className="page-info"
+                data-test="current-page-display"
+              >
+                Page {currentPage}
+              </span>
+              <button
+                data-test="next-page-button"
+                onClick={() => setCurrentPage((p) => p + 1)}
+                disabled={recipes.length < pageSize}
+                className="page-button"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
