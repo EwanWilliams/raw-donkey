@@ -87,7 +87,9 @@ export default function Comments({ recipeId, isLoggedIn }) {
       )}
 
       {/* Display comments */}
-      <div className="comments-list">
+      <div className="comments-list"
+      data-test="comments-list"
+      >
         {comments.length > 0 ? (
           comments.map((comment) => (
             <div key={comment._id} className="comment-item">

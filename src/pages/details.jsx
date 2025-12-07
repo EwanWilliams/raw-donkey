@@ -182,7 +182,9 @@ export default function RecipeDetails() {
           data-test="recipe-details-header"
         >
           {recipe && (
-            <h1 className="create-main-title">
+            <h1 className="create-main-title"
+              data-test="recipe-title"
+            >
               {recipe.title}
             </h1>
           )}
