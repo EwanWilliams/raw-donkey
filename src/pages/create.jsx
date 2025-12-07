@@ -145,10 +145,10 @@ export default function CreateRecipe() {
       <div className="settings-popup-overlay">
         <div 
         className="settings-popup"
+        data-test="settings-popup"
         >
           <p 
           className="settings-popup-message"
-          data-test="settings-popup"
           >{errorMessage}</p>
           <button
             type="button"
