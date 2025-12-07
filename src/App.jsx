@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from '@vercel/analytics/react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -40,19 +40,16 @@ export default function App() {
     }
   };
 
-  // On first load: check auth + sync username from localStorage
   useEffect(() => {
     const initAuth = async () => {
       const ok = await validateUser();
 
       if (ok) {
-        // token is valid → try to restore username from localStorage
         const storedUsername = localStorage.getItem("username");
         if (storedUsername) {
           setUsername(storedUsername);
         }
       } else {
-        // token invalid → clear any stale username
         localStorage.removeItem("username");
         setUsername("");
       }
@@ -63,9 +60,7 @@ export default function App() {
     initAuth();
   }, []);
 
-  // Called from <Login /> after a successful login / register
   const handleLogin = (usernameFromLogin) => {
-    // We already know login succeeded if this is called
     setIsLoggedIn(true);
 
     const finalUsername = usernameFromLogin || "";
