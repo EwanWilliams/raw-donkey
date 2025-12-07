@@ -58,8 +58,6 @@ const handleSubmit = (e) => {
       if (mode === "login" && data && data.username) {
         onLogin(data.username);
       } else {
-        // registration: we don't have username returned explicitly,
-        // but the user just entered it, so we can still set it:
         onLogin(trimmed.username);
       }
       navigate("/browse");

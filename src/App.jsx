@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from "@vercel/analytics/react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -29,6 +29,7 @@ export default function App() {
         method: "HEAD",
         credentials: "include",
       });
+
       const ok = result.ok;
       setIsLoggedIn(ok);
       return ok;
@@ -39,32 +40,58 @@ export default function App() {
     }
   };
 
+  // On first load: check auth + sync username from localStorage
   useEffect(() => {
-    validateUser().finally(() => setCheckingAuth(false));
+    const initAuth = async () => {
+      const ok = await validateUser();
+
+      if (ok) {
+        // token is valid → try to restore username from localStorage
+        const storedUsername = localStorage.getItem("username");
+        if (storedUsername) {
+          setUsername(storedUsername);
+        }
+      } else {
+        // token invalid → clear any stale username
+        localStorage.removeItem("username");
+        setUsername("");
+      }
+
+      setCheckingAuth(false);
+    };
+
+    initAuth();
   }, []);
 
-  // was: const handleLogin = async () => { await validateUser(); };
+  // Called from <Login /> after a successful login / register
+  const handleLogin = (usernameFromLogin) => {
+    // We already know login succeeded if this is called
+    setIsLoggedIn(true);
 
-const handleLogin = (usernameFromLogin) => {
-  // ✅ we already know login succeeded if this is called
-  setIsLoggedIn(true);
-  setUsername(usernameFromLogin || "");
-};
+    const finalUsername = usernameFromLogin || "";
+    setUsername(finalUsername);
 
+    if (finalUsername) {
+      localStorage.setItem("username", finalUsername);
+    } else {
+      localStorage.removeItem("username");
+    }
+  };
 
   const handleLogout = async () => {
-  try {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-  } catch (err) {
-    console.error("Logout error:", err);
-  } finally {
-    setIsLoggedIn(false);
-    setUsername("");   // clear it
-  }
-};
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      setIsLoggedIn(false);
+      setUsername("");
+      localStorage.removeItem("username");
+    }
+  };
 
   // ------ THEME SETUP ------
   useEffect(() => {
@@ -72,7 +99,9 @@ const handleLogin = (usernameFromLogin) => {
     if (stored) {
       setTheme(stored);
     } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
       setTheme(prefersDark ? "dark" : "light");
     }
   }, []);
@@ -108,25 +137,34 @@ const handleLogin = (usernameFromLogin) => {
             <Route path="/" element={<Browse />} />
             <Route path="/browse" element={<Browse />} />
 
-            <Route path="/create" element={
-              <ProtectedRoute><Create /></ProtectedRoute>
-            }/>
-
-            <Route path="/settings" element={
-              <ProtectedRoute><Settings /></ProtectedRoute>
-            }/>
+            <Route
+              path="/create"
+              element={
+                <ProtectedRoute>
+                  <Create />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
-  path="/login"
-  element={
-    <Login
-      isLoggedIn={isLoggedIn}
-      onLogin={handleLogin}
-      onLogout={handleLogout}
-    />
-  }
-/>
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
 
+            <Route
+              path="/login"
+              element={
+                <Login
+                  isLoggedIn={isLoggedIn}
+                  onLogin={handleLogin}
+                  onLogout={handleLogout}
+                />
+              }
+            />
 
             <Route path="/recipe/:id" element={<RecipeDetails />} />
           </Routes>
