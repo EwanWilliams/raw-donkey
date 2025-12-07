@@ -45,13 +45,14 @@ export default function CreateRecipe() {
     }
 
     // 200KB limit
-    if (file.size > 2 * 1024 * 1024) {
-      setErrorMessage("Image too large (max 2 MB). Please choose a smaller file.");
-      e.target.value = "";
-      setSelectedImage(null);
-      setImagePreview(null);
-      return;
-    }
+if (file.size > 200 * 1024) {
+  setErrorMessage("Image too large (max 200 KB). Please choose a smaller file.");
+  e.target.value = "";
+  setSelectedImage(null);
+  setImagePreview(null);
+  return;
+}
+
 
     setSelectedImage(file);
 
