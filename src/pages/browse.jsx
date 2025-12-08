@@ -16,7 +16,7 @@ export default function Browse() {
 
   const [likedRecipes, setLikedRecipes] = useState([]);
 
-  /* ⭐ ADDED: disable state for next button */
+  // ⭐ State to control whether "Next" is clickable
   const [nextDisabled, setNextDisabled] = useState(false);
 
   const fetchRecipes = async (page, size) => {
@@ -152,10 +152,30 @@ export default function Browse() {
   const currentRecipes =
     showLikedOnly && isUserLoggedIn ? likedRecipes : recipes;
 
-  /* ⭐ ADDED: auto-disable next button when no more recipes */
+  // ⭐ NEW: helper to peek at the next page BEFORE changing currentPage
+  const checkNextPage = async (nextPage, size) => {
+    try {
+      const res = await fetch(`/api/recipe/list/${nextPage}/${size}`);
+      if (!res.ok) return false;
+      const data = await res.json();
+
+      // your backend currently returns an ARRAY
+      if (Array.isArray(data)) {
+        return data.length > 0;
+      }
+
+      // in case you later change it to { recipes: [...] }
+      return (data.recipes || []).length > 0;
+    } catch (err) {
+      console.error("Error checking next page:", err);
+      return false;
+    }
+  };
+
+  // ⭐ Reset "Next" disabled whenever page/pageSize changes or view switches
   useEffect(() => {
-    setNextDisabled(recipes.length < pageSize);
-  }, [recipes, pageSize]);
+    setNextDisabled(false);
+  }, [currentPage, pageSize, showLikedOnly]);
 
   return (
     <div className="browse-page">
@@ -327,10 +347,18 @@ export default function Browse() {
                 Page {currentPage}
               </span>
 
-              {/* ⭐ UPDATED: now uses nextDisabled */}
               <button
                 data-test="next-page-button"
-                onClick={() => setCurrentPage((p) => p + 1)}
+                onClick={async () => {
+                  const nextPage = currentPage + 1;
+                  const ok = await checkNextPage(nextPage, pageSize);
+
+                  if (ok) {
+                    setCurrentPage(nextPage);
+                  } else {
+                    setNextDisabled(true); // no more pages → freeze button
+                  }
+                }}
                 disabled={nextDisabled}
                 className="page-button"
               >
