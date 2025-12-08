@@ -75,6 +75,7 @@ export default function Comments({ recipeId, isLoggedIn }) {
           <button
             type="submit"
             className="comment-submit-btn"
+            data-test="comment-submit-button"
             disabled={!commentText.trim() || submittingComment}
           >
             {submittingComment ? "Posting..." : "Post Comment"}
@@ -87,7 +88,9 @@ export default function Comments({ recipeId, isLoggedIn }) {
       )}
 
       {/* Display comments */}
-      <div className="comments-list">
+      <div className="comments-list"
+      data-test="comments-list"
+      >
         {comments.length > 0 ? (
           comments.map((comment) => (
             <div key={comment._id} className="comment-item">
