@@ -1,4 +1,4 @@
-describe('create_page', () => {
+describe('login_page', () => {
     beforeEach(() => {
     cy.visit("http://localhost:5173");
     cy.clearCookies();

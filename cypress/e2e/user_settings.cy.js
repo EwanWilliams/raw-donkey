@@ -1,4 +1,4 @@
-describe("browse_page", () => {
+describe("settings_page", () => {
   beforeEach(() => {
     cy.visit("http://localhost:5173");
     cy.clearCookies();

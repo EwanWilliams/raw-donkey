@@ -1,6 +1,6 @@
 import { comment } from "postcss";
 
-describe("browse_page", () => {
+describe("details_page", () => {
   beforeEach(() => {
     cy.visit("http://localhost:5173");
     cy.clearCookies();
