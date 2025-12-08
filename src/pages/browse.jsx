@@ -36,6 +36,7 @@ export default function Browse() {
     }
   };
 
+
   useEffect(() => {
     if (!showLikedOnly) {
       fetchRecipes(currentPage, pageSize);
@@ -54,9 +55,12 @@ export default function Browse() {
           return;
         }
 
-        if (!res.ok) return;
+        if (!res.ok) {
+        console.error("Failed to load liked recipes");
+        return;
+      }
 
-        const data = await res.json();
+        const data = await res.json(); 
         setIsUserLoggedIn(true);
         setLikedIds(new Set((data.likes || []).map((id) => String(id))));
       } catch (err) {
@@ -110,15 +114,27 @@ export default function Browse() {
     });
 
     if (showLikedOnly && currentlyLiked) {
-      setLikedRecipes((prev) => prev.filter((r) => String(r._id) !== idStr));
+      setLikedRecipes((prev) =>
+        prev.filter((r) => String(r._id) !== idStr)
+      );
     }
 
     try {
       const method = currentlyLiked ? "DELETE" : "POST";
-      await fetch(`/api/recipe/${idStr}/like`, {
+      const res = await fetch(`/api/recipe/${idStr}/like`, {
         method,
         credentials: "include",
       });
+
+      if (!res.ok) {
+        // revert on failure
+        setLikedIds((prev) => {
+          const next = new Set(prev);
+          if (currentlyLiked) next.add(idStr);
+          else next.delete(idStr);
+          return next;
+        });
+      }
     } catch (err) {
       console.error("Error toggling like:", err);
     }
@@ -127,7 +143,7 @@ export default function Browse() {
   const handleToggleShowLiked = () => {
     if (!showLikedOnly) {
       fetchLikedRecipes();
-      setCurrentPage(1);
+      setCurrentPage(1); 
     }
     setShowLikedOnly((prev) => !prev);
   };
@@ -179,6 +195,7 @@ export default function Browse() {
               setCurrentPage(1);
             }}
             className="browse-select"
+            data-test="page-size-selector"
           >
             <option value={6}>6</option>
             <option value={9}>9</option>
@@ -202,7 +219,9 @@ export default function Browse() {
 
       {/* STATES */}
       {loading && !showLikedOnly && (
-        <p className="browse-message-text">Loading recipes...</p>
+        <div className="browse-message">
+          <p className="browse-message-text">Loading recipes...</p>
+        </div>
       )}
 
       {error && <p className="browse-message-error">Error: {error}</p>}
