@@ -16,6 +16,8 @@ export default function Browse() {
 
   const [likedRecipes, setLikedRecipes] = useState([]);
 
+  const [nextDisabled, setNextDisabled] = useState(false);
+
   const fetchRecipes = async (page, size) => {
     try {
       setLoading(true);
@@ -49,9 +51,12 @@ export default function Browse() {
           return;
         }
 
-        if (!res.ok) return;
+        if (!res.ok) {
+          console.error("Failed to load liked recipes");
+          return;
+        }
 
-        const data = await res.json(); 
+        const data = await res.json();
         setIsUserLoggedIn(true);
         setLikedIds(new Set((data.likes || []).map((id) => String(id))));
       } catch (err) {
@@ -123,7 +128,6 @@ export default function Browse() {
       });
 
       if (!res.ok) {
-        // revert on failure
         setLikedIds((prev) => {
           const next = new Set(prev);
           if (currentlyLiked) next.add(idStr);
@@ -146,6 +150,27 @@ export default function Browse() {
 
   const currentRecipes =
     showLikedOnly && isUserLoggedIn ? likedRecipes : recipes;
+
+  const checkNextPage = async (nextPage, size) => {
+    try {
+      const res = await fetch(`/api/recipe/list/${nextPage}/${size}`);
+      if (!res.ok) return false;
+      const data = await res.json();
+
+      if (Array.isArray(data)) {
+        return data.length > 0;
+      }
+
+      return (data.recipes || []).length > 0;
+    } catch (err) {
+      console.error("Error checking next page:", err);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    setNextDisabled(false);
+  }, [currentPage, pageSize, showLikedOnly]);
 
   return (
     <div className="browse-page">
@@ -209,7 +234,9 @@ export default function Browse() {
           {likesLoading && isUserLoggedIn && (
             <div className="browse-message">
               <p className="browse-message-text">
-                {showLikedOnly ? "Loading your liked recipes..." : "Loading your likes..."}
+                {showLikedOnly
+                  ? "Loading your liked recipes..."
+                  : "Loading your likes..."}
               </p>
             </div>
           )}
@@ -310,16 +337,24 @@ export default function Browse() {
               >
                 Previous
               </button>
-              <span
-                className="page-info"
-                data-test="current-page-display"
-              >
+
+              <span className="page-info" data-test="current-page-display">
                 Page {currentPage}
               </span>
+
               <button
                 data-test="next-page-button"
-                onClick={() => setCurrentPage((p) => p + 1)}
-                disabled={recipes.length < pageSize}
+                onClick={async () => {
+                  const nextPage = currentPage + 1;
+                  const ok = await checkNextPage(nextPage, pageSize);
+
+                  if (ok) {
+                    setCurrentPage(nextPage);
+                  } else {
+                    setNextDisabled(true); // no more pages → freeze button
+                  }
+                }}
+                disabled={nextDisabled}
                 className="page-button"
               >
                 Next
