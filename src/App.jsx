@@ -74,19 +74,22 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-    } catch (err) {
-      console.error("Logout error:", err);
-    } finally {
-      setIsLoggedIn(false);
-      setUsername("");
-      localStorage.removeItem("username");
-    }
-  };
+  try {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch (err) {
+    console.error("Logout error:", err);
+  } finally {
+    setIsLoggedIn(false);
+    setUsername("");
+    localStorage.removeItem("username");
+
+    window.location.reload();  
+  }
+};
+
 
   // ------ THEME SETUP ------
   useEffect(() => {

@@ -64,11 +64,11 @@ body {
 ================================ */
 
 .browse-header {
-  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
   margin-bottom: 2rem;
+  padding: 0 1.5rem;
+  gap: 1rem;
 }
 
 .browse-page {
@@ -78,13 +78,19 @@ body {
 }
 
 .browse-header-left {
-  position: absolute;
-  left: 0;
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-left: 1.5rem;
 }
+
+.browse-header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 
 .browse-label {
   color: var(--color-text);
@@ -111,6 +117,7 @@ body {
   font-weight: 700;
   color: var(--color-text);
   text-align: center;
+  margin: 0;
 }
 
 /* Messages: loading / error / empty */
@@ -198,16 +205,17 @@ body {
 }
 
 .recipe-body {
-  padding: 1rem;
-  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
 }
 
 .recipe-link {
-  font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-text);
   text-decoration: none;
-  transition: color 0.2s ease-in-out;
+  padding-right: 4rem; /* prevent title from overlapping button */
 }
 
 .recipe-link:hover {
@@ -1231,4 +1239,62 @@ body {
   font-size: 0.95rem;
   line-height: 1.5;
   margin: 0;
+}
+
+.liked-toggle-button {
+  margin-left: auto; /* pushes button fully to the right */
+  padding: 8px 20px;
+  border-radius: 30px;
+  background: transparent;
+  border: 2px solid #2b3a4a;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.liked-toggle-button:hover {
+  background: #2b3a4a;
+  color: white;
+}
+
+/* Like button positioned at far right */
+.like-button {
+  position: absolute;
+  right: 1rem;               /* pushes to far right */
+  top: 50%;
+  transform: translateY(-50%);
+  
+  background: transparent;
+  border: 2px solid var(--color-border);
+  color: var(--color-text-light);
+  padding: 0.3rem 0.9rem;
+  border-radius: var(--radius-button);
+  cursor: pointer;
+  font-size: 0.9rem;
+  white-space: nowrap;       /* prevents wrapping */
+  transition: var(--transition-default);
+}
+
+.like-button:hover {
+  color: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
+/* Active liked style */
+.like-button--active {
+  color: var(--color-brand-dark);
+  border-color: var(--color-brand-dark);
+  font-weight: 600;
+}
+
+/* Fix like toggle button in dark mode */
+:root[data-theme="dark"] .liked-toggle-button {
+  border-color: var(--color-text-light); /* softer contrast */
+  color: var(--color-text);              /* readable text */
+}
+
+:root[data-theme="dark"] .liked-toggle-button:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+  border-color: var(--color-text);
 }
