@@ -47,12 +47,24 @@ describe("browse_page", () => {
         cy.getByData("password-input").type('password1');
                 
         cy.get('#root button.w-full').click();
+
+        cy.get('#root a[href="/settings"]').click();
+        
+        cy.get('[data-test="settings-measure-section"] label:nth-child(2)').click();
+
+        cy.wait(500);
+        
+        cy.get('[data-test="settings-metric-radio"]').check();
+
+        cy.get('#root a[href="/browse"]').click();
         
         cy.get('[data-test="recipe-grid"] div:nth-child(2) > div.recipe-body > a.recipe-link').click();
         
         cy.getByData('ingredients-list').contains('400 g').should('exist')
         
         cy.get('#root a[href="/settings"]').click();
+
+        cy.wait(500);
         
         cy.get('[data-test="settings-imperial-radio"]').check();
         
@@ -67,6 +79,8 @@ describe("browse_page", () => {
         cy.get('#root a[href="/settings"]').click();
         
         cy.get('[data-test="settings-measure-section"] label:nth-child(2)').click();
+
+        cy.wait(500);
         
         cy.get('[data-test="settings-metric-radio"]').check();
         
