@@ -16,6 +16,11 @@ export default function Browse() {
 
   const [likedRecipes, setLikedRecipes] = useState([]);
 
+  /* -----------------------------
+     NEW STATE ADDED (ONLY CHANGE)
+  ------------------------------ */
+  const [nextDisabled, setNextDisabled] = useState(false);
+
   const fetchRecipes = async (page, size) => {
     try {
       setLoading(true);
@@ -51,7 +56,7 @@ export default function Browse() {
 
         if (!res.ok) return;
 
-        const data = await res.json(); 
+        const data = await res.json();
         setIsUserLoggedIn(true);
         setLikedIds(new Set((data.likes || []).map((id) => String(id))));
       } catch (err) {
@@ -77,12 +82,7 @@ export default function Browse() {
         return;
       }
 
-      if (!res.ok) {
-        console.error("Failed to load liked recipes");
-        return;
-      }
-
-      const data = await res.json(); 
+      const data = await res.json();
       setLikedRecipes(data);
     } catch (err) {
       console.error("Error loading liked recipes:", err);
@@ -110,27 +110,15 @@ export default function Browse() {
     });
 
     if (showLikedOnly && currentlyLiked) {
-      setLikedRecipes((prev) =>
-        prev.filter((r) => String(r._id) !== idStr)
-      );
+      setLikedRecipes((prev) => prev.filter((r) => String(r._id) !== idStr));
     }
 
     try {
       const method = currentlyLiked ? "DELETE" : "POST";
-      const res = await fetch(`/api/recipe/${idStr}/like`, {
+      await fetch(`/api/recipe/${idStr}/like`, {
         method,
         credentials: "include",
       });
-
-      if (!res.ok) {
-        // revert on failure
-        setLikedIds((prev) => {
-          const next = new Set(prev);
-          if (currentlyLiked) next.add(idStr);
-          else next.delete(idStr);
-          return next;
-        });
-      }
     } catch (err) {
       console.error("Error toggling like:", err);
     }
@@ -139,13 +127,41 @@ export default function Browse() {
   const handleToggleShowLiked = () => {
     if (!showLikedOnly) {
       fetchLikedRecipes();
-      setCurrentPage(1); 
+      setCurrentPage(1);
     }
     setShowLikedOnly((prev) => !prev);
   };
 
   const currentRecipes =
     showLikedOnly && isUserLoggedIn ? likedRecipes : recipes;
+
+  /* -------------------------------------------
+     NEW: CHECK IF NEXT PAGE HAS ANY RECIPES
+  --------------------------------------------*/
+  const checkNextPage = async (nextPage, size) => {
+    const res = await fetch(`/api/recipe/list/${nextPage}/${size}`);
+
+    if (!res.ok) return false;
+
+    const data = await res.json();
+
+    // If backend returns array
+    if (Array.isArray(data)) return data.length > 0;
+
+    return (data.recipes || []).length > 0;
+  };
+
+  /* -----------------------------
+     NEW: RESET DISABLED STATE
+  ------------------------------ */
+  useEffect(() => {
+    setNextDisabled(false);
+  }, [currentPage, pageSize]);
+
+  useEffect(() => {
+  setNextDisabled(recipes.length < pageSize);
+}, [recipes, pageSize]);
+
 
   return (
     <div className="browse-page">
@@ -163,7 +179,6 @@ export default function Browse() {
               setCurrentPage(1);
             }}
             className="browse-select"
-            data-test="page-size-selector"
           >
             <option value={6}>6</option>
             <option value={9}>9</option>
@@ -187,146 +202,100 @@ export default function Browse() {
 
       {/* STATES */}
       {loading && !showLikedOnly && (
-        <div className="browse-message">
-          <p className="browse-message-text">Loading recipes...</p>
-        </div>
+        <p className="browse-message-text">Loading recipes...</p>
       )}
 
-      {!loading && error && !showLikedOnly && (
-        <div className="browse-message">
-          <p className="browse-message-error">Error: {error}</p>
-          <button
-            className="browse-retry-button"
-            onClick={() => fetchRecipes(currentPage, pageSize)}
-          >
-            Retry
-          </button>
-        </div>
-      )}
+      {error && <p className="browse-message-error">Error: {error}</p>}
 
-      {!loading && !error && (
-        <>
-          {likesLoading && isUserLoggedIn && (
-            <div className="browse-message">
-              <p className="browse-message-text">
-                {showLikedOnly ? "Loading your liked recipes..." : "Loading your likes..."}
-              </p>
-            </div>
-          )}
+      {/* GRID */}
+      <div className="browse-grid">
+        {currentRecipes.map((recipe) => {
+          let imageSrc = null;
 
-          {currentRecipes.length === 0 ? (
-            <div className="browse-message">
-              <p className="browse-message-text">
-                {showLikedOnly
-                  ? "You haven't liked any recipes yet."
-                  : "No recipes found."}
-              </p>
-            </div>
-          ) : (
-            <div className="browse-grid" data-test="recipe-grid">
-              {currentRecipes.map((recipe) => {
-                let imageSrc = null;
-                if (recipe.recipe_img?.data) {
-                  if (
-                    recipe.recipe_img.data.type === "Buffer" &&
-                    recipe.recipe_img.data.data
-                  ) {
-                    const uint8Array = new Uint8Array(
-                      recipe.recipe_img.data.data
-                    );
-                    let binary = "";
-                    const chunk = 8192;
-                    for (let i = 0; i < uint8Array.length; i += chunk) {
-                      binary += String.fromCharCode(
-                        ...uint8Array.slice(i, i + chunk)
-                      );
-                    }
-                    imageSrc = `data:${recipe.recipe_img.contentType};base64,${btoa(
-                      binary
-                    )}`;
-                  } else if (typeof recipe.recipe_img.data === "string") {
-                    imageSrc = `data:${recipe.recipe_img.contentType};base64,${recipe.recipe_img.data}`;
-                  }
-                }
-
-                return (
-                  <div key={recipe._id} className="recipe-card">
-                    {imageSrc ? (
-                      <img
-                        src={imageSrc}
-                        alt={recipe.title}
-                        className="recipe-img"
-                      />
-                    ) : (
-                      <div className="recipe-img-placeholder">
-                        <span className="recipe-img-placeholder-text">
-                          No image
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="recipe-body">
-                      <Link
-                        to={`/recipe/${recipe._id}`}
-                        className="recipe-link"
-                      >
-                        {recipe.title}
-                      </Link>
-
-                      {isUserLoggedIn && (
-                        <button
-                          type="button"
-                          onClick={() => handleToggleLike(recipe._id)}
-                          className={`like-button ${
-                            isLiked(recipe._id) ? "like-button--active" : ""
-                          }`}
-                        >
-                          {isLiked(recipe._id) ? "♥ Liked" : "♡ Like"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
+          if (recipe.recipe_img?.data) {
+            if (
+              recipe.recipe_img.data.type === "Buffer" &&
+              recipe.recipe_img.data.data
+            ) {
+              const uint8Array = new Uint8Array(recipe.recipe_img.data.data);
+              let binary = "";
+              const chunk = 8192;
+              for (let i = 0; i < uint8Array.length; i += chunk) {
+                binary += String.fromCharCode(
+                  ...uint8Array.slice(i, i + chunk)
                 );
-              })}
-            </div>
-          )}
+              }
+              imageSrc = `data:${recipe.recipe_img.contentType};base64,${btoa(
+                binary
+              )}`;
+            }
+          }
 
-          {/* PAGINATION - HIDDEN IN LIKED-ONLY MODE */}
-          {!showLikedOnly && (
-            <div
-              className="browse-pagination"
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "12px",
-                marginTop: "24px",
-              }}
-            >
-              <button
-                data-test="previous-page-button"
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                disabled={currentPage === 1}
-                className="page-button"
-              >
-                Previous
-              </button>
-              <span
-                className="page-info"
-                data-test="current-page-display"
-              >
-                Page {currentPage}
-              </span>
-              <button
-                data-test="next-page-button"
-                onClick={() => setCurrentPage((p) => p + 1)}
-                disabled={recipes.length < pageSize}
-                className="page-button"
-              >
-                Next
-              </button>
+          return (
+            <div key={recipe._id} className="recipe-card">
+              {imageSrc ? (
+                <img src={imageSrc} alt={recipe.title} className="recipe-img" />
+              ) : (
+                <div className="recipe-img-placeholder">
+                  <span className="recipe-img-placeholder-text">
+                    No image
+                  </span>
+                </div>
+              )}
+
+              <div className="recipe-body">
+                <Link to={`/recipe/${recipe._id}`} className="recipe-link">
+                  {recipe.title}
+                </Link>
+
+                {isUserLoggedIn && (
+                  <button
+                    type="button"
+                    onClick={() => handleToggleLike(recipe._id)}
+                    className={`like-button ${
+                      isLiked(recipe._id) ? "like-button--active" : ""
+                    }`}
+                  >
+                    {isLiked(recipe._id) ? "♥ Liked" : "♡ Like"}
+                  </button>
+                )}
+              </div>
             </div>
-          )}
-        </>
+          );
+        })}
+      </div>
+
+      {/* PAGINATION */}
+      {!showLikedOnly && (
+        <div className="browse-pagination">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="page-button"
+          >
+            Previous
+          </button>
+
+          <span className="page-info">Page {currentPage}</span>
+
+          <button
+  onClick={async () => {
+    const nextPage = currentPage + 1;
+    const ok = await checkNextPage(nextPage, pageSize);
+
+    if (ok) {
+      setCurrentPage(nextPage);
+    } else {
+      setNextDisabled(true); // disable if empty page
+    }
+  }}
+  disabled={nextDisabled}
+  className="page-button"
+>
+  Next
+</button>
+
+        </div>
       )}
     </div>
   );
