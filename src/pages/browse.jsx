@@ -16,7 +16,6 @@ export default function Browse() {
 
   const [likedRecipes, setLikedRecipes] = useState([]);
 
-  // ⭐ State to control whether "Next" is clickable
   const [nextDisabled, setNextDisabled] = useState(false);
 
   const fetchRecipes = async (page, size) => {
@@ -88,7 +87,7 @@ export default function Browse() {
         return;
       }
 
-      const data = await res.json();
+      const data = await res.json(); 
       setLikedRecipes(data);
     } catch (err) {
       console.error("Error loading liked recipes:", err);
@@ -144,7 +143,7 @@ export default function Browse() {
   const handleToggleShowLiked = () => {
     if (!showLikedOnly) {
       fetchLikedRecipes();
-      setCurrentPage(1);
+      setCurrentPage(1); 
     }
     setShowLikedOnly((prev) => !prev);
   };
@@ -152,19 +151,16 @@ export default function Browse() {
   const currentRecipes =
     showLikedOnly && isUserLoggedIn ? likedRecipes : recipes;
 
-  // ⭐ NEW: helper to peek at the next page BEFORE changing currentPage
   const checkNextPage = async (nextPage, size) => {
     try {
       const res = await fetch(`/api/recipe/list/${nextPage}/${size}`);
       if (!res.ok) return false;
       const data = await res.json();
 
-      // your backend currently returns an ARRAY
       if (Array.isArray(data)) {
         return data.length > 0;
       }
 
-      // in case you later change it to { recipes: [...] }
       return (data.recipes || []).length > 0;
     } catch (err) {
       console.error("Error checking next page:", err);
@@ -172,7 +168,6 @@ export default function Browse() {
     }
   };
 
-  // ⭐ Reset "Next" disabled whenever page/pageSize changes or view switches
   useEffect(() => {
     setNextDisabled(false);
   }, [currentPage, pageSize, showLikedOnly]);
@@ -323,7 +318,7 @@ export default function Browse() {
             </div>
           )}
 
-          {/* PAGINATION */}
+          {/* PAGINATION - HIDDEN IN LIKED-ONLY MODE */}
           {!showLikedOnly && (
             <div
               className="browse-pagination"
