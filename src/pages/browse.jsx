@@ -16,9 +16,7 @@ export default function Browse() {
 
   const [likedRecipes, setLikedRecipes] = useState([]);
 
-  /* -----------------------------
-     NEW STATE ADDED (ONLY CHANGE)
-  ------------------------------ */
+  /* ⭐ ADDED: disable state for next button */
   const [nextDisabled, setNextDisabled] = useState(false);
 
   const fetchRecipes = async (page, size) => {
@@ -35,7 +33,6 @@ export default function Browse() {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     if (!showLikedOnly) {
@@ -56,11 +53,11 @@ export default function Browse() {
         }
 
         if (!res.ok) {
-        console.error("Failed to load liked recipes");
-        return;
-      }
+          console.error("Failed to load liked recipes");
+          return;
+        }
 
-        const data = await res.json(); 
+        const data = await res.json();
         setIsUserLoggedIn(true);
         setLikedIds(new Set((data.likes || []).map((id) => String(id))));
       } catch (err) {
@@ -83,6 +80,11 @@ export default function Browse() {
       if (res.status === 401) {
         setIsUserLoggedIn(false);
         setLikedRecipes([]);
+        return;
+      }
+
+      if (!res.ok) {
+        console.error("Failed to load liked recipes");
         return;
       }
 
@@ -127,7 +129,6 @@ export default function Browse() {
       });
 
       if (!res.ok) {
-        // revert on failure
         setLikedIds((prev) => {
           const next = new Set(prev);
           if (currentlyLiked) next.add(idStr);
@@ -143,7 +144,7 @@ export default function Browse() {
   const handleToggleShowLiked = () => {
     if (!showLikedOnly) {
       fetchLikedRecipes();
-      setCurrentPage(1); 
+      setCurrentPage(1);
     }
     setShowLikedOnly((prev) => !prev);
   };
@@ -151,33 +152,10 @@ export default function Browse() {
   const currentRecipes =
     showLikedOnly && isUserLoggedIn ? likedRecipes : recipes;
 
-  /* -------------------------------------------
-     NEW: CHECK IF NEXT PAGE HAS ANY RECIPES
-  --------------------------------------------*/
-  const checkNextPage = async (nextPage, size) => {
-    const res = await fetch(`/api/recipe/list/${nextPage}/${size}`);
-
-    if (!res.ok) return false;
-
-    const data = await res.json();
-
-    // If backend returns array
-    if (Array.isArray(data)) return data.length > 0;
-
-    return (data.recipes || []).length > 0;
-  };
-
-  /* -----------------------------
-     NEW: RESET DISABLED STATE
-  ------------------------------ */
+  /* ⭐ ADDED: auto-disable next button when no more recipes */
   useEffect(() => {
-    setNextDisabled(false);
-  }, [currentPage, pageSize]);
-
-  useEffect(() => {
-  setNextDisabled(recipes.length < pageSize);
-}, [recipes, pageSize]);
-
+    setNextDisabled(recipes.length < pageSize);
+  }, [recipes, pageSize]);
 
   return (
     <div className="browse-page">
@@ -224,97 +202,143 @@ export default function Browse() {
         </div>
       )}
 
-      {error && <p className="browse-message-error">Error: {error}</p>}
-
-      {/* GRID */}
-      <div className="browse-grid">
-        {currentRecipes.map((recipe) => {
-          let imageSrc = null;
-
-          if (recipe.recipe_img?.data) {
-            if (
-              recipe.recipe_img.data.type === "Buffer" &&
-              recipe.recipe_img.data.data
-            ) {
-              const uint8Array = new Uint8Array(recipe.recipe_img.data.data);
-              let binary = "";
-              const chunk = 8192;
-              for (let i = 0; i < uint8Array.length; i += chunk) {
-                binary += String.fromCharCode(
-                  ...uint8Array.slice(i, i + chunk)
-                );
-              }
-              imageSrc = `data:${recipe.recipe_img.contentType};base64,${btoa(
-                binary
-              )}`;
-            }
-          }
-
-          return (
-            <div key={recipe._id} className="recipe-card">
-              {imageSrc ? (
-                <img src={imageSrc} alt={recipe.title} className="recipe-img" />
-              ) : (
-                <div className="recipe-img-placeholder">
-                  <span className="recipe-img-placeholder-text">
-                    No image
-                  </span>
-                </div>
-              )}
-
-              <div className="recipe-body">
-                <Link to={`/recipe/${recipe._id}`} className="recipe-link">
-                  {recipe.title}
-                </Link>
-
-                {isUserLoggedIn && (
-                  <button
-                    type="button"
-                    onClick={() => handleToggleLike(recipe._id)}
-                    className={`like-button ${
-                      isLiked(recipe._id) ? "like-button--active" : ""
-                    }`}
-                  >
-                    {isLiked(recipe._id) ? "♥ Liked" : "♡ Like"}
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* PAGINATION */}
-      {!showLikedOnly && (
-        <div className="browse-pagination">
+      {!loading && error && !showLikedOnly && (
+        <div className="browse-message">
+          <p className="browse-message-error">Error: {error}</p>
           <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="page-button"
+            className="browse-retry-button"
+            onClick={() => fetchRecipes(currentPage, pageSize)}
           >
-            Previous
+            Retry
           </button>
-
-          <span className="page-info">Page {currentPage}</span>
-
-          <button
-  onClick={async () => {
-    const nextPage = currentPage + 1;
-    const ok = await checkNextPage(nextPage, pageSize);
-
-    if (ok) {
-      setCurrentPage(nextPage);
-    } else {
-      setNextDisabled(true); // disable if empty page
-    }
-  }}
-  disabled={nextDisabled}
-  className="page-button"
->
-  Next
-</button>
-
         </div>
+      )}
+
+      {!loading && !error && (
+        <>
+          {likesLoading && isUserLoggedIn && (
+            <div className="browse-message">
+              <p className="browse-message-text">
+                {showLikedOnly
+                  ? "Loading your liked recipes..."
+                  : "Loading your likes..."}
+              </p>
+            </div>
+          )}
+
+          {currentRecipes.length === 0 ? (
+            <div className="browse-message">
+              <p className="browse-message-text">
+                {showLikedOnly
+                  ? "You haven't liked any recipes yet."
+                  : "No recipes found."}
+              </p>
+            </div>
+          ) : (
+            <div className="browse-grid" data-test="recipe-grid">
+              {currentRecipes.map((recipe) => {
+                let imageSrc = null;
+                if (recipe.recipe_img?.data) {
+                  if (
+                    recipe.recipe_img.data.type === "Buffer" &&
+                    recipe.recipe_img.data.data
+                  ) {
+                    const uint8Array = new Uint8Array(
+                      recipe.recipe_img.data.data
+                    );
+                    let binary = "";
+                    const chunk = 8192;
+                    for (let i = 0; i < uint8Array.length; i += chunk) {
+                      binary += String.fromCharCode(
+                        ...uint8Array.slice(i, i + chunk)
+                      );
+                    }
+                    imageSrc = `data:${recipe.recipe_img.contentType};base64,${btoa(
+                      binary
+                    )}`;
+                  } else if (typeof recipe.recipe_img.data === "string") {
+                    imageSrc = `data:${recipe.recipe_img.contentType};base64,${recipe.recipe_img.data}`;
+                  }
+                }
+
+                return (
+                  <div key={recipe._id} className="recipe-card">
+                    {imageSrc ? (
+                      <img
+                        src={imageSrc}
+                        alt={recipe.title}
+                        className="recipe-img"
+                      />
+                    ) : (
+                      <div className="recipe-img-placeholder">
+                        <span className="recipe-img-placeholder-text">
+                          No image
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="recipe-body">
+                      <Link
+                        to={`/recipe/${recipe._id}`}
+                        className="recipe-link"
+                      >
+                        {recipe.title}
+                      </Link>
+
+                      {isUserLoggedIn && (
+                        <button
+                          type="button"
+                          onClick={() => handleToggleLike(recipe._id)}
+                          className={`like-button ${
+                            isLiked(recipe._id) ? "like-button--active" : ""
+                          }`}
+                        >
+                          {isLiked(recipe._id) ? "♥ Liked" : "♡ Like"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* PAGINATION */}
+          {!showLikedOnly && (
+            <div
+              className="browse-pagination"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "12px",
+                marginTop: "24px",
+              }}
+            >
+              <button
+                data-test="previous-page-button"
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="page-button"
+              >
+                Previous
+              </button>
+
+              <span className="page-info" data-test="current-page-display">
+                Page {currentPage}
+              </span>
+
+              {/* ⭐ UPDATED: now uses nextDisabled */}
+              <button
+                data-test="next-page-button"
+                onClick={() => setCurrentPage((p) => p + 1)}
+                disabled={nextDisabled}
+                className="page-button"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
