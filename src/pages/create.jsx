@@ -141,24 +141,28 @@ export default function CreateRecipe() {
 
   return (
   <>
-     {/* POPUP FIX FOR CYPRESS */}
-      {errorMessage && (
-        <div className="settings-popup-overlay" data-test="popup-overlay">
-          <div className="settings-popup">
-            <p className="settings-popup-message" data-test="settings-popup">
-              {errorMessage}
-            </p>
-            <button
-              type="button"
-              data-test="settings-popup-ok-button"
-              onClick={() => setErrorMessage("")}
-              className="rd-btn rd-btn-primary"
-            >
-              OK
-          </button>
-        </div>
-      </div>
-    )}
+    {/* POPUP FIX FOR CYPRESS */}
+{errorMessage && (
+  <div className="settings-popup-overlay" data-test="popup-overlay">
+    <div className="settings-popup">
+      <p
+        className="settings-popup-message"
+        data-test="settings-popup"
+      >
+        {errorMessage}
+      </p>
+      <button
+        type="button"
+        data-test="settings-popup-ok-button"
+        onClick={() => setErrorMessage("")}
+        className="rd-btn rd-btn-primary"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+)}
+
 
     <div className="create-page">
       <div className="recipe-details-card">
