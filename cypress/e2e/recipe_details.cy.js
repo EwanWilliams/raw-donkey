@@ -62,7 +62,11 @@ describe("details_page", () => {
         
         cy.get('#root a[href="/browse"]').click();
         
+        cy.wait(500);
+        
         cy.get('[data-test="recipe-grid"] div:nth-child(2) > div.recipe-body > a.recipe-link').click();
+
+        cy.wait(500);
         
         cy.getByData('ingredients-list').contains('400 g').should('exist')
         
@@ -75,8 +79,12 @@ describe("details_page", () => {
         cy.getByData('settings-save-button').click(); 
         
         cy.get('#root a[href="/browse"]').click();
+
+        cy.wait(500);
         
         cy.get('[data-test="recipe-grid"] div:nth-child(2) > div.recipe-body > a.recipe-link').click();
+
+        cy.wait(500);
         
         cy.getByData('ingredients-list').contains('14.1 oz').should('exist')
         

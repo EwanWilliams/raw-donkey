@@ -68,11 +68,12 @@ describe("browse_page", () => {
     
     cy.get('#root button.w-full').click();
     
-    cy.wait(500)
+    cy.wait(500);
     
     cy.get('[data-test="recipe-grid"] div:nth-child(2) > div.recipe-body > button.like-button').then(($btn) => {
     
           if ($btn.text().includes('Liked')) {
+               cy.wait(500);
                cy.get('[data-test="recipe-grid"] div:nth-child(2) > div.recipe-body > button.like-button').click();
           }
     });
