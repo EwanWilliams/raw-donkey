@@ -108,7 +108,7 @@ export default function Settings({ onAvatarChange }) {
         return;
       }
 
-      alert("Settings saved successfully!");
+      setErrorMessage("Settings saved successfully!");
     } catch (err) {
       console.error("Save error:", err);
       setErrorMessage("Could not save settings.");
