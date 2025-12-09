@@ -64,22 +64,22 @@ export default function CreateRecipe() {
     e.preventDefault();
 
     if (!recipeTitle.trim()) {
-      alert("Please enter a recipe title");
-      return;
-    }
-
-    if (ingredients.some((ing) => !ing.item.trim() || !ing.amount)) {
-      alert("Please fill in all ingredient fields");
-      return;
-    }
-
-    if (steps.some((step) => !step.trim())) {
-      alert("Please fill in all instruction steps");
+      setErrorMessage("Please enter a recipe title");
       return;
     }
 
     if (selectedImage == null) {
-      alert("Please select a recipe image");
+      setErrorMessage("Please select a recipe image");
+      return;
+    }
+
+    if (ingredients.some((ing) => !ing.item.trim() || !ing.amount)) {
+      setErrorMessage("Please fill in all ingredient fields");
+      return;
+    }
+
+    if (steps.some((step) => !step.trim())) {
+      setErrorMessage("Please fill in all instruction steps");
       return;
     }
 
@@ -120,7 +120,7 @@ export default function CreateRecipe() {
 
       if (response.ok) {
         await response.json();
-        alert("Recipe uploaded successfully!");
+        setErrorMessage("Recipe uploaded successfully!");
         setRecipeTitle("");
         setSelectedImage(null);
         setImagePreview(null);
@@ -129,11 +129,11 @@ export default function CreateRecipe() {
         document.getElementById('FileInput').value = null;
       } else {
         const error = await response.json();
-        alert(`Failed to upload recipe: ${error.error || "Unknown error"}`);
+        setErrorMessage(`Failed to upload recipe: ${error.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Failed to upload recipe. Please try again.");
+      setErrorMessage("Failed to upload recipe. Please try again.");
     } finally {
       setIsUploading(false);
     }
@@ -176,7 +176,6 @@ export default function CreateRecipe() {
                 data-test="recipe-title-input"
                 value={recipeTitle}
                 onChange={(e) => setRecipeTitle(e.target.value)}
-                required
                 placeholder="Enter recipe title..."
                 className="create-input"
               />
@@ -222,7 +221,6 @@ export default function CreateRecipe() {
                       newIngredients[i].item = e.target.value;
                       setIngredients(newIngredients);
                     }}
-                    required
                     placeholder="e.g. Flour, Sugar..."
                     className="create-ingredient-input create-ingredient-input--item"
                   />
@@ -239,7 +237,6 @@ export default function CreateRecipe() {
                       newIngredients[i].amount = e.target.value;
                       setIngredients(newIngredients);
                     }}
-                    required
                     placeholder="0"
                     className="create-ingredient-input create-ingredient-input--amount"
                   />
@@ -302,7 +299,6 @@ export default function CreateRecipe() {
                     newSteps[i] = e.target.value;
                     setSteps(newSteps);
                   }}
-                  required
                   className="create-textarea"
                 />
                 {steps.length > 1 && (
