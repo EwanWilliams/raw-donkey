@@ -142,7 +142,7 @@ export default function CreateRecipe() {
   return (
   <>
     {errorMessage && (
-      <div className="settings-popup-overlay">
+      <div className="settings-popup-overlay" data-test="popup-overlay">
         <div 
         className="settings-popup"
         >
