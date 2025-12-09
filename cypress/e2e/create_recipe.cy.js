@@ -164,6 +164,7 @@ describe('create_page', () => {
         assert(cy.getByData("settings-popup").should('exist'));
         
         cy.getByData("settings-popup-ok-button").click();
+        cy.getByData("popup-overlay").should('not.exist');
         
         cy.getByData("recipe-submit-button").click();
         
@@ -190,6 +191,7 @@ describe('create_page', () => {
         assert(cy.getByData("settings-popup").should('exist'));
         
         cy.getByData("settings-popup-ok-button").click();
+        cy.getByData("popup-overlay").should('not.exist');
         
         cy.get('#root button.rd-btn-logout').click();
     });
