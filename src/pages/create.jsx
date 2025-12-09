@@ -64,22 +64,22 @@ export default function CreateRecipe() {
     e.preventDefault();
 
     if (!recipeTitle.trim()) {
-      setErrorMessage("Please enter a recipe title");
-      return;
-    }
-
-    if (selectedImage == null) {
-      setErrorMessage("Please select a recipe image");
+      alert("Please enter a recipe title");
       return;
     }
 
     if (ingredients.some((ing) => !ing.item.trim() || !ing.amount)) {
-      setErrorMessage("Please fill in all ingredient fields");
+      alert("Please fill in all ingredient fields");
       return;
     }
 
     if (steps.some((step) => !step.trim())) {
-      setErrorMessage("Please fill in all instruction steps");
+      alert("Please fill in all instruction steps");
+      return;
+    }
+
+    if (selectedImage == null) {
+      alert("Please select a recipe image");
       return;
     }
 
@@ -120,7 +120,7 @@ export default function CreateRecipe() {
 
       if (response.ok) {
         await response.json();
-        setErrorMessage("Recipe uploaded successfully!");
+        alert("Recipe uploaded successfully!");
         setRecipeTitle("");
         setSelectedImage(null);
         setImagePreview(null);
@@ -129,11 +129,11 @@ export default function CreateRecipe() {
         document.getElementById('FileInput').value = null;
       } else {
         const error = await response.json();
-        setErrorMessage(`Failed to upload recipe: ${error.error || "Unknown error"}`);
+        alert(`Failed to upload recipe: ${error.error || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Upload error:", error);
-      setErrorMessage("Failed to upload recipe. Please try again.");
+      alert("Failed to upload recipe. Please try again.");
     } finally {
       setIsUploading(false);
     }
@@ -141,29 +141,26 @@ export default function CreateRecipe() {
 
   return (
   <>
-    {/* POPUP FIX FOR CYPRESS */}
-{errorMessage && (
-  <div className="settings-popup-overlay" data-test="popup-overlay">
-    <div className="settings-popup">
-      <p
-        key={errorMessage}
-        className="settings-popup-message"
-        data-test="settings-popup"
-      >
-        {errorMessage}
-      </p>
-      <button
-        type="button"
-        data-test="settings-popup-ok-button"
-        onClick={() => setErrorMessage("")}
-        className="rd-btn rd-btn-primary"
-      >
-        OK
-      </button>
-    </div>
-  </div>
-)}
-
+    {errorMessage && (
+      <div className="settings-popup-overlay">
+        <div 
+        className="settings-popup"
+        >
+          <p 
+          className="settings-popup-message"
+          data-test="settings-popup"
+          >{errorMessage}</p>
+          <button
+            type="button"
+            data-test="settings-popup-ok-button"
+            onClick={() => setErrorMessage("")}
+            className="rd-btn rd-btn-primary"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    )}
 
     <div className="create-page">
       <div className="recipe-details-card">
@@ -179,6 +176,7 @@ export default function CreateRecipe() {
                 data-test="recipe-title-input"
                 value={recipeTitle}
                 onChange={(e) => setRecipeTitle(e.target.value)}
+                required
                 placeholder="Enter recipe title..."
                 className="create-input"
               />
@@ -224,6 +222,7 @@ export default function CreateRecipe() {
                       newIngredients[i].item = e.target.value;
                       setIngredients(newIngredients);
                     }}
+                    required
                     placeholder="e.g. Flour, Sugar..."
                     className="create-ingredient-input create-ingredient-input--item"
                   />
@@ -240,6 +239,7 @@ export default function CreateRecipe() {
                       newIngredients[i].amount = e.target.value;
                       setIngredients(newIngredients);
                     }}
+                    required
                     placeholder="0"
                     className="create-ingredient-input create-ingredient-input--amount"
                   />
@@ -302,6 +302,7 @@ export default function CreateRecipe() {
                     newSteps[i] = e.target.value;
                     setSteps(newSteps);
                   }}
+                  required
                   className="create-textarea"
                 />
                 {steps.length > 1 && (
