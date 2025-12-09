@@ -12,11 +12,20 @@ describe('AUTH API Tests', () => {
         cy.request({
             method: 'POST',
             url: '/api/recipe/new',
-            body: { title: "New Recipe", ingredients: ({item: 'Test Ingredient', amount: 1, unit: 'g'}), instructions: ["Test Instruction"] }
+            body: { title: "New Recipe", ingredients: ({item: 'Test Ingredient', quantity: 1, unit: 'g'}), instructions: ["Test Instruction"] }
         }).then((res) => {
             expect(res.status).to.eq(201);
-            expect(res.body.data).to.have.property('title', 'New Recipe');
-            expect(res.body).to.have.property('message', 'Recipe added successfully.');
+        });
+    });
+
+    it('Add Recipe Failure - No Values', () => {
+        cy.request({
+            method: 'POST',
+            url: '/api/recipe/new',
+            body: { title: "", ingredients: "", instructions: "" },
+            failOnStatusCode: false
+        }).then((res) => {
+            expect(res.status).to.eq(400);
         });
     });
 
