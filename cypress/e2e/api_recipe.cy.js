@@ -12,9 +12,15 @@ describe('Recipe API Tests', () => {
         cy.request({
             method: 'POST',
             url: '/api/recipe/new',
-            body: { title: "New Recipe", ingredients: ({item: 'Test Ingredient', quantity: 1, unit: 'g'}), instructions: ["Test Instruction"] }
+            body: { title: "New Test Recipe", ingredients: [{item: 'Test Ingredient', quantity: 1, unit: 'g'}], instructions: ["Test Instruction"] }
         }).then((res) => {
             expect(res.status).to.eq(201);
+        });
+        cy.request({
+            method: 'DELETE',
+            url: '/api/recipe/deletetestrecipe'
+        }).then((res) => {
+            expect(res.status).to.eq(204);
         });
     });
 

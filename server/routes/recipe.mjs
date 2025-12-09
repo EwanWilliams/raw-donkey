@@ -102,6 +102,21 @@ router.post("/new", async (req, res) => {
   }
 });
 
+router.delete('/deletetestrecipe', async (req, res) => {
+    try {
+        const recipeFound = await Recipe.findOne({ title: "New Test Recipe" });
+        if (recipeFound) {
+            const result = await Recipe.findByIdAndDelete(recipeFound._id);
+            if (result) { res.status(204).json({ message: "Deleted test recipe." }) }
+        } else {
+            res.status(404).json({ error: "test recipe not found" });
+        }
+    } catch(err) {
+        console.log("Delete test recipe error: ", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 /**
  * Recipe details
  * GET /api/recipe/:id
