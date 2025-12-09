@@ -164,9 +164,8 @@ describe('create_page', () => {
         cy.getByData("settings-popup").should('exist');
         cy.getByData("settings-popup-ok-button").click();
 
-        // ⭐ FIXED: Correct selector AND ensures the overlay is gone
-        cy.getByData("popup-overlay").should('not.exist');
-        
+        cy.get('[data-test="popup-overlay"]').should('not.exist');
+
         cy.getByData("recipe-submit-button").click();
         
         cy.getByData("recipe-title-input").click();
