@@ -25,56 +25,52 @@ export default function Login({ onLogin, onLogout, isLoggedIn }) {
     setErrorMessage("");
   };
 
-const handleSubmit = (e) => {
-  e.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  const trimmed = {
-    username: formData.username.trim(),
-    password: formData.password.trim(),
+    const trimmed = {
+      username: formData.username.trim(),
+      password: formData.password.trim(),
+    };
+
+    // Popup: missing username or password
+    if (!trimmed.username || !trimmed.password) {
+      setErrorMessage("Please enter a username and password.");
+      return;
+    }
+
+    const endpoint =
+      mode === "login" ? "/api/auth/login" : "/api/auth/register";
+
+    fetch(endpoint, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(trimmed),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(mode === "login" ? "Login failed" : "Registration failed");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (mode === "login" && data && data.username) {
+          onLogin(data.username);
+        } else {
+          onLogin(trimmed.username);
+        }
+        navigate("/browse");
+      })
+      .catch(() => {
+        // Popup: incorrect login OR username taken
+        if (mode === "login") {
+          setErrorMessage("Incorrect username or password.");
+        } else {
+          setErrorMessage("Username already taken.");
+        }
+      });
   };
-
-  if (!trimmed.username || !trimmed.password) {
-    setMessage("Enter a Username and Password");
-    return;
-  }
-
-  const endpoint =
-    mode === "login" ? "/api/auth/login" : "/api/auth/register";
-
-  fetch(endpoint, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(trimmed),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(mode === "login" ? "Login failed" : "Registration failed");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (mode === "login" && data && data.username) {
-        onLogin(data.username);
-      } else {
-        onLogin(trimmed.username);
-      }
-      navigate("/browse");
-    })
-    .catch((err) => {
-      console.error(err);
-      if (!trimmed.username || !trimmed.password) {
-        setMessage("Enter a Username and Password");
-      } else {
-        setMessage(
-          mode === "login"
-            ? "Incorrect Username or Password"
-            : "Username already taken"
-        );
-      }
-      setErrorMessage(err.message || "Something went wrong");
-    });
-};
 
 
   const toggleMode = () => {
@@ -86,6 +82,23 @@ const handleSubmit = (e) => {
   const isLogin = mode === "login";
 
   return (
+    <>
+      {/* POPUP OVERLAY */}
+      {errorMessage && (
+        <div className="settings-popup-overlay">
+          <div className="settings-popup" data-test="login-error-popup">
+            <p className="settings-popup-message">{errorMessage}</p>
+            <button
+              type="button"
+              className="rd-btn rd-btn-primary"
+              data-test="login-error-popup-ok-button"
+              onClick={() => setErrorMessage("")}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     <div className="login-page">
       <div className="login-card">
         <h2 className="login-title">{isLogin ? "Login" : "Register"}</h2>
@@ -100,7 +113,6 @@ const handleSubmit = (e) => {
             placeholder="Username"
             value={formData.username}
             onChange={handleChange}
-            required
           />
           <input
             name="password"
@@ -111,7 +123,6 @@ const handleSubmit = (e) => {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
-            required
           />
 
           <button
@@ -160,5 +171,6 @@ const handleSubmit = (e) => {
         </form>
       </div>
     </div>
+    </>
   );
 }
