@@ -18,7 +18,7 @@ describe('Recipe API Tests', () => {
         });
         cy.request({
             method: 'DELETE',
-            url: '/api/recipe/deletetestrecipe'
+            url: '/api/recipe/deltestrecipe'
         }).then((res) => {
             expect(res.status).to.eq(204);
         });

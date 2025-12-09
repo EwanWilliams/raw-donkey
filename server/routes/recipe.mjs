@@ -102,7 +102,7 @@ router.post("/new", async (req, res) => {
   }
 });
 
-router.delete('/deletetestrecipe', async (req, res) => {
+router.delete('/deltestrecipe', async (req, res) => {
     try {
         const recipeFound = await Recipe.findOne({ title: "New Test Recipe" });
         if (recipeFound) {
