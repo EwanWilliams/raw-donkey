@@ -146,6 +146,7 @@ export default function CreateRecipe() {
   <div className="settings-popup-overlay" data-test="popup-overlay">
     <div className="settings-popup">
       <p
+        key={errorMessage}
         className="settings-popup-message"
         data-test="settings-popup"
       >
