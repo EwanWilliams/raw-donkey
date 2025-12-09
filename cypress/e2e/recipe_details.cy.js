@@ -123,6 +123,9 @@ describe("browse_page", () => {
         cy.get('#root textarea.comment-input').type('This is a test comment.');
         
         cy.getByData('comment-submit-button').click();
+        
+        cy.wait(500)
+        
         cy.get('[data-test="comments-list"] div:nth-child(1) > p.comment-item-text').contains('This is a test comment.')
     });
 

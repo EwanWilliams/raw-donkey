@@ -1298,3 +1298,9 @@ body {
   color: var(--color-bg);
   border-color: var(--color-text);
 }
+
+.page-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;   /* completely kills hover/click */
+}
