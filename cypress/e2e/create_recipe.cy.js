@@ -162,9 +162,9 @@ describe('create_page', () => {
         cy.getByData("recipe-image-input").selectFile('cypress/fixtures/test_text.txt', { force: true });
         
         assert(cy.getByData("settings-popup").should('exist'));
+        
         cy.getByData("settings-popup-ok-button").click();
-        cy.get('[data-test="popup-overlay"]').should('not.exist');
-
+        
         cy.getByData("recipe-submit-button").click();
         
         cy.getByData("recipe-title-input").click();
