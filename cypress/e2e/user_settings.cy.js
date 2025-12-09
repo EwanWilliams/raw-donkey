@@ -69,11 +69,7 @@ cy.getByData("settings-save-button").should('exist');
     
     cy.getByData("settings-save-button").click();
     
-    cy.getByData('settings-error-popup-ok-button').click();
-    
     cy.getByData("settings-metric-radio").check();
-    
-    cy.wait(500)
     
     cy.getByData("settings-save-button").click();
   });
