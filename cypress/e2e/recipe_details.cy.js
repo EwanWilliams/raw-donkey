@@ -47,15 +47,19 @@ describe("details_page", () => {
         cy.getByData("password-input").type('password1');
                 
         cy.get('#root button.w-full').click();
-
+        
         cy.get('#root a[href="/settings"]').click();
         
         cy.get('[data-test="settings-measure-section"] label:nth-child(2)').click();
-
+        
         cy.wait(500);
         
         cy.get('[data-test="settings-metric-radio"]').check();
-
+        
+        cy.wait(500)
+        
+        cy.getByData('settings-save-button').click(); 
+        
         cy.get('#root a[href="/browse"]').click();
         
         cy.get('[data-test="recipe-grid"] div:nth-child(2) > div.recipe-body > a.recipe-link').click();
@@ -63,7 +67,7 @@ describe("details_page", () => {
         cy.getByData('ingredients-list').contains('400 g').should('exist')
         
         cy.get('#root a[href="/settings"]').click();
-
+        
         cy.wait(500);
         
         cy.get('[data-test="settings-imperial-radio"]').check();
@@ -79,7 +83,7 @@ describe("details_page", () => {
         cy.get('#root a[href="/settings"]').click();
         
         cy.get('[data-test="settings-measure-section"] label:nth-child(2)').click();
-
+        
         cy.wait(500);
         
         cy.get('[data-test="settings-metric-radio"]').check();
@@ -101,8 +105,7 @@ describe("details_page", () => {
                 message: "Comment added successfully",
                 comment: newComment      
             }
-        }).as('createRecipe');
-        
+        }).as('createComment');
         
         cy.get('#root a.rd-btn-login').click();
                 
@@ -123,6 +126,8 @@ describe("details_page", () => {
         cy.get('#root textarea.comment-input').type('This is a test comment.');
         
         cy.getByData('comment-submit-button').click();
+        
+        cy.wait('@createComment').its('response.statusCode').should('eq', 201);
         
         cy.wait(500)
         
