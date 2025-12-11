@@ -139,6 +139,8 @@ describe("details_page", () => {
         
         cy.getByData('comment-submit-button').click();
         
+        cy.wait(500)
+        
         cy.wait('@createComment').its('response.statusCode').should('eq', 201);
         
         cy.wait(500)
