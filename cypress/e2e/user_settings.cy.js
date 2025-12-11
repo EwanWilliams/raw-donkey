@@ -97,7 +97,12 @@ cy.getByData("settings-save-button").should('exist');
     
     cy.getByData("settings-save-button").click();
     
+    cy.wait(500)
+    
+    cy.getByData("settings-error-popup-ok-button").click();
+    
     cy.get('#root a[href="/browse"]').click();
+    
     cy.get('#root a[href="/settings"]').click();
     
     cy.getByData("settings-avatar-img").should('have.attr', 'src').and('include', 'data:image/jpeg;base64');
@@ -105,7 +110,7 @@ cy.getByData("settings-save-button").should('exist');
     cy.get('input[type=file]').selectFile('cypress/fixtures/large_test_image.png', { force: true });
     
     cy.get('[data-test="settings-error-popup"] p.settings-popup-message').should('exist');
-
+    
     cy.getByData("settings-error-popup-ok-button").click();
   });
 

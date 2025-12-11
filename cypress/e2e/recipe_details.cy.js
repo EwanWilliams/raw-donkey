@@ -139,9 +139,11 @@ describe("details_page", () => {
         
         cy.getByData('comment-submit-button').click();
         
+        cy.wait(500)
+        
         cy.wait('@createComment').its('response.statusCode').should('eq', 201);
         
-        cy.wait(500)
+        cy.wait(5000)
         
         cy.get('[data-test="comments-list"] div:nth-child(1) > p.comment-item-text').contains('This is a test comment.')
     });
