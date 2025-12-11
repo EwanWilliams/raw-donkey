@@ -256,4 +256,19 @@ router.post("/:id/comments", async (req, res) => {
   }
 });
 
+router.delete('/deltestcomment', async (req, res) => {
+    try {
+        const commentFound = await Comment.findOne({ commentText: "This is a test comment." });
+        if (commentFound) {
+            const result = await Comment.findByIdAndDelete(commentFound._id);
+            if (result) { res.status(204).json({ message: "Deleted test comment." }) }
+        } else {
+            res.status(404).json({ error: "test comment not found" });
+        }
+    } catch(err) {
+        console.log("Delete test comment error: ", err.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 export default router;

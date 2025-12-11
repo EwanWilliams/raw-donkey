@@ -140,6 +140,13 @@ describe('Recipe API Tests', () => {
             expect(res.status).to.eq(201);
             expect(res.body).to.have.property('comment');
         });
+
+        cy.request({
+            method: 'DELETE',
+            url: '/api/recipe/deltestcomment'
+        }).then((res) => {
+            expect(res.status).to.eq(204);
+        });
     });
 
 });
