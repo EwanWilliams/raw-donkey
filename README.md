@@ -3,13 +3,6 @@
 
 Web Application for creating and viewing recipes using a DevOps workflow.
 
-## Table of Contents
-
-- Tech Stack
-- Application Link
-- Web App Features
-
-
 ## Tech Stack
 
 
@@ -24,21 +17,32 @@ Web Application for creating and viewing recipes using a DevOps workflow.
 
 
 ## Web App Features
+- Browse Recipes
+    - Dark mode/ Light mode
+    - See liked recipes
+    - Like a recipe
+    - Comment on a recipe
+ 
+<img width="1267" height="552" alt="image" src="https://github.com/user-attachments/assets/ca0b4f8f-7f43-4e02-b343-a81dc883481c" />
+
 
 - Log into Account
 - Create an Account
 - Set User Settings:
-
     - Upload Profile Picture
-    - Change Measurement Units
-    - Dark mode/ Light mode
-- Create Recipes
+    - Unit Preference Setting- Automatically uses conversions to change        recipes to desired unit.
+ 
+<img width="1278" height="554" alt="image" src="https://github.com/user-attachments/assets/f2533ae9-bf7d-4b09-ad11-7e8b35a7cefc" />
 
+
+- Create Recipes
     - Add Recipe Title
     - Add Image
     - Add Measurements
     - Add Steps
-- Browse Recipes
+
+<img width="544" height="531" alt="image" src="https://github.com/user-attachments/assets/02b1a5e5-39b5-4a03-9531-87b86b9c47ca" />
+
 
 
 ## Authors
